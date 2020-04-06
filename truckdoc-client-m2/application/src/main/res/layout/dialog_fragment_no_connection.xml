@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:background="@drawable/dialogmessage_shape"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Нет соединения" />
+
+        <androidx.recyclerview.widget.CardView
+            android:id="@+id/dataLayout"
+            style="@style/DialogCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout style="@style/DialogCardContent">
+
+                <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+                    android:id="@+id/mobileDataText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:text1="Выключена передача данных"
+                    app:text2="Изменились настройки передачи данных!" />
+
+                <Button
+                    android:id="@+id/onMobileData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Перейти в настройки" />
+            </LinearLayout>
+        </androidx.recyclerview.widget.CardView>
+
+        <androidx.recyclerview.widget.CardView
+            android:id="@+id/roamingDataLayout"
+            style="@style/CardView.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout style="@style/DialogCardContent">
+
+                <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+                    android:id="@+id/roamingDataText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:text1="Выключена передача данных в роуминге"
+                    app:text2="Изменились настройки передачи данных в роуминге!" />
+
+                <Button
+                    android:id="@+id/onRoamingData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Перейти в настройки" />
+            </LinearLayout>
+        </androidx.recyclerview.widget.CardView>
+
+        <androidx.recyclerview.widget.CardView
+            android:id="@+id/airplaneLayout"
+            style="@style/CardView.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout style="@style/DialogCardContent">
+
+                <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+                    android:id="@+id/airplaneText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:text1="Включен самолётный режим"
+                    app:text2="Изменились настройки самолётного режима!" />
+
+                <Button
+                    android:id="@+id/onAirplane"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Перейти в настройки" />
+            </LinearLayout>
+        </androidx.recyclerview.widget.CardView>
+
+        <androidx.recyclerview.widget.CardView
+            android:id="@+id/operatorLayout"
+            style="@style/CardView.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout style="@style/DialogCardContent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:text="Изменился оператор связи. Презагрузите телефон" />
+
+            </LinearLayout>
+
+        </androidx.recyclerview.widget.CardView>
+
+        <androidx.recyclerview.widget.CardView
+            android:id="@+id/apnLayout"
+            style="@style/CardView.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout style="@style/DialogCardContent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Возможно неправильно настроен APN" />
+
+                <Button
+                    android:id="@+id/onApn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Перейти в настройки APN" />
+            </LinearLayout>
+
+        </androidx.recyclerview.widget.CardView>
+
+        <Button
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Закрыть" />
+    </LinearLayout>
+</ScrollView>

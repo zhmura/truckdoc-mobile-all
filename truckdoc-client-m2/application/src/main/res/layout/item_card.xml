@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:layout_marginTop="12dp"
+    android:layout_marginBottom="12dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/mnt_icon_unknown" />
+
+    <TextView
+        android:id="@+id/info_text"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_toRightOf="@id/icon"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/mnt_node_title"
+        android:textSize="21sp"
+        tools:text="Тягач" />
+
+    <ImageView
+        android:id="@+id/status_image"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginRight="6dp"
+        android:layout_below="@id/info_text"
+        android:layout_toRightOf="@id/icon"
+        android:src="@drawable/mnt_problems"
+        tools:visibility="visible"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/info_text"
+        android:layout_toRightOf="@id/status_image"
+        android:layout_marginRight="10dp"
+        android:layout_alignBottom="@id/status_image"
+        android:includeFontPadding="false"
+        android:textColor="@color/mnt_group_title"
+        android:textSize="18sp"
+        tools:text="В порядке" />
+
+    <ImageView
+        android:id="@+id/comment_icon"
+        android:layout_width="18dp"
+        android:layout_height="12dp"
+        android:layout_marginRight="6dp"
+
+        android:layout_toRightOf="@id/status_text"
+        android:src="@drawable/mnt_comment"
+        android:layout_alignBottom="@+id/status_text"
+        android:tint="@color/mnt_group_title"
+        android:backgroundTintMode="src_atop"
+        tools:visibility="visible"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/photo_icon"
+        android:layout_width="18dp"
+        android:layout_height="12dp"
+        android:layout_marginRight="6dp"
+
+        android:layout_toRightOf="@id/comment_icon"
+        android:src="@drawable/mnt_photo"
+        android:layout_alignBottom="@+id/status_text"
+        android:tint="@color/mnt_group_title"
+        android:backgroundTintMode="src_atop"
+        tools:visibility="visible"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/mtn_arrow"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginRight="22dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/mnt_arrow"
+        android:tint="@color/mnt_group_title"
+        android:backgroundTintMode="src_atop" />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/icon"
+        android:layout_marginTop="28dp"
+        android:background="@color/mnt_group_title"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -1,0 +1,47 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.9'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.4'
+    }
+}
+
+apply plugin: 'com.github.ben-manes.versions'
+
+allprojects {
+    ext {
+        supportVersion = "28.0.0"
+        jodaVersion = "2.8.1"
+        esperandroVersion = "2.2.0"
+        aaVersion = "3.3.2"
+        buildToolsVersion = "28.0.3"
+    }
+    repositories {
+        jcenter()
+        google()
+        mavenLocal()
+
+    }
+}
+
+Properties props = new Properties()
+def typeFile = file('local.properties')
+if (typeFile.exists()) {
+    props.load(new FileInputStream(typeFile))
+    ext.dev = props["devbuild"] ?: "false"
+} else {
+    ext.dev = "false"
+}
+
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+    }
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="HomeButtonStyle">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+    </style>
+
+    <declare-styleable name="TwoLineTextView">
+        <attr name="text1" format="string" />
+        <attr name="text2" format="string" />
+        <attr name="color1" format="color" />
+        <attr name="color2" format="color" />
+    </declare-styleable>
+
+    <style name="DialogCard" parent="CardView.Dark" />
+
+    <style name="DialogCardContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+    </style>
+
+    <style name="FloatingWizard">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <style name="ApnButtonStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+
+    <style name="SpinnerTheme" parent="android:Widget.Spinner">
+        <item name="android:background">@color/mnt_white_text</item>
+        <item name="android:dropDownSelector">@color/mnt_group_title</item>
+    </style>
+
+    <style name="MyMaterialTheme.Base" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--    <style name="TabStyle" parent="Widget.Design.TabLayout">
+            <item name="tabTextAppearance">@style/MyCustomTabText</item>
+            <item name="tabSelectedTextColor">@color/mnt_white_text</item>
+        </style>
+        <style name="MyCustomTabText" parent="TextAppearance.AppCompat.Button">
+            <item name="android:textSize">14sp</item>
+            <item name="android:textColor">@color/mnt_group_title</item>
+        </style>
+        -->
+</resources>

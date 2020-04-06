@@ -1,0 +1,14 @@
+<resources>
+    <string name="title_activity_stub">StubActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="notification_new_version_available">Новая версия ТракДок скачана и ожидает установки</string>
+    <string name="notification_title">Доступно обновление</string>
+    <string name="file_installed">Приложение уже установлено!</string>
+    <string name="prefs_title">Настройки обновлений</string>
+    <string name="download_wifi_only">Скачивать только через WiFi</string>
+    <string name="download_3g">Скачивать через 3G</string>
+    <string name="app_name">ТракДок Обновления</string>
+
+</resources>

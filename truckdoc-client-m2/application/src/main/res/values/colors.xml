@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="message_out">#424242</color>
+    <color name="message_in">@color/material_blue_grey_800</color>
+    <color name="message_in_pressed">@color/material_blue_grey_950</color>
+    <color name="message_primary_text">?android:textColorPrimary</color>
+    <color name="button_default_blue">#61ade2</color>
+    <color name="button_default_green">#5DBA72</color>
+    <color name="button_default_red">#F56E6E</color>
+
+
+    <color name="colorPrimary">#125688</color>
+    <color name="colorPrimaryDark">#125688</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#c8e8ff</color>
+
+    <color name="mnt_title_selected">#ffffff</color>
+    <color name="mnt_node_title">#3e4148</color>
+    <color name="mnt_group_title">#adb2bf</color>
+    <color name="mnt_wait">#adb2bf</color>
+    <color name="mnt_ok">#1ac477</color>
+    <color name="mnt_problem">#ff5757</color>
+    <color name="mnt_neutral">#4a7feb</color>
+    <color name="mnt_white_text">#ffffff</color>
+    <color name="mnt_black">#000000</color>
+
+</resources>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <string name="warning_take_photo">Сделайте фото!</string>
+    <string name="preference_category_camera_controls">Управление</string>
+    <string name="preference_timer">Таймер</string>
+    <string name="preference_screen_camera_controls_more">Дополнительные настройки</string>
+    <string name="preference_pause_preview">Пауза после съёмки</string>
+    <string name="preference_pause_preview_summary">Пауза после снятия фото, с возможностью поделиться или удалить фотографию</string>
+    <string name="preference_shutter_sound">Звук затвора</string>
+    <string name="preference_shutter_sound_summary">Воспроизведение звука при съемке фотографии (требуется Android 4.2+ для отключения)</string>
+    <string name="preference_save_location">Папка сохранения</string>
+    <string name="preference_save_location_summary">Имя папки для сохранения фото и видео (также может быть полный путь)</string>
+    <string name="preference_using_saf">Использовать Storage Access Framework</string>
+    <string name="preference_using_saf_summary">Для Android 5 использовать  Storage Access Framework для сохранения фото и видео</string>
+    <string name="preference_save_photo_prefix">Префикс для фото</string>
+    <string name="preference_save_photo_prefix_summary">Префикс имен файлов для сохраняемых фото</string>
+    <string name="preference_save_video_prefix">Префикс для видео</string>
+    <string name="preference_save_video_prefix_summary">Префикс имен файлов для сохраняемых видео</string>
+    <string name="preference_startup_focus">Автофокус при запуске</string>
+    <string name="preference_startup_focus_summary">Включить автофокус при запуске Open Camera. Если у вас проблемы со включением вспышки при запуске, отключите эту опцию</string>
+    <string name="preference_lock_video">Блокировать экран при записи видео</string>
+    <string name="preference_lock_video_summary">При записи видео графический интерфейс будет заблокирован для предотвращения случайной остановки записи. Проведите по экрану, чтобы разблокировать. Обратите внимание, что запись видео остановится, если приложение перейдет в фоновый режим или погаснет экран.</string>
+    <string name="preference_rotate_preview">Поворот превью</string>
+    <string name="preference_rotate_preview_summary">Возможность поворота превью (не повлияет на фото/видео)</string>
+    <string name="preference_screen_gui">Настройки интерфейса</string>
+    <string name="preference_preview_size">Размер предпросмотра</string>
+    <string name="preference_preview_size_summary">Выбор размера предпросмотра</string>
+    <string name="preference_show_iso">Показать ISO</string>
+    <string name="preference_show_iso_summary">Отображение текущего уровня ISO (требуется Camera2 API)</string>
+    <string name="preference_grid">Показать сетку</string>
+    <string name="preference_grid_summary">Отображение одной из различных сеток</string>
+    <string name="grid">Сетка</string>
+    <string name="preference_crop_guide">Руководство по обрезке</string>
+    <string name="preference_crop_guide_summary">Отображение прямоугольника, показывающего соотношение сторон - полезно, если вы планируете, обрезать фото/видео. Требуется WYSIWYG режим фотосъемки или режим видео.</string>
+    <string name="preference_take_photo_border">Показывать рамку во время фотосъемки</string>
+    <string name="preference_take_photo_border_summary">Показывать рамку на экране для индикации фотосъемки</string>
+    <string name="preference_keep_display_on">Не выключать дисплей</string>
+    <string name="preference_keep_display_on_summary">Если включено, экран не будет выключаться пока Open Camera открыта</string>
+
+    <string name="preference_category_camera_quality">Качество фото и видео</string>
+    <string name="preference_screen_photo_settings">Настройки фото…</string>
+    <string name="preference_screen_video_settings">Настройки видео…</string>
+    <string name="preference_screen_location_settings">Настройки местоположения…</string>
+    <string name="preference_resolution">Разрешение камеры</string>
+    <string name="preference_resolution_summary">Выбор  разрешения фотографий, снятых на камеру</string>
+    <string name="preference_location">Хранить данные о местоположении (Geotagging)</string>
+    <string name="preference_location_summary">Хранить данные о местоположении в фотографиях</string>
+    <string name="preference_stamp">Штампы</string>
+    <string name="preference_stamp_summary">Сохранение вместе с фотографией таких данных как: дата/время/местоположение</string>
+    <string name="preference_stamp_dateformat">Формат даты</string>
+    <string name="preference_stamp_dateformat_summary">Изменение формата даты (если включено)</string>
+    <string name="preference_stamp_timeformat">Формат времени</string>
+    <string name="preference_stamp_timeformat_summary">Изменение формата времени (если включено)</string>
+    <string name="preference_stamp_gpsformat">Формат GPS</string>
+    <string name="preference_stamp_gpsformat_summary">Изменение формата отметки GPS (если включено)</string>
+    <string name="video_quality">Разрешение видео</string>
+    <string name="video_quality_summary">Выбор разрешения видео</string>
+    <string name="preference_video_stabilization">Включить стабилизацию видео</string>
+    <string name="preference_video_stabilization_summary">Стабилизация видео уменьшает тряску в связи с движением камеры</string>
+    <string name="preference_video_max_duration">Максимальная длительность видео</string>
+    <string name="preference_video_max_duration_summary">Видеозапись прекратится по истечении указанной продолжительности</string>
+    <string name="preference_video_restart">Записать новое видео после достижения лимита</string>
+    <string name="preference_video_restart_summary">При достижении лимита продолжительности, будет записано новое видео (столько раз, сколько вы выбрали)</string>
+    <string name="preference_video_max_filesize">Максимальный размер файла видео</string>
+    <string name="preference_video_max_filesize_summary">Видеозапись прекратится или начнется заново (смотрите опцию ниже), когда размер файла достигнет указанной величины (приблизительно). Стоит заметить, что почти у всех Android-устройств есть ограничение на максимальный размер видео (обычно около 2 или 4 Гб), однако с помощью этой опции можно указать конкретное значение</string>
+    <string name="preference_video_flash">Вспышка во время записи видео</string>
+    <string name="preference_video_flash_summary">Если включено, вспышка будет включаться/выключаться при записи видео (можно использовать, чтобы выполнить запись на расстоянии)</string>
+
+    <string name="take_photo">Сделать фото</string>
+    <string name="gallery">Галерея</string>
+    <string name="exposure">Экспозиция</string>
+    <string name="focus_mode">Фокус</string>
+    <string name="flash_mode">Вспышка</string>
+    <string name="switch_to_video">Переключиться в режим видео</string>
+    <string name="switch_to_photo">Переключиться в режим фото</string>
+    <string name="trash">Удалить последний снимок</string>
+
+    <string name="parent_folder">Родительская папка</string>
+    <string name="use_folder">Использовать папку</string>
+    <string name="new_folder">Новая папка</string>
+    <string name="cant_write_folder">Невозможно записать в эту папку</string>
+    <string name="cant_access_folder">Не удается получить доступ к этой папке</string>
+    <string name="enter_new_folder">Введите имя новой папки</string>
+    <string name="failed_create_folder">Не удалось создать папку</string>
+    <string name="folder_exists">Папка уже существует</string>
+
+    <string name="saf_select_save_location">Выберите место для сохранения</string>
+
+
+    <string name="start_video">Начать запись видео</string>
+    <string name="stop_video">Остановить запись видео</string>
+
+    <string name="max_filesize">Максимальный размер файла</string>
+    <string name="mb_abbreviation">Мб</string>
+    <string name="commonIOException">Ошибка [Код A01{0}]. Проблема в работе с сетью или чтением/записью в файл.</string>
+    <string name="commonException">Ошибка [Код A02{0}]. Возникла непредвиденная проблема.</string>
+    <string name="delete_all_scans_dlg">Удалить все документы?</string>
+    <string name="question_answer_y">Да</string>
+    <string name="question_answer_n">Нет</string>
+    <string name="close">Закрыть</string>
+
+</resources>

@@ -1,0 +1,9 @@
+include ':standout', ':app', ':checker', ':updater', ':truckdocnetwork', ':camera'
+project(':app').projectDir = new File(settingsDir, 'truckdoc-client-m2/application')
+project(':checker').projectDir = new File(settingsDir, 'truckdoc-client-m2/checker')
+project(':standout').projectDir = new File(settingsDir, 'truckdoc-client-m2/standout')
+project(':updater').projectDir = new File(settingsDir, 'truckdoc-client-m2/truckdoc-client-updater')
+project(':truckdocnetwork').projectDir = new File(settingsDir, 'mobile-modules/truckdocnetwork/app')
+project(':camera').projectDir = new File(settingsDir, 'mobile-modules/camera')
+
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/prefixPhrase"
+        android:textSize="20sp"
+        android:text="@string/autoloader_mess" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:id="@+id/timerStatus"
+        android:text="" />
+    <!--<TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:id="@+id/startTime" android:text="Завершение: в 20:00"
+            />-->
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:editable="false"
+        android:clickable="false"
+        android:id="@+id/turnScheduler"
+        android:text="@string/autoloader" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editStartTime"
+        android:text="Start service" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editEndTime"
+        android:text="Stop service" />
+
+    <!--<Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/applyChanges" android:text="Сохранить изменения"/>-->
+
+</LinearLayout>

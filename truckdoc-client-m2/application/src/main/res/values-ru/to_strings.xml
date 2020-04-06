@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="to_title">"Tex. Осмотр"</string>
+    <string name="to_truck_name">Гос. номер тягача:</string>
+    <string name="to_trailer_name">Гос. номер прицепа:</string>
+    <string name="mnt_btn_start_mnt">Начать осмотр</string>
+    <string name="mtn_btn_continue_mnt">Продолжить осмотр</string>
+    <string name="to_btn_edit_numbers">Редактировать номера</string>
+    <string name="to_truck">Тягач</string>
+    <string name="to_trailer">Прицеп</string>
+    <string name="select_trailer_type">Выберите тип прицепа</string>
+    <string name="select_trailer_type_id">select</string>
+    <string name="trailer_tent">Тент</string>
+    <string name="trailer_tent_id">tent</string>
+    <string name="trailer_fridge">Рефриджиратор</string>
+    <string name="trailer_fridge_id">fridge</string>
+
+
+    <string name="to_error_tack">Введите номер тягача"</string>
+    <string name="to_trailer_type">Выберите тип прицепа"</string>
+</resources>

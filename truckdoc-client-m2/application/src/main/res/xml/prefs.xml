@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.sanda.truckdoc.client.ui.utils.SwitchCompatPreference
+        android:defaultValue="true"
+        android:key="@string/timerStatus"
+        android:summary="@string/autoloader_mess"
+        android:title="@string/autoloader"
+        android:widgetLayout="@layout/widget_switch_compat_preference" />
+    <ListPreference
+        android:key="syncInterval"
+        android:dialogTitle="Интервал синхронизации"
+        android:summary="Интервал проверки новых сообщений"
+        android:entries="@array/sync_interval_array"
+        android:entryValues="@array/sync_interval_array_values"
+        android:title="@string/prefs_syncInterval_title" />
+    <EditTextPreference
+        android:inputType="phone"
+        android:key="techSupportPhone"
+        android:title="@string/prefs_techSupportPhone_title" />
+</PreferenceScreen>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="30dp"
+    android:background="@drawable/dialogmessage_shape"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет соединения" />
+
+    <LinearLayout
+        android:id="@+id/dataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+            android:id="@+id/mobileDataText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            app:text1="Выключена передача данных"
+            app:text2="Изменились настройки передачи данных!" />
+
+        <Button
+            android:id="@+id/onMobileData"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Перейти в настройки" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/roamingDataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+            android:id="@+id/roamingDataText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            app:text1="Выключена передача данных в роуминге"
+            app:text2="Изменились настройки передачи данных в роуминге!" />
+
+        <Button
+            android:id="@+id/onRoamingData"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Перейти в настройки" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/airplaneLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.sanda.truckdoc.client.ui.utils.TwoLineTextView
+            android:id="@+id/airplaneText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            app:text1="Включен самолётный режим"
+            app:text2="Изменились настройки самолётного режима!" />
+
+        <Button
+            android:id="@+id/onAirplane"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Перейти в настройки" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/operatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Изменился оператор связи. Презагрузите телефон" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Закрыть" />
+</LinearLayout>

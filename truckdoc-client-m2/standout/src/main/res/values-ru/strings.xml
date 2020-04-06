@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="standout_quit_window">Убрать окно</string>
+    <string name="standout_close">Закрыть</string>
+    <string name="standout_hide">Спрятать</string>
+    <string name="standout_maximize">Развернуть</string>
+</resources>

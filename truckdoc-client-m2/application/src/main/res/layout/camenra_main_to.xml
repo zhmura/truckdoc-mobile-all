@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"
+    tools:context=".to.DgCamActivityTO">
+
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:gravity="start"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true">
+
+        <Button
+            android:id="@+id/ibClose"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="25dp"
+            android:background="@android:drawable/btn_default"
+            android:drawablePadding="-5sp"
+            android:drawableTop="@drawable/application_exit"
+            android:paddingTop="15sp" />
+
+
+        <Button
+            android:id="@+id/ibClear"
+            android:layout_width="75dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="25dp"
+            android:background="@android:drawable/btn_default"
+            android:drawablePadding="-5sp"
+            android:drawableTop="@drawable/file_delete"
+            android:paddingTop="15sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/ibCapture"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:drawable/btn_default"
+            android:drawableLeft="@drawable/ic_menu_camera_big" />
+    </LinearLayout>
+
+    <SurfaceView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/linearLayout1"
+        android:layout_toRightOf="@+id/linearLayout5"
+        android:layout_toStartOf="@+id/linearLayout1" />
+
+</RelativeLayout>

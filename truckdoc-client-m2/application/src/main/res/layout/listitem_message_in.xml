@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="50dp"
+    android:layout_marginTop="4dp"
+    android:background="@drawable/message_in_selector"
+    android:minHeight="90dp"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/targetName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/target_name_in"
+        android:textColor="?android:textColorPrimary" />
+
+    <TextView
+        android:id="@+id/target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_toRightOf="@id/targetName"
+        android:textColor="?android:textColorPrimary"
+        tools:text="From whom" />
+
+    <!-- Mail date -->
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/target"
+        android:layout_alignParentLeft="true"
+        android:textColor="?android:textColorTertiary"
+        tools:text="02.14.2015" />
+
+    <ImageView
+        android:id="@+id/avatar"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@id/date"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/avatar_placeholder" />
+
+    <TextView
+        android:id="@+id/subject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/date"
+        android:layout_margin="15dp"
+        android:layout_toRightOf="@id/avatar"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="Subject" />
+
+    <ImageView
+        android:id="@+id/attachment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/subject"
+        android:src="@drawable/attachment" />
+
+
+    <!-- Mail Subject -->
+
+
+    <TextView
+        android:id="@+id/hidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/subject"
+        android:text="@string/hidden"
+        android:textColor="?android:textColorTertiary"
+        android:visibility="invisible" />
+
+</RelativeLayout>

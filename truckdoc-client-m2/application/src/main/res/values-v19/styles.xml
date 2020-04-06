@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- res/values-v19/styles.xml -->
+    <style name="AppTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+    <!--
+        <style name="TabStyle" parent="Widget.Design.TabLayout">
+            <item name="tabTextAppearance">@style/MyCustomTabText</item>
+            <item name="tabSelectedTextColor">@color/mnt_white_text</item>
+        </style>
+
+    <style name="MyCustomTabText" parent="TextAppearance.AppCompat.Button">
+            <item name="android:textSize">14sp</item>
+            <item name="android:textColor">@color/mnt_group_title</item>
+    </style>
+    -->
+</resources>

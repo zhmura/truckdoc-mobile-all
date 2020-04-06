@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_stop_upload"
+        android:icon="@drawable/ic_menu_stop"
+        android:title="@string/stop_download" />
+    <item
+        android:id="@+id/menu_camera_settings"
+        android:icon="@drawable/ic_menu_preferences"
+        android:title="@string/options" />
+</menu>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:paddingRight="20sp"
+        android:layout_margin="10sp"
+        android:scrollbarStyle="outsideOverlay"
+        android:fadeScrollbars="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:layout_height="fill_parent">
+
+        <RadioGroup
+            android:id="@+id/radioType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/typeCmr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_cmr"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/typeInvoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_invoice"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/typePackList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_list"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/typeExport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_export"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/typeCarnet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_tir"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/typeDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_comdesc" />
+
+            <RadioButton
+                android:id="@+id/typeDkd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_ddc" />
+
+            <RadioButton
+                android:id="@+id/typeOthers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_other"
+                android:checked="true" />
+
+        </RadioGroup>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <Button
+            android:id="@+id/ibSaveWithType"
+            android:layout_width="wrap_content"
+            android:background="@android:drawable/btn_default"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:paddingTop="20sp"
+            android:drawablePadding="-5sp"
+            android:textColor="#000000"
+            android:text="@string/save" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

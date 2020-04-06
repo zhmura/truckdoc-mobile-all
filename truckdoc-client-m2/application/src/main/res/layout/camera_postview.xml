@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+
+    <com.sanda.truckdoc.client.ui.dgcam.TouchImageView
+        android:id="@+id/postView"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:layout_gravity="center"
+        android:layout_width="400dip"
+        android:layout_height="300dip" />
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/ibRetake"
+            android:layout_width="150dip"
+            android:drawableTop="@drawable/ic_action_refresh"
+            android:background="@android:drawable/btn_default"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="20sp"
+            android:drawablePadding="-5sp"
+            android:text="@string/retake" />
+
+        <Button
+            android:id="@+id/ibUse"
+            android:layout_width="150dip"
+            android:drawableTop="@drawable/ic_menu_save"
+            android:background="@android:drawable/btn_default"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="20sp"
+            android:drawablePadding="-5sp"
+            android:text="@string/save" />
+
+        <Button
+            android:id="@+id/ibSelectType"
+            android:layout_width="150dip"
+            android:background="@android:drawable/btn_default"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingTop="20sp"
+            android:drawablePadding="-5sp"
+            android:text="@string/select_doc_type" />
+
+    </LinearLayout>
+
+</LinearLayout>

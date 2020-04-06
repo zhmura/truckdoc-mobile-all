@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <!--
+
+        <style name="TabStyle" parent="Widget.Design.TabLayout">
+            <item name="tabTextAppearance">@style/MyCustomTabText</item>
+            <item name="tabSelectedTextColor">@color/mnt_white_text</item>
+        </style>
+
+        <style name="MyCustomTabText" parent="TextAppearance.AppCompat.Button">
+            <item name="android:textSize">14sp</item>
+            <item name="android:textColor">@color/mnt_group_title</item>
+        </style>
+        -->
+</resources>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <com.sanda.truckdoc.client.ui.floating.NonSwipeableViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/apn_page1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Зайдите в DATA и проверьте настройки. Правильно:\nНазвание: DATA\nAPN: tezapn" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/apn_page1_btn_no"
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/no" />
+
+                <Button
+                    android:id="@+id/apn_page1_btn_yes"
+
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/yes" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/apn_page2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Зайдите в DATA и проверьте настройки. Правильно:\nНазвание: DATA\nAPN: tezapn" />
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/apn_page2_btn_no"
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/no" />
+
+                <Button
+                    android:id="@+id/apn_page2_btn_yes"
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/yes" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/apn_page3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Выставьте настройки:\nНазвание DATA\nAPN: tezapn" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/apn_page4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Зайдите в Elisa EE. Выставьте настройки:\nНазвание DATA\nAPN: tezapn" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/apn_page_confirmation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Выставили настройки?" />
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/apn_page_confirmation_btn_no"
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/no" />
+
+                <Button
+                    android:id="@+id/apn_page_confirmation_btn_yes"
+                    style="@style/ApnButtonStyle"
+                    android:text="@string/yes" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/apn_page_restart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/FloatingWizard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Перезагрузите телефон" />
+        </RelativeLayout>
+
+    </com.sanda.truckdoc.client.ui.floating.NonSwipeableViewPager>
+
+</RelativeLayout>

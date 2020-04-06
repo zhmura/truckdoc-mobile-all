@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/message_reminder"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/background_dark"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    tools:context=".reminder.DialogActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/dialogMessage"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/dialogmessage_shape"
+            android:lines="4"
+            android:padding="4dp"
+            android:maxLength="300"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="asdasd\nasd\nsad" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/see_btn_id"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/scan_button_selector"
+                android:text="@string/dialog_new_messages_view"
+                android:textColor="@android:color/black" />
+
+            <!--            <Button
+                            android:id="@+id/ok_btn_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@drawable/check_button_selector"
+
+                            android:text="@string/dialog_new_messages_accept"
+                            android:textColor="@android:color/black" />-->
+
+            <Button
+                android:id="@+id/cancel_btn_id"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+
+                android:background="@drawable/print_button_selector"
+                android:text="@string/dialog_new_messages_cant_answer"
+                android:textColor="@android:color/black" />
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

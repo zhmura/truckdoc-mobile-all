@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/register_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:text="@string/you_need_to_register"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/enter_code_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:text="@string/enter_code"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/registerToken"
+            android:layout_width="fill_parent"
+            android:layout_height="50dip"
+            android:textSize="20sp"
+            android:gravity="top"
+            android:inputType="textCapCharacters" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_marginTop="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/register"
+            android:textColor="#000000"
+            android:background="@android:drawable/btn_default"
+            android:textSize="15sp" />
+
+        <include layout="@layout/layout_buttons" />
+    </LinearLayout>
+</RelativeLayout>

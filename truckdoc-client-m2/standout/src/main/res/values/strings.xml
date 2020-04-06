@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="standout_window_icon">Window icon</string>
+    <string name="standout_hide">Hide</string>
+    <string name="standout_close">Close</string>
+    <string name="standout_corner">Corner</string>
+    <string name="standout_maximize">Maximize</string>
+    <string name="standout_quit_window">Убрать окно</string>
+
+</resources>

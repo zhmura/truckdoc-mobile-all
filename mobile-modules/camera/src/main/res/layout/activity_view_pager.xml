@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#484848"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible">
+
+    <app.camera.tdoc.camera_library.Views.GalleryViewPager
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/rotate90right"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:padding="10dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/image_button_shape"
+        android:contentDescription="@string/exposure"
+        android:onClick="clickedExposure"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_rotate_90_right"
+        android:layout_alignParentRight="true" />
+
+    <ImageButton
+        android:layout_toLeftOf="@id/rotate90right"
+        android:id="@+id/rotate90left"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:padding="10dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/image_button_shape"
+        android:contentDescription="@string/exposure"
+        android:onClick="clickedExposure"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_rotate_90_left" />
+
+    <TextView
+        android:layout_marginTop="6dp"
+        android:layout_marginLeft="16dp"
+        android:textColor="#fff"
+        tools:text="Сохранить как..."
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Spinner
+        android:clickable="true"
+        android:drawSelectorOnTop="true"
+        android:ellipsize="marquee"
+        android:layout_marginTop="22dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/dropdown"
+        android:id="@+id/prefix_spinner"
+        android:layout_width="200dp"
+        android:minHeight="38dp"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:layout_alignParentBottom="true"
+        android:id="@+id/delete_image"
+        android:layout_width="74dp"
+        android:layout_height="74dp"
+        android:padding="10dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/image_button_shape"
+        android:contentDescription="@string/exposure"
+        android:onClick="clickedExposure"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_trash" />
+
+    <ImageButton
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/save_image"
+        android:layout_width="74dp"
+        android:layout_height="74dp"
+        android:padding="10dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/image_button_shape"
+        android:contentDescription="@string/exposure"
+        android:onClick="clickedExposure"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_save" />
+
+    <RelativeLayout
+        android:id="@+id/progress_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#b1000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>

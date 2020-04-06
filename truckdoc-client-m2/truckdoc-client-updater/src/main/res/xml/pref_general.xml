@@ -1,0 +1,10 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.sanda.truckdoc.client.updater.ui.SwitchCompatPreference
+        android:defaultValue="false"
+        android:key="useWiFi"
+        android:summary="Скачивать через 3G"
+        android:title="Скачивать через вайфай"
+        android:widgetLayout="@layout/widget_switch_compat_preference" />
+
+</PreferenceScreen>

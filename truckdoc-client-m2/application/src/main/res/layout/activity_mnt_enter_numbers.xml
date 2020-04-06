@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/mnt_white_text"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+
+    >
+
+    <TextView
+        android:id="@+id/track_number_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:text="@string/to_truck_name"
+        android:textColor="@color/mnt_node_title"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/track_name"
+        android:layout_width="150dp"
+        android:layout_height="45dp"
+        android:ems="10"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/comment_bg"
+        android:padding="5dp"
+        android:textColor="@color/mnt_black"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/trailer_number_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:text="@string/to_trailer_name"
+        android:textColor="@color/mnt_node_title"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/trailer_number"
+        android:layout_width="150dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/comment_bg"
+        android:padding="5dp"
+        android:textColor="@color/mnt_black"
+
+        android:ems="10"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/trailer_type_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:text="@string/mnt_type"
+        android:textColor="@color/mnt_node_title"
+        android:textSize="16sp" />
+
+    <Spinner
+        android:id="@+id/trailerType"
+        android:background="@drawable/comment_bg"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:padding="5dp"
+        style="@style/SpinnerTheme"
+        android:layout_marginBottom="15dp" />
+
+    <TextView
+        android:id="@+id/error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/button_default_red"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/mnt_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/button_default_blue"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textColor="@color/mnt_white_text"
+        android:background="@color/mnt_neutral"
+        android:text="@string/mnt_btn_start_mnt" />
+    <!--
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/delete"
+            android:text="Удалить ТО"/>
+            -->s
+</LinearLayout>
+

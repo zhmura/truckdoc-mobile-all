@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btnPhotoConcat" type="id" />
+    <item name="btnPhotoAccident" type="id" />
+    <item name="btnLandscapePhoto" type="id" />
+    <item name="btnMaintain" type="id" />
+    <item name="btnMaps" type="id" />
+    <item name="btnMessages" type="id" />
+    <item name="btnScan" type="id" />
+</resources>

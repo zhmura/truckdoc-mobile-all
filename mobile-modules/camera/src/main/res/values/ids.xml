@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="progress_layout" type="id" />
+    <item name="sessionCount" type="id" />
+    <item name="preview" type="id" />
+    <item name="locker" type="id" />
+    <item name="gallery" type="id" />
+    <item name="zoom_seekbar" type="id" />
+    <item name="iso_seekbar" type="id" />
+
+    <item name="exposure_time_seekbar" type="id" />
+    <item name="exposure_seekbar" type="id" />
+    <item name="focus_seekbar" type="id" />
+    <item name="hide_container" type="id" />
+</resources>

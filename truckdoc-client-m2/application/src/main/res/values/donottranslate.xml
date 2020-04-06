@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="timerStatus">timerStatus</string>
+    <string name="syncInterval">syncInterval</string>
+    <string name="columnPhone">columnPhone</string>
+    <string name="mechanicPhone">mechanicPhone</string>
+    <string name="expediterPhone">expediterPhone</string>
+    <string name="techSupportPhone">techSupportPhone</string>
+    <string name="sms_operator_no_connection">U abonenta otsutstvuet internet</string>
+</resources>
