@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "type": "node",
+      "id": "aps_safe",
+      "displayName": "APS-Safe",
+      "icon": "menu/aps_safe.png",
+      "entries": [
+        {
+          "type": "leaf",
+          "id": "by_stops",
+          "displayName": "Беларусь",
+          "icon": "countries/by.png",
+          "current": {
+            "fileId": 1233,
+            "fileName": "belarus_stops.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        },
+        {
+          "type": "leaf",
+          "id": "pl_stops",
+          "displayName": "Poland",
+          "icon": "countries/pl.png",
+          "current": {
+            "fileId": 1234,
+            "fileName": "poland_stops.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": "instructions",
+      "displayName": "Instructions",
+      "icon": "menu/instructions.png",
+      "entries": [
+        {
+          "type": "leaf",
+          "id": "road_accidents",
+          "displayName": "Действия при ДТП",
+          "icon": "instructions/ra.png",
+          "current": {
+            "fileId": 1235,
+            "fileName": "ra.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        },
+        {
+          "type": "leaf",
+          "id": "health_issues",
+          "displayName": "Действия при расстройстве здоровья, травме",
+          "icon": "instructions/hi.png",
+          "current": {
+            "fileId": 1236,
+            "fileName": "hi.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": "country_info",
+      "displayName": "Инфо страны",
+      "icon": "menu/country_info.png",
+      "entries": [
+        {
+          "type": "leaf",
+          "id": "info_by",
+          "displayName": "Беларусь",
+          "icon": "countries/by.png",
+          "current": {
+            "fileId": 1237,
+            "fileName": "by_info.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        },
+        {
+          "type": "leaf",
+          "id": "info_ge",
+          "displayName": "Германия",
+          "icon": "countries/ge.png",
+          "current": {
+            "fileId": 1238,
+            "fileName": "ge_info.pdf",
+            "mimeType": "application/pdf",
+            "timestamp": 123232324
+          }
+        }
+      ]
+    }
+  ]
+}
