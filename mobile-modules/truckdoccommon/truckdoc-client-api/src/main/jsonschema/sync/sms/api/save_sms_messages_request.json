@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "currentClientTime": {
+      "type": "integer",
+      "required": true
+    },
+    "androidId": {
+      "type": "string",
+      "required": true
+    },
+    "imei": {
+      "type": "string"
+    },
+    "smsMessages": {
+      "type": "array",
+      "items": {
+        "$ref": "../model/android_sms_data.json"
+      },
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "description": "Checklist result node",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResultNode",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "attachedFiles": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_attachment.json"
+      }
+    }
+  }
+}

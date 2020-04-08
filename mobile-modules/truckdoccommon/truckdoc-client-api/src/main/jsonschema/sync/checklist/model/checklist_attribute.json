@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "description": "Checklist attribute",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistAttribute",
+  "properties": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "value": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

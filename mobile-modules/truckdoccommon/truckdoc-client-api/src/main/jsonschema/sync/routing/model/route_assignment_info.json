@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "routeAssignment": {
+      "$ref": "route_assignment.json",
+      "description": "Route assignment. May be null if there is no active route assignment."
+    }
+  }
+}

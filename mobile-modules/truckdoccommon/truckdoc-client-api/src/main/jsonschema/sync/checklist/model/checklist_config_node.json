@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "description": "Checklist config node",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistConfigNode",
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "id": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_config_node_value.json"
+      }
+    },
+    "classifier": {
+      "type": "object",
+      "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.KeyValueMap",
+      "additionalProperties": true
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "Checklist configuration data",
+  "properties": {
+    "configId": {
+      "type": "string",
+      "required": true
+    },
+    "classifiers": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_classifier.json"
+      },
+      "required": true
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_config_node.json"
+      },
+      "required": true
+    }
+  }
+}

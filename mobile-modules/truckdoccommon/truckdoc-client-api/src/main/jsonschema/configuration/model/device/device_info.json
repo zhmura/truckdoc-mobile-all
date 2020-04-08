@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.device.DeviceInfo",
+  "description": "Device info",
+  "properties": {
+    "imei": {
+      "type": "string"
+    },
+    "deviceId": {
+      "type": "string"
+    },
+    "androidId": {
+      "type": "string"
+    },
+    "androidVersion": {
+      "type": "string"
+    },
+    "phoneModel": {
+      "type": "string"
+    },
+    "phoneManufacturer": {
+      "type": "string"
+    },
+    "screenSize": {
+      "$ref": "dimensions.json"
+    },
+    "cameraMatrix": {
+      "type": "string"
+    },
+    "androidFeatures": {
+      "type": "array",
+      "items": {
+        "$ref": "android_feature.json"
+      }
+    }
+  }
+}

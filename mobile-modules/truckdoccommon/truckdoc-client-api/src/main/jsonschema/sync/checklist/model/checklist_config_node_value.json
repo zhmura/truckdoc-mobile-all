@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "description": "Checklist config node value",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistConfigNodeValue",
+  "properties": {
+    "value": {
+      "type": "string",
+      "required": true
+    },
+    "displayText": {
+      "type": "string",
+      "description": "May override value displayed to user. If not set then \"value\" field shoud be used instead"
+    },
+    "isNegative": {
+      "type": "boolean"
+    }
+  }
+}

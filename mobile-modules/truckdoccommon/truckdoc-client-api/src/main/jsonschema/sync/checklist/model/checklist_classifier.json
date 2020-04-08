@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "description": "Checklist classifier",
+  "properties": {
+    "classifierId": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_classifier_value.json"
+      },
+      "required": true
+    }
+  }
+}

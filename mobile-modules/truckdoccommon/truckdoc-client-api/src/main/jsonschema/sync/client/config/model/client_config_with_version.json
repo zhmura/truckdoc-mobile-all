@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "clientConfig": {
+      "$ref": "client_config.json",
+      "required": true
+    },
+    "clientConfigVersion": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "serverTime": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

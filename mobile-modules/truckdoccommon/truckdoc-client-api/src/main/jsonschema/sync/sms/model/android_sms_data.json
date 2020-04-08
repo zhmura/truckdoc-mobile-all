@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.sms.api.AndroidSmsData",
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "direction": {
+      "description": "IN=INBOX=Incoming messages. OUT=OUTBOX=Sent messages.",
+      "enum": [
+        "IN",
+        "OUT"
+      ],
+      "required": true
+    },
+    "date": {
+      "type": "integer"
+    },
+    "dateSent": {
+      "type": "integer"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "person": {
+      "type": "string"
+    },
+    "protocol": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "serviceCenter": {
+      "type": "string"
+    }
+  }
+}

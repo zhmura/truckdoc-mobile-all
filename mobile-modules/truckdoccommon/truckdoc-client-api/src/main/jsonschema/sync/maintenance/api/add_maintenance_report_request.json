@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "currentClientTime": {
+      "type": "integer",
+      "description": "TODO: Make REQUIRED",
+      "required": false
+    },
+    "report": {
+      "$ref": "../../checklist/model/checklist_result.json"
+    }
+  }
+}

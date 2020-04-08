@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.sim.SimInfo",
+  "description": "Sim card info",
+  "properties": {
+    "phoneNumber": {
+      "type": "string"
+    },
+    "simSerialNumber": {
+      "type": "string"
+    }
+  }
+}

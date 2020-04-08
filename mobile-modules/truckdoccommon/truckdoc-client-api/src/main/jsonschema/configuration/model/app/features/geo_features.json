@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.app.features.GeoFeatures",
+  "description": "Geolocation-related application features",
+  "properties": {
+    "canSendLocation": {
+      "type": "boolean"
+    },
+    "configurableLocationSendInterval": {
+      "type": "boolean"
+    },
+    "routeNavigation": {
+      "type": "boolean"
+    }
+  }
+}

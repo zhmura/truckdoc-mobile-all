@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "loginKey": {
+      "type": "string",
+      "required": true
+    },
+    "secretKey": {
+      "type": "string",
+      "required": true
+    },
+    "serverTime": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

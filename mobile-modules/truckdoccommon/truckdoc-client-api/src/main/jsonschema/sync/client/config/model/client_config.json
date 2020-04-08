@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "description": "Mobile client configuration data",
+  "properties": {
+    "gpsCheckIntervalMs": {
+      "type": "integer",
+      "description": "Interval of GPS location check in milliseconds."
+    },
+    "smsBackup": {
+      "type": "boolean",
+      "description": "Enables smsBackup feature (DEPRECATED: THIS OPTION IS MOVED TO features.smsBackup)"
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "smsBackup": {
+          "type": "boolean",
+          "description": "Enables smsBackup feature"
+        },
+        "maintenanceReports": {
+          "type": "boolean",
+          "description": "Enables maintenanceReports feature"
+        }
+      }
+    }
+  }
+}

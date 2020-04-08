@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "routeAssignmentId": {
+      "type": "integer",
+      "required": true
+    },
+    "routeId": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

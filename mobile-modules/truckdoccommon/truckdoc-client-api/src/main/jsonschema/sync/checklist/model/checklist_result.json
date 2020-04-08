@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "description": "Checklist result",
+  "properties": {
+    "configId": {
+      "type": "string",
+      "required": true
+    },
+    "configVersion": {
+      "type": "integer",
+      "required": true
+    },
+    "startDate": {
+      "type": "integer",
+      "format": "utc-millisec"
+    },
+    "completionDate": {
+      "type": "integer",
+      "format": "utc-millisec",
+      "required": true
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_result_node.json"
+      },
+      "required": true
+    }
+  }
+}

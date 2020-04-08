@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.app.AppInfo",
+  "description": "Client application info",
+  "properties": {
+    "appPackage": {
+      "type": "string",
+      "required": true
+    },
+    "appId": {
+      "type": "string",
+      "required": true
+    },
+    "appVersion": {
+      "type": "string"
+    },
+    "appVersionCode": {
+      "type": "integer"
+    },
+    "appName": {
+      "type": "string"
+    },
+    "appBuildDate": {
+      "type": "string"
+    },
+    "appBuildTimestamp": {
+      "type": "integer"
+    },
+    "appBuildType": {
+      "type": "string"
+    },
+    "appFlavor": {
+      "type": "string"
+    },
+    "vcsCommitInfo": {
+      "type": "string",
+      "description": "Information on VCS commit that was used for the build"
+    },
+    "isDebug": {
+      "type": "boolean"
+    },
+    "isDev": {
+      "type": "boolean"
+    },
+    "customBuildCompanyId": {
+      "type": "string",
+      "description": "Name of company in case of custom build for specific company"
+    },
+    "supportedFeatures": {
+      "$ref": "app_features.json"
+    }
+  }
+}

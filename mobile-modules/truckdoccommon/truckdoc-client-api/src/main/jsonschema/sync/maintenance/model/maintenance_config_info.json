@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "description": "Checklist configuration data",
+  "properties": {
+    "configVersion": {
+      "type": "integer",
+      "required": true
+    },
+    "config": {
+      "$ref": "../../checklist/model/checklist_config.json"
+    }
+  }
+}

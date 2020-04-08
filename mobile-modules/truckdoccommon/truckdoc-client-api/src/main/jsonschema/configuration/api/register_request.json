@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "description": "RegisterRequest",
+  "properties": {
+    "registrationToken": {
+      "type": "string",
+      "required": true
+    },
+    "currentClientTime": {
+      "type": "integer",
+      "required": true
+    },
+    "generatedName": {
+      "type": "string"
+    },
+    "appInfo": {
+      "$ref": "../model/app/app_info.json",
+      "required": true
+    },
+    "deviceInfo": {
+      "$ref": "../model/device/device_info.json",
+      "required": true
+    },
+    "simInfo": {
+      "$ref": "../model/sim/sim_info.json",
+      "required": true
+    }
+  }
+}

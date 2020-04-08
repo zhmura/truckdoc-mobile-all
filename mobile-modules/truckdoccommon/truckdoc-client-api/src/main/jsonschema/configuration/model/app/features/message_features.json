@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.app.features.MessageFeatures",
+  "description": "Message-related application features",
+  "properties": {
+    "canSendMessage": {
+      "type": "boolean"
+    },
+    "canReceiveMessages": {
+      "type": "boolean"
+    },
+    "contactListSupport": {
+      "type": "boolean"
+    },
+    "supportedFileExtensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

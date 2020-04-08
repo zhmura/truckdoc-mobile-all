@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "description": "Checklist attachment",
+  "properties": {
+    "fileId": {
+      "type": "integer",
+      "required": true
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "checklist_attribute.json"
+      }
+    }
+  }
+}

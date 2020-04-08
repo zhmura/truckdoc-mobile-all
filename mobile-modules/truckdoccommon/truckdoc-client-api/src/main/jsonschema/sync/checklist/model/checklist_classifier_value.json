@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "description": "Checklist classifier value",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistClassifierValue",
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "javaType": "com.sanda.truckdoc.client.api.v3.configuration.model.device.Dimensions",
+  "properties": {
+    "x": {
+      "type": "integer",
+      "required": true
+    },
+    "y": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

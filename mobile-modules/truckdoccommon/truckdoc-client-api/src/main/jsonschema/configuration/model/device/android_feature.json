@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "description": "Device info",
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

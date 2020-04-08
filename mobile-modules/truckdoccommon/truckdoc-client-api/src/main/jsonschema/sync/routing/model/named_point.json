@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "lat": {
+      "type": "number",
+      "required": true
+    },
+    "lng": {
+      "type": "number",
+      "required": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    }
+  }
+}

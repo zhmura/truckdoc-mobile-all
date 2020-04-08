@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "Supported application features",
+  "properties": {
+    "messageFeatures": {
+      "$ref": "features/message_features.json"
+    },
+    "geoFeatures": {
+      "$ref": "features/geo_features.json"
+    },
+    "scanner": {
+      "type": "boolean"
+    },
+    "insuranceReport": {
+      "type": "boolean"
+    },
+    "maintenanceReports": {
+      "type": "boolean"
+    },
+    "smsBackup": {
+      "type": "boolean"
+    }
+  }
+}
