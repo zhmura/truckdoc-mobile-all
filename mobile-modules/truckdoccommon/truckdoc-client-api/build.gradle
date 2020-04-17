@@ -1,0 +1,35 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        // this plugin
+        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.24'
+        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'jsonschema2pojo'
+
+sourceCompatibility = '1.8'
+
+jsonSchema2Pojo{
+    source = files("${projectDir}/src/main/jsonschema")
+    annotationStyle = 'jackson1'
+    targetPackage = 'com.sanda.truckdoc.client.api.v3'
+    useCommonsLang3 = true
+    includeJsr303Annotations = false
+    useLongIntegers = true
+    propertyWordDelimiters = "-_"
+}
+
+dependencies {
+    implementation project(":truckdoc-util")
+    compile "org.codehaus.jackson:jackson-core-asl:1.9.2"
+    compile "org.codehaus.jackson:jackson-mapper-asl:1.9.2"
+    implementation "org.apache.commons:commons-lang3:3.4"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
+}

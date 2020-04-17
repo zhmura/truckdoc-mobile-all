@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "default": {},
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "version": {
+      "$id": "#/properties/version",
+      "type": "integer",
+      "title": "The Version Schema",
+      "default": 0,
+      "examples": [
+        1.0
+      ]
+    },
+    "entries": {
+      "$id": "#/properties/entries",
+      "type": "array",
+      "title": "The Entries Schema",
+      "default": [],
+      "examples": [
+        [
+          {
+            "icon": "menu/aps_safe.png",
+            "id": "aps_safe",
+            "type": "node",
+            "displayName": "APS-Safe",
+            "entries": [
+              {
+                "icon": "countries/by.png",
+                "id": "by_stops",
+                "type": "leaf",
+                "displayName": "Беларусь",
+                "current": {
+                  "fileName": "belarus_stops.pdf",
+                  "timestamp": 123232324.0,
+                  "fileId": 1233.0,
+                  "mimeType": "application/pdf"
+                }
+              },
+              {
+                "current": {
+                  "timestamp": 123232324.0,
+                  "fileId": 1234.0,
+                  "mimeType": "application/pdf",
+                  "fileName": "poland_stops.pdf"
+                },
+                "icon": "countries/pl.png",
+                "id": "pl_stops",
+                "type": "leaf",
+                "displayName": "Poland"
+              }
+            ]
+          },
+          {
+            "entries": [
+              {
+                "current": {
+                  "fileName": "ra.pdf",
+                  "timestamp": 123232324.0,
+                  "fileId": 1235.0,
+                  "mimeType": "application/pdf"
+                },
+                "icon": "instructions/ra.png",
+                "id": "road_accidents",
+                "type": "leaf",
+                "displayName": "Действия при ДТП"
+              },
+              {
+                "icon": "instructions/hi.png",
+                "id": "health_issues",
+                "type": "leaf",
+                "displayName": "Действия при расстройстве здоровья, травме",
+                "current": {
+                  "timestamp": 123232324.0,
+                  "fileId": 1236.0,
+                  "mimeType": "application/pdf",
+                  "fileName": "hi.pdf"
+                }
+              }
+            ],
+            "icon": "menu/instructions.png",
+            "id": "instructions",
+            "type": "node",
+            "displayName": "Instructions"
+          },
+          {
+            "type": "node",
+            "displayName": "Инфо страны",
+            "entries": [
+              {
+                "current": {
+                  "fileId": 1237.0,
+                  "mimeType": "application/pdf",
+                  "fileName": "by_info.pdf",
+                  "timestamp": 123232324.0
+                },
+                "icon": "countries/by.png",
+                "id": "info_by",
+                "type": "leaf",
+                "displayName": "Беларусь"
+              },
+              {
+                "icon": "countries/ge.png",
+                "id": "info_ge",
+                "type": "leaf",
+                "displayName": "Германия",
+                "current": {
+                  "fileName": "ge_info.pdf",
+                  "timestamp": 123232324.0,
+                  "fileId": 1238.0,
+                  "mimeType": "application/pdf"
+                }
+              }
+            ],
+            "icon": "menu/country_info.png",
+            "id": "country_info"
+          }
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$ref": "entry.json"
+      }
+    }
+  }
+}
