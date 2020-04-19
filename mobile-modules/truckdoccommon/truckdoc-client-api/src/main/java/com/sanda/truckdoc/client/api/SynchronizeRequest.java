@@ -3,13 +3,13 @@ package com.sanda.truckdoc.client.api;
 
 import com.sanda.truckdoc.client.api.model.LocationRecord;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 
 /**
  * @author Alexei Osipov
@@ -21,6 +21,7 @@ public class SynchronizeRequest {
     public static final String GET_ROUTE_ASSIGNMENT = "ra";
     public static final String GET_MAINTENANCE_CONFIG = "mnt";
     public static final String GET_CLIENT_CONFIG = "ccfg";
+    public static final String GET_INSTRUCTION_SET = "ins";
 
     /**
      * List of data slices that client wants to get from server.
@@ -43,12 +44,13 @@ public class SynchronizeRequest {
 
     private Long lastKnownClientConfigVersion; // nullable
 
+    private Long lastKnownInstructionSetVersion; // nullable
 
     public List<String> getDataToGet() {
         return dataToGet;
     }
 
-    public void setDataToGet(@Nonnull List<String> dataToGet) {
+    public void setDataToGet(@NotNull List<String> dataToGet) {
         this.dataToGet = dataToGet;
     }
 
@@ -56,7 +58,7 @@ public class SynchronizeRequest {
         return currentClientTime;
     }
 
-    public void setCurrentClientTime(@Nonnull Date currentClientTime) {
+    public void setCurrentClientTime(@NotNull Date currentClientTime) {
         this.currentClientTime = currentClientTime;
     }
 

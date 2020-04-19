@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.api.v2;
 import com.sanda.truckdoc.client.api.legacy.ServerToClientMessagePojoLegacy;
 import com.sanda.truckdoc.client.api.v3.sync.message.model.MessageAttributes;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author Alexei Osipov

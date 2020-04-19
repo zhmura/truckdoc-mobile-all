@@ -1,6 +1,6 @@
 package com.sanda.truckdoc.client.api;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author Alexei Osipov

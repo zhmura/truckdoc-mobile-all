@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "description": "Instruction set intermediate branch",
+  "extends" : {
+    "$ref" : "instruction_set_node.json"
+  },
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "instruction_set_node.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "description": "Instruction set leaf",
+  "extends" : {
+    "$ref" : "instruction_set_node.json"
+  },
+  "properties": {
+    "file": {
+      "$ref": "instruction_file_info.json",
+      "required": true
+    }
+  }
+}
