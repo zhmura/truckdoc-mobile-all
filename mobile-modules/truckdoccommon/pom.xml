@@ -28,6 +28,7 @@
         <module>truckdoc-root-parent</module>
         <module>common-bom</module>
 
+        <module>truckdoc-client-api-annotator</module>
         <module>truckdoc-client-api</module>
         <module>truckdoc-util</module>
     </modules>

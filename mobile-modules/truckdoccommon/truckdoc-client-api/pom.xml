@@ -88,6 +88,7 @@
                     <annotationStyle>jackson2</annotationStyle>
                     <includeJsr303Annotations>false</includeJsr303Annotations>
                     <useLongIntegers>true</useLongIntegers>
+                    <customAnnotator>com.sanda.truckdoc.client.apiannotator.TruckDocCustomAnnotator</customAnnotator>
                 </configuration>
                 <executions>
                     <execution>
@@ -96,6 +97,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sanda.truckdoc</groupId>
+                        <artifactId>truckdoc-client-api-annotator</artifactId>
+                        <version>1.0.2-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
