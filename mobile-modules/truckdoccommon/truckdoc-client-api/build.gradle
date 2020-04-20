@@ -24,6 +24,7 @@ jsonSchema2Pojo{
     includeJsr303Annotations = false
     useLongIntegers = true
     propertyWordDelimiters = "-_"
+    serializable = true
 }
 
 dependencies {

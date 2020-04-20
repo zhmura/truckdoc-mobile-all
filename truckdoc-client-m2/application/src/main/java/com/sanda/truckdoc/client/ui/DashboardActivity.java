@@ -58,6 +58,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import app.camera.tdoc.camera_library.CamActivity;
 import app.camera.tdoc.camera_library.PrefixList;
+import app.instructions.InstructionsActivity;
 import rx.functions.Action1;
 import timber.log.Timber;
 
@@ -172,6 +173,11 @@ public class DashboardActivity extends AppCompatActivity {
         populateRecipientDialog(recipientId -> {
             startCameraActivity(SCENE_PHOTO, recipientId);
         });
+    }
+
+    @Click(R.id.btnInstructions)
+    void onInstructions() {
+        startActivity(new Intent(this, InstructionsActivity.class));
     }
 
     public void startCameraActivity(app.camera.tdoc.camera_library.ImageType type, Long recipientId) {
