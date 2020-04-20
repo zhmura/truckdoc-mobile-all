@@ -1,13 +1,10 @@
-
 buildscript {
     repositories {
         mavenCentral()
     }
 
     dependencies {
-        // this plugin
         classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.24'
-        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
     }
 }
 
@@ -18,7 +15,7 @@ sourceCompatibility = '1.8'
 
 jsonSchema2Pojo{
     source = files("${projectDir}/src/main/jsonschema")
-    annotationStyle = 'jackson1'
+    annotationStyle = 'jackson2'
     targetPackage = 'com.sanda.truckdoc.client.api.v3'
     useCommonsLang3 = true
     includeJsr303Annotations = false
@@ -29,8 +26,7 @@ jsonSchema2Pojo{
 
 dependencies {
     implementation project(":truckdoc-util")
-    compile "org.codehaus.jackson:jackson-core-asl:1.9.2"
-    compile "org.codehaus.jackson:jackson-mapper-asl:1.9.2"
+    compile "com.fasterxml.jackson.core:jackson-annotations:2.10.3"
+    implementation "org.jetbrains:annotations:19.0.0"
     implementation "org.apache.commons:commons-lang3:3.4"
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
 }

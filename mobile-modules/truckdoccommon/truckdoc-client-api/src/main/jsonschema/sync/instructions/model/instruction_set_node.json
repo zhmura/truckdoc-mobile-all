@@ -6,6 +6,7 @@
   "properties": {
     "type": {
       "type": "string",
+      "enum": ["node", "leaf"],
       "required": true
     },
     "id": {

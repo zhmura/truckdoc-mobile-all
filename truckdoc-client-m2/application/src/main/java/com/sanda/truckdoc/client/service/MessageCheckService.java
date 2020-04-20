@@ -20,6 +20,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
@@ -80,7 +81,6 @@ import net.tribe7.common.base.Optional;
 import net.tribe7.common.collect.FluentIterable;
 import net.tribe7.common.collect.ImmutableList;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

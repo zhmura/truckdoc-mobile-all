@@ -60,20 +60,21 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
-    implementation 'org.jetbrains:annotations:15.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
+    implementation 'org.jetbrains:annotations:19.0.0'
     //dagger 2
-    implementation 'com.google.dagger:dagger:2.26'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.26'
+    implementation 'com.google.dagger:dagger:2.27'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
 
     //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
-    implementation 'com.google.dagger:dagger-android:2.15'
+    implementation 'com.google.dagger:dagger-android:2.27'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.26'
 
     //support libraries with dagger 2
-    implementation 'com.google.dagger:dagger-android-support:2.14.1'
+    implementation 'com.google.dagger:dagger-android-support:2.27'
 
     implementation 'commons-io:commons-io:2.4'
     implementation 'io.reactivex:rxandroid:1.2.1'

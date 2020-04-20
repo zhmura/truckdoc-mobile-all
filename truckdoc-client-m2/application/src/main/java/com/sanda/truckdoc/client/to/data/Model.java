@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistAttachment;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistConfigNode;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResult;
@@ -14,8 +15,6 @@ import com.sanda.truckdoc.client.api.v3.sync.maintenance.model.MaintenanceConfig
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.to.utils.JacksonUtils;
 import com.sanda.truckdoc.client.to.utils.LocalStorage;
-
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;

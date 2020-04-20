@@ -10,13 +10,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.sanda.truckdoc.client.api.v3.sync.instructions.Entry
 import com.sanda.truckdoc.client.api.v3.sync.instructions.Instructions
 import kotlinx.android.synthetic.main.instructions_activity.*
 import kotlinx.android.synthetic.main.instructions_leaf_listitem.view.*
-import org.codehaus.jackson.map.ObjectMapper
 
 private val json = """
     {
@@ -33,7 +33,7 @@ private val json = """
               "id": "by_stops",
               "displayName": "Беларусь",
               "icon": "countries/by.png",
-              "current": {
+              "file": {
                 "fileId": 1233,
                 "fileName": "belarus_stops.pdf",
                 "mimeType": "application/pdf",
@@ -45,7 +45,7 @@ private val json = """
               "id": "pl_stops",
               "displayName": "Poland",
               "icon": "countries/pl.png",
-              "current": {
+              "file": {
                 "fileId": 1234,
                 "fileName": "poland_stops.pdf",
                 "mimeType": "application/pdf",
@@ -65,7 +65,7 @@ private val json = """
               "id": "road_accidents",
               "displayName": "Действия при ДТП",
               "icon": "instructions/ra.png",
-              "current": {
+              "file": {
                 "fileId": 1235,
                 "fileName": "ra.pdf",
                 "mimeType": "application/pdf",
@@ -77,7 +77,7 @@ private val json = """
               "id": "health_issues",
               "displayName": "Действия при расстройстве здоровья, травме",
               "icon": "instructions/hi.png",
-              "current": {
+              "file": {
                 "fileId": 1236,
                 "fileName": "hi.pdf",
                 "mimeType": "application/pdf",
@@ -97,7 +97,7 @@ private val json = """
               "id": "info_by",
               "displayName": "Беларусь",
               "icon": "countries/by.png",
-              "current": {
+              "file": {
                 "fileId": 1237,
                 "fileName": "by_info.pdf",
                 "mimeType": "application/pdf",
@@ -109,7 +109,7 @@ private val json = """
               "id": "info_ge",
               "displayName": "Германия",
               "icon": "countries/ge.png",
-              "current": {
+              "file": {
                 "fileId": 1238,
                 "fileName": "ge_info.pdf",
                 "mimeType": "application/pdf",

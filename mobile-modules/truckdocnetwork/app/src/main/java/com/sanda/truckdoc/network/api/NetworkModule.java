@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sanda.truckdoc.network.Backend;
 import com.sanda.truckdoc.network.api.interceptors.ClientVersionHeaderInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.HttpLoggingInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.UserAgentInterceptor;
-import com.sanda.truckdoc.network.api.jackson.JacksonConverterFactory;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -25,6 +24,7 @@ import retrofit2.EasyCallAdapterFactory;
 import retrofit2.Retrofit;
 import retrofit2.RxErrorHandlingCallAdapterFactory;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Module
 public class NetworkModule {
@@ -67,7 +67,7 @@ public class NetworkModule {
     @Singleton
     ObjectMapper provideObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
+        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
         return mapper;
     }
 

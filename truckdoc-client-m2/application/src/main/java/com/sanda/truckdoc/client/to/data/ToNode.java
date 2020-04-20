@@ -1,8 +1,7 @@
 package com.sanda.truckdoc.client.to.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResultNode;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.io.Serializable;
 

@@ -16,7 +16,7 @@
  */
 package com.sanda.truckdoc.network.api.jackson;
 
-import org.codehaus.jackson.map.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
 

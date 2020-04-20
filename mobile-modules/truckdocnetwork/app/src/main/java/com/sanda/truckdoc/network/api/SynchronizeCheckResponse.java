@@ -1,8 +1,8 @@
 package com.sanda.truckdoc.network.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sanda.truckdoc.client.api.SynchronizeRequest;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Synchronization operation response from server. The set of fields depends on {@link SynchronizeRequest#dataToGet}.

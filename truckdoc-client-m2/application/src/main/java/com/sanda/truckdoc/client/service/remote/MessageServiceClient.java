@@ -1,5 +1,7 @@
 package com.sanda.truckdoc.client.service.remote;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.data.model.file.FileType;
 import com.sanda.truckdoc.client.service.file.CountingInputStreamEntity;
 import com.sanda.truckdoc.client.service.remote.exceptions.CommunicationException;
@@ -7,8 +9,6 @@ import com.sanda.truckdoc.client.service.remote.exceptions.RemoteCallException;
 import com.sanda.truckdoc.client.service.remote.exceptions.ServiceUnavailableException;
 import com.sanda.truckdoc.client.util.commons.IOUtils;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -65,7 +65,7 @@ public class MessageServiceClient {
     public static final String APP_VERSION = "appVersion";
     public static final String GENERATED_NAME = "generatedName";
 
-    protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
+    protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
             false);
 
     public static void markMessagesAsReceived(QueryContext context,
