@@ -1,29 +1,21 @@
 package app.instructions
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.updateLayoutParams
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.Observer
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.android.flexbox.AlignItems
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.sanda.truckdoc.client.api.v3.sync.instructions.Entry
-import com.sanda.truckdoc.client.api.v3.sync.instructions.Instructions
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSet
 import kotlinx.android.synthetic.main.instructions_activity.*
-import kotlinx.android.synthetic.main.instructions_leaf_listitem.view.*
+import javax.inject.Inject
 
 private val json = """
     {
       "version": 1,
       "entries": [
         {
-          "type": "node",
+          "type": "branch",
           "id": "aps_safe",
           "displayName": "APS-Safe",
           "icon": "menu/aps_safe.png",
@@ -55,7 +47,7 @@ private val json = """
           ]
         },
         {
-          "type": "node",
+          "type": "branch",
           "id": "instructions",
           "displayName": "Instructions",
           "icon": "menu/instructions.png",
@@ -87,7 +79,7 @@ private val json = """
           ]
         },
         {
-          "type": "node",
+          "type": "branch",
           "id": "country_info",
           "displayName": "Инфо страны",
           "icon": "menu/country_info.png",
@@ -124,26 +116,51 @@ private val json = """
 
 private val mock: InstructionsProvider by lazy {
     object : InstructionsProvider {
-        override fun getInstructions(): Instructions? {
-            return ObjectMapper().readValue(json, Instructions::class.java)
+        override fun getInstructions(): InstructionSet? {
+            return ObjectMapper().readValue(json, InstructionSet::class.java)
         }
     }
 }
 
 class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
 
-    private val instructionsProvider by lazy { mock }
-    private val entries: List<Entry> by lazy {
-        intent.getSerializableExtra("entries") as? ArrayList<Entry> ?: instructionsProvider.getInstructions()!!.entries
+    companion object {
+        fun start(c: Context, parent: InstructionDb?) {
+            c.startActivity(Intent(c, InstructionsActivity::class.java).putExtra("parent", parent))
+        }
     }
 
-    private val title by lazy { intent.getStringExtra("title") }
+    @Inject
+    lateinit var helper: InstructionsHelper
+
+    @Inject
+    lateinit var dao: InstructionsDao
+
+    private val parent by lazy { intent.getSerializableExtra("parent") as? InstructionDb }
+
+    private val instructionsProvider by lazy { mock }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recyclerView.adapter = InstructionsAdapter(entries)
+        (applicationContext as InstructionsActivityInjectorProvider).appComponent().inject(this)
+        val set = instructionsProvider.getInstructions()
+
+        helper.processIncomingSet(set!!)
+
+        val adapter = InstructionsAdapter()
+        recyclerView.adapter = adapter
+        if (parent == null)
+            dao.findRoot().observe(this, Observer {
+                adapter.submitList(it)
+            })
+        else {
+            supportActionBar?.title = parent!!.displayName
+            dao.findEntries(parent!!.id).observe(this, Observer {
+                adapter.submitList(it)
+            })
+        }
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        title?.let { supportActionBar?.title = it }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -153,67 +170,6 @@ class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
 }
 
 interface InstructionsProvider {
-    fun getInstructions(): Instructions?
+    fun getInstructions(): InstructionSet?
 }
 
-class InstructionsAdapter(entries: List<Entry>) : ListAdapter<Entry, InstructionsAdapter.ViewHolder>(object : DiffUtil.ItemCallback<Entry?>() {
-    override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean = oldItem.id == newItem.id
-
-    override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean = oldItem == newItem
-}) {
-    init {
-        submitList(entries)
-    }
-
-    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        abstract fun bind(entry: Entry)
-    }
-
-    private class NodeVH(itemView: View) : ViewHolder(itemView) {
-        override fun bind(entry: Entry) {
-            itemView.textView.text = entry.displayName
-            itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
-                flexBasisPercent = 0.5f
-                alignSelf = AlignItems.STRETCH
-            }
-            val c = itemView.context
-            itemView.setOnClickListener {
-                c.startActivity(Intent(c, InstructionsActivity::class.java).putExtra("entries", arrayListOf(*entry.entries.toTypedArray())).putExtra("title", entry.displayName))
-            }
-        }
-    }
-
-    private class LeafVH(itemView: View) : ViewHolder(itemView) {
-        override fun bind(entry: Entry) {
-            itemView.textView.text = entry.displayName
-            itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
-                flexBasisPercent = 0.5f
-                alignSelf = AlignItems.STRETCH
-            }
-            val c = itemView.context
-            itemView.setOnClickListener {
-                //c.startActivity(Intent(c, Ins))
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.instructions_leaf_listitem, parent, false)
-
-        return if (viewType == 0)
-            NodeVH(itemView)
-        else
-            LeafVH(itemView)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return when (getItem(position).type) {
-            Entry.Type.NODE -> 0
-            Entry.Type.LEAF -> 1
-        }
-    }
-}

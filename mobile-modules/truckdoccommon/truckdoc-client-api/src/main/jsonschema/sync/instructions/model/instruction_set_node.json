@@ -6,7 +6,7 @@
   "properties": {
     "type": {
       "type": "string",
-      "enum": ["node", "leaf"],
+      "enum": ["branch", "leaf"],
       "required": true
     },
     "id": {

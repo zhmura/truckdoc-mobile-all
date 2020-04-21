@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sanda.truckdoc.network.Backend;
@@ -34,12 +35,12 @@ public class NetworkModule {
     OkHttpClient provideOkHttpClient(UserAgentInterceptor userAgentInterceptor,
                                      HttpLoggingInterceptor httpLoggingInterceptor,
                                      ClientVersionHeaderInterceptor clientVersionHeaderInterceptor) {
-        return new OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
+        return new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(userAgentInterceptor)
                 .addInterceptor(clientVersionHeaderInterceptor)
                 .addInterceptor(httpLoggingInterceptor)
+                .addNetworkInterceptor(new StethoInterceptor())
                 .build();
     }
 
@@ -89,8 +90,7 @@ public class NetworkModule {
     }
 
     @Provides
-    @NotNull
-    Backend provideBackend(Retrofit retrofit) {
+    @NotNull Backend provideBackend(Retrofit retrofit) {
         return retrofit.create(Backend.class);
     }
 

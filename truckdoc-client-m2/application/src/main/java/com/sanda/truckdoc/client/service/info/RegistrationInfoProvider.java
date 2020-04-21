@@ -10,8 +10,8 @@ import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 import com.sanda.truckdoc.client.BuildConfig;
+import com.sanda.truckdoc.client.api.v3.configuration.model.app.AppFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.AppInfo;
-import com.sanda.truckdoc.client.api.v3.configuration.model.app.SupportedFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.features.GeoFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.features.MessageFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.device.DeviceInfo;
@@ -100,8 +100,8 @@ public class RegistrationInfoProvider {
      * In this method we should set all features current client version supports.
      *
      */
-    private static SupportedFeatures getClientSupportedFeatures(ContextWrapper contextWrapper) {
-        SupportedFeatures supportedFeatures = new SupportedFeatures();
+    private static AppFeatures getClientSupportedFeatures(ContextWrapper contextWrapper) {
+        AppFeatures supportedFeatures = new AppFeatures();
         GeoFeatures geoFeatures = new GeoFeatures();
 
         PackageManager packageManager = contextWrapper.getPackageManager();

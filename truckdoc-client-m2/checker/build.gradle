@@ -39,8 +39,8 @@ dependencies {
     implementation "com.android.support:support-annotations:$supportVersion"
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"
-    implementation 'com.google.dagger:dagger:2.26'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.26'
+    implementation "com.google.dagger:dagger:$dagger"
+    annotationProcessor "com.google.dagger:dagger-compiler:$dagger"
     annotationProcessor "de.devland.esperandro:esperandro-preference-gen:$esperandroVersion"
     //implementation "de.devland.esperandro:esperandro-jackson-addon:$esperandroVersion"
     implementation "net.danlew:android.joda:$jodaVersion"

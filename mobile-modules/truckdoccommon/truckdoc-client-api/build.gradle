@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.24'
+        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:1.0.2'
     }
 }
 
@@ -13,7 +13,8 @@ apply plugin: 'jsonschema2pojo'
 
 sourceCompatibility = '1.8'
 
-jsonSchema2Pojo{
+
+jsonSchema2Pojo {
     source = files("${projectDir}/src/main/jsonschema")
     annotationStyle = 'jackson2'
     targetPackage = 'com.sanda.truckdoc.client.api.v3'
@@ -22,6 +23,7 @@ jsonSchema2Pojo{
     useLongIntegers = true
     propertyWordDelimiters = "-_"
     serializable = true
+    customAnnotator = "com.sanda.truckdoc.client.apiannotator.TruckDocCustomAnnotator"
 }
 
 dependencies {

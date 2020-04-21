@@ -24,6 +24,7 @@ allprojects {
         esperandroVersion = "3.0.2"
         aaVersion = "3.3.2"
         buildToolsVersion = "28.0.3"
+        dagger = "2.27"
     }
     repositories {
         jcenter()

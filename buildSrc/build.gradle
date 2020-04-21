@@ -1,0 +1,18 @@
+//apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets{
+    main{
+        java{
+            srcDir "../mobile-modules/truckdoccommon/truckdoc-client-api-annotator/src/main/java"
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.0.2'
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.10.3"
+}

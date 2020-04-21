@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.facebook.stetho.Stetho;
 import com.sanda.checker.Checker;
 import com.sanda.checker.ConnectionRestoredReceiver;
 import com.sanda.checker.NoConnectionReceiver;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import app.instructions.InstructionsActivityInjectorProvider;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.LocationReceiver.ACTION_LOCATION_CHANGED;
@@ -44,7 +46,7 @@ import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICA
  * Date: 19.02.14
  * Time: 20:43
  */
-public class TruckDocApp extends Application {
+public class TruckDocApp extends Application implements InstructionsActivityInjectorProvider {
 
     private Activity currentActivity;
 
@@ -74,6 +76,7 @@ public class TruckDocApp extends Application {
         long end = System.currentTimeMillis() - start;
         permitDiskReads();
         EmulatorDetector.logcat();
+        Stetho.initializeWithDefaults(this);
 
         /* create dispatcher */
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
@@ -243,6 +246,7 @@ public class TruckDocApp extends Application {
     }
 
     @NonNull
+    @Override
     public AppComponent appComponent() {
         if (appComponent == null) {
             synchronized (TruckDocApp.class) {
