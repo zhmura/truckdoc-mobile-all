@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.api.v2;
 import com.sanda.truckdoc.client.api.base.SynchronizeResponseBase;
 import com.sanda.truckdoc.client.api.model.ContactListData;
 import com.sanda.truckdoc.client.api.v3.sync.client.config.model.ClientConfigWithVersion;
-import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSet;
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetWithVersion;
 import com.sanda.truckdoc.client.api.v3.sync.maintenance.model.MaintenanceConfigInfo;
 import com.sanda.truckdoc.client.api.v3.sync.routing.model.RouteAssignmentInfo;
 
@@ -35,7 +35,7 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
 
     private ClientConfigWithVersion clientConfigWithVersion;
 
-    private InstructionSet instructionSet;
+    private InstructionSetWithVersion instructionSetWithVersion;
 
 
     /*Getter and setter*/
@@ -88,12 +88,12 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
         this.clientConfigWithVersion = clientConfigWithVersion;
     }
 
-    public InstructionSet getInstructionSet() {
-        return instructionSet;
+    public InstructionSetWithVersion getInstructionSetWithVersion() {
+        return instructionSetWithVersion;
     }
 
-    public void setInstructionSet(InstructionSet instructionSet) {
-        this.instructionSet = instructionSet;
+    public void setInstructionSetWithVersion(InstructionSetWithVersion instructionSetWithVersion) {
+        this.instructionSetWithVersion = instructionSetWithVersion;
     }
 
     @Override
@@ -105,7 +105,7 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
                 ", routeAssignmentInfo=" + routeAssignmentInfo +
                 ", maintenanceConfigInfo=" + maintenanceConfigInfo +
                 ", clientConfigWithVersion=" + clientConfigWithVersion +
-                ", instructionSet=" + instructionSet +
+                ", instructionSetWithVersion=" + instructionSetWithVersion +
                 '}';
     }
 }

@@ -103,6 +103,14 @@ public class SynchronizeRequest {
         this.lastKnownClientConfigVersion = lastKnownClientConfigVersion;
     }
 
+    public Long getLastKnownInstructionSetVersion() {
+        return lastKnownInstructionSetVersion;
+    }
+
+    public void setLastKnownInstructionSetVersion(Long lastKnownInstructionSetVersion) {
+        this.lastKnownInstructionSetVersion = lastKnownInstructionSetVersion;
+    }
+
     @Override
     public String toString() {
         return "SynchronizeRequest{" +
@@ -113,6 +121,7 @@ public class SynchronizeRequest {
                 ", lastKnownRouteAssignment=" + lastKnownRouteAssignment +
                 ", lastKnownMaintenanceConfigVersion=" + lastKnownMaintenanceConfigVersion +
                 ", lastKnownClientConfigVersion=" + lastKnownClientConfigVersion +
+                ", lastKnownInstructionSetVersion=" + lastKnownInstructionSetVersion +
                 '}';
     }
 }
