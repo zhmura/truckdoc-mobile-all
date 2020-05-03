@@ -9,10 +9,7 @@
     },
 
     "instruction_set": {
-      "type": "array",
-      "items": {
-        "$ref": "instruction_set.json"
-      },
+      "$ref": "instruction_set.json",
       "required": true
     }
   }
