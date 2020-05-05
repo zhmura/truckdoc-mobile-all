@@ -18,7 +18,6 @@ import com.sanda.truckdoc.client.api.v3.sync.maintenance.api.AddMaintenanceRepor
 import com.sanda.truckdoc.client.data.model.file.DocType;
 import com.sanda.truckdoc.client.data.model.file.FileType;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
-import com.sanda.truckdoc.client.service.AppSettings;
 import com.sanda.truckdoc.client.service.NotificationHelper;
 import com.sanda.truckdoc.client.service.ResponseCheckHelper;
 import com.sanda.truckdoc.client.to.data.Model;
@@ -28,8 +27,8 @@ import com.sanda.truckdoc.client.to.utils.LocalStorage;
 import com.sanda.truckdoc.client.ui.utils.SoundUtils;
 import com.sanda.truckdoc.client.util.ConnectionUtils;
 import com.sanda.truckdoc.client.util.timber.L;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.AuthorizedBackend;
-import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.ProgressRequestBody;
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -92,7 +91,7 @@ public class NewMntService extends AbstractIntentService {
         storage = LocalStorage.getInstance(getApplicationContext());
         authorizedBackend = TruckDocApp.get(this)
                 .appComponent()
-                .plus(new AuthorizedNetworkModule(userKey))
+                .auth().create()
                 .authorizedBackend();
     }
 

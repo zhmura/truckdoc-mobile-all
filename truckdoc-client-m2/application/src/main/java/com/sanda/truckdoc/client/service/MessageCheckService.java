@@ -71,9 +71,9 @@ import com.sanda.truckdoc.client.util.commons.FilenameUtils;
 import com.sanda.truckdoc.client.util.commons.IOUtils;
 import com.sanda.truckdoc.client.util.commons.StringUtils;
 import com.sanda.truckdoc.client.util.timber.L;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.AuthorizedBackend;
 import com.sanda.truckdoc.network.Backend;
-import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.SynchronizeCheckResponse;
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -154,11 +154,11 @@ public class MessageCheckService extends IntentService {
     @Nullable
     private HttpExecutor httpsExecutor = null;
     @NotNull
-    private Properties resources;
+    private Properties  resources;
     @NotNull
     private AppSettings settings;
-    @Nullable
-    private UserKey userKey;
+    @Inject @Nullable
+    UserKey     userKey;
 
     // This is static and volatile to survive service recreation.
     private static volatile boolean appVersionWasChecked = false;
@@ -266,7 +266,7 @@ public class MessageCheckService extends IntentService {
         assert userKey != null;
         authorizedBackend = TruckDocApp.get(this)
                 .appComponent()
-                .plus(new AuthorizedNetworkModule(userKey))
+                .auth().create()
                 .authorizedBackend();
     }
 

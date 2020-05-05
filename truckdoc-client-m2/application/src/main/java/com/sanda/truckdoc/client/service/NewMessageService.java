@@ -19,8 +19,8 @@ import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.ui.utils.SoundUtils;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.timber.L;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.AuthorizedBackend;
-import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.ProgressRequestBody;
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -74,7 +74,7 @@ public class NewMessageService extends AbstractIntentService {
         if (userKey != null) {
             authorizedBackend = TruckDocApp.get(this)
                     .appComponent()
-                    .plus(new AuthorizedNetworkModule(userKey))
+                    .auth().create()
                     .authorizedBackend();
         }
     }

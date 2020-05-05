@@ -12,7 +12,7 @@ data class FileDesc(
         var pending: Long?
 )
 
-@Entity
+@Entity(tableName = "instructions")
 data class InstructionDb(
         @PrimaryKey val id: String,
         val icon: String?,
@@ -34,17 +34,20 @@ interface InstructionsDao {
     @Update
     fun update(value: InstructionDb)
 
-    @Query("SELECT * FROM InstructionDb WHERE parentId IS NULL")
+    @Query("SELECT * FROM instructions WHERE parentId IS NULL")
     fun findRoot(): LiveData<List<InstructionDb>>
 
-    @Query("SELECT * FROM InstructionDb WHERE parentId = :parentId")
+    @Query("SELECT * FROM instructions WHERE parentId = :parentId")
     fun findEntries(parentId: String): LiveData<List<InstructionDb>>
 
-    @Query("DELETE FROM InstructionDb where id NOT IN(:ids)")
+    @Query("DELETE FROM instructions where id NOT IN(:ids)")
     fun removeMissingNodes(ids: List<String>)
 
-    @Query("SELECT * FROM InstructionDb where id = :id")
+    @Query("SELECT * FROM instructions where id = :id")
     fun find(id: String): InstructionDb?
+
+    @Query("SELECT * FROM instructions WHERE pending IS NOT NULL")
+    fun findPending(): List<InstructionDb>
 }
 
 @Database(entities = [InstructionDb::class], version = 1)

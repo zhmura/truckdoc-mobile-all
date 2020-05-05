@@ -10,6 +10,7 @@ import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
 import com.sanda.truckdoc.client.ui.SplashActivity_;
+import com.sanda.truckdoc.network.AppSettings;
 
 import app.camera.tdoc.camera_library.PreferenceKeys;
 import retrofit2.Response;

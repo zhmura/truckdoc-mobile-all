@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import app.instructions.InstructionsActivityInjectorProvider;
+import app.instructions.InstructionsInjectorProvider;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.LocationReceiver.ACTION_LOCATION_CHANGED;
@@ -46,7 +46,7 @@ import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICA
  * Date: 19.02.14
  * Time: 20:43
  */
-public class TruckDocApp extends Application implements InstructionsActivityInjectorProvider {
+public class TruckDocApp extends Application implements InstructionsInjectorProvider {
 
     private Activity currentActivity;
 
@@ -54,8 +54,7 @@ public class TruckDocApp extends Application implements InstructionsActivityInje
         return currentActivity;
     }
 
-    @Nullable
-    private volatile AppComponent appComponent;
+    @Nullable private volatile AppComponent appComponent;
 
     private static final String TAG = TruckDocApp.class.getSimpleName();
 
@@ -65,6 +64,7 @@ public class TruckDocApp extends Application implements InstructionsActivityInje
         long start = System.currentTimeMillis();
         if (BuildConfig.DEBUG) {
             new TimberInitTask().execute();
+            Timber.plant(new Timber.DebugTree());
         }
         registerReceivers();
         GetNewMessagesAlarmManager.setGetMessagesAlarm(getApplicationContext(), false);
@@ -144,7 +144,6 @@ public class TruckDocApp extends Application implements InstructionsActivityInje
         registerReceiver(new ConnectionChangeReceiver(), intentFilter);
         intentFilter = new IntentFilter(ConnectionRestoredReceiverForFileUpload.ACTION_FINISH);
         LocalBroadcastManager.getInstance(this).registerReceiver(new ConnectionRestoredReceiverForFileUpload(), intentFilter);
-
     }
 
     private void registerFileUploadReceiver() {
@@ -164,59 +163,46 @@ public class TruckDocApp extends Application implements InstructionsActivityInje
     private void registerCheckConnectionAfterBootReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Checker.AFTER_BOOT_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new CheckConnectionAfterBootReceiver(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new CheckConnectionAfterBootReceiver(), intentFilter);
     }
 
     private void registerCheckerConnectionReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NoConnectionReceiver.ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new CheckerConnectionReceiver(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new CheckerConnectionReceiver(), intentFilter);
     }
 
     private void registerLocationReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_LOCATION_CHANGED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new LocationReceiver_(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new LocationReceiver_(), intentFilter);
     }
 
     private void registerNotificationReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NOTIFICATION_MESSAGE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new NotificationReceiver_(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new NotificationReceiver_(), intentFilter);
     }
 
     private void registerGetMessagesReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(GetNewMessagesAlarmManager.ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new GetNewMessagesAlarmManager(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new GetNewMessagesAlarmManager(), intentFilter);
     }
 
     private void registerIncomeMessagesReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(IncomeMessagesAlarmManager.ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new IncomeMessagesAlarmManager(),
-                intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new IncomeMessagesAlarmManager(), intentFilter);
     }
 
-
     private void turnOnStrictMode() {
-        StrictMode.setThreadPolicy(
-                new StrictMode.ThreadPolicy.Builder()
-                        .detectAll()
-                        .penaltyLog()
-                        .penaltyDeath().build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build());
     }
 
     private void permitDiskReads() {
         StrictMode.ThreadPolicy oldThreadPolicy = StrictMode.getThreadPolicy();
-        StrictMode.setThreadPolicy(
-                new StrictMode.ThreadPolicy.Builder(oldThreadPolicy).permitDiskWrites()
-                        .permitDiskReads().build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder(oldThreadPolicy).permitDiskWrites().permitDiskReads().build());
         StrictMode.setThreadPolicy(oldThreadPolicy);
     }
 

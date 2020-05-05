@@ -1,7 +1,6 @@
-package com.sanda.truckdoc.client.service;
+package com.sanda.truckdoc.network;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 
 import com.sanda.truckdoc.network.api.UserKey;
@@ -20,9 +19,9 @@ public class AppSettings {
     private static final String PREF_USER_LOGIN = "userLogin";
     private static final String PREF_USER_KEY = "userKey";
 
-    private ContextWrapper context;
+    private Context context;
 
-    public AppSettings(@NotNull ContextWrapper context) {
+    public AppSettings(@NotNull Context context) {
         this.context = context;
     }
 

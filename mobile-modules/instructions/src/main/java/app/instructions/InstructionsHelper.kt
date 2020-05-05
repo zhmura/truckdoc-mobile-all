@@ -1,24 +1,26 @@
 package app.instructions
 
 import com.sanda.truckdoc.client.api.v3.sync.instructions.model.*
+import java.io.File
 import javax.inject.Inject
 
 class InstructionsHelper @Inject constructor(
-        private val dao: InstructionsDao
+        private val dao: InstructionsDao,
+        private val rootDir: File
 ) {
     fun processIncomingSet(set: InstructionSet) {
         val configNodes = set.entries.flatMap { mapNodes(it, null) }
         dao.removeMissingNodes(configNodes.map { it.id })
 
-        configNodes.filter { it.file != null }.forEach {
-            val db = dao.find(it.id)
+        configNodes.filter { it.file != null }.forEach { server ->
+            val db = dao.find(server.id)
             if (db == null) {
-                dao.insert(it.copy(file = it.file!!.copy(pending = it.file.timestamp)))
+                dao.insert(server.copy(file = server.file!!.copy(pending = server.file.timestamp)))
             } else {
-                if (db.file?.timestamp == it.file!!.timestamp)
-                    dao.update(it)
+                if (db.file?.timestamp == server.file!!.timestamp)
+                    dao.update(server.copy(file = server.file.copy(pending = db.file.pending)))
                 else
-                    dao.update(it.copy(file = it.file.copy(pending = it.file.timestamp)))
+                    dao.update(server.copy(file = server.file.copy(pending = server.file.timestamp)))
             }
         }
         configNodes.filter { it.file == null }.forEach {
@@ -41,4 +43,6 @@ class InstructionsHelper @Inject constructor(
     private fun InstructionFileInfo.toFileDesc(): FileDesc {
         return FileDesc(fileId, fileName, mimeType, timestamp, null)
     }
+
+    fun exists(f: FileDesc?) = f?.let { File(rootDir, f.fileName).let { it.exists() && it.isFile } } ?: false
 }

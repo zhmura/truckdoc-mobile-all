@@ -21,7 +21,8 @@ public class SynchronizeRequestAdapter {
     private static final ArrayList<String> MESSAGES_AND_UPDATES = Lists.newArrayList(SynchronizeRequest.GET_NEW_MESSAGES,
             SynchronizeRequest.GET_CONTACT_LIST_UPDATES,
             SynchronizeRequest.GET_CLIENT_CONFIG,
-            SynchronizeRequest.GET_ROUTE_ASSIGNMENT);
+            SynchronizeRequest.GET_ROUTE_ASSIGNMENT,
+            SynchronizeRequest.GET_INSTRUCTION_SET);
 
     public static SynchronizeRequest withNewMessagesAndUpdates(List<LocationRecord> locationHistory,
                                                                Long knownContactListVersion,
@@ -56,7 +57,8 @@ public class SynchronizeRequestAdapter {
         r.setDataToGet(Lists.newArrayList(SynchronizeRequest.GET_NEW_MESSAGES,
                 SynchronizeRequest.GET_ROUTE_ASSIGNMENT,
                 SynchronizeRequest.GET_CONTACT_LIST_UPDATES,
-                SynchronizeRequest.GET_CLIENT_CONFIG));
+                SynchronizeRequest.GET_CLIENT_CONFIG,
+                SynchronizeRequest.GET_INSTRUCTION_SET));
         r.setCurrentClientTime(DateTime.now().toDate());
         r.setLocationHistory(locationHistory);
         return r;

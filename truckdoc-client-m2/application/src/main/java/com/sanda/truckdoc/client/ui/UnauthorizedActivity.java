@@ -11,7 +11,7 @@ import android.widget.Button;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
-import com.sanda.truckdoc.client.service.AppSettings;
+import com.sanda.truckdoc.network.AppSettings;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;

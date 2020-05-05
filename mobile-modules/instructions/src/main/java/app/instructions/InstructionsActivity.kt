@@ -142,12 +142,12 @@ class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (applicationContext as InstructionsActivityInjectorProvider).appComponent().inject(this)
+        (applicationContext as InstructionsInjectorProvider).appComponent().inject(this)
         val set = instructionsProvider.getInstructions()
 
         helper.processIncomingSet(set!!)
 
-        val adapter = InstructionsAdapter()
+        val adapter = InstructionsAdapter(helper)
         recyclerView.adapter = adapter
         if (parent == null)
             dao.findRoot().observe(this, Observer {
@@ -161,6 +161,7 @@ class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        DownloadFilesWorker.start(this)
     }
 
     override fun onSupportNavigateUp(): Boolean {

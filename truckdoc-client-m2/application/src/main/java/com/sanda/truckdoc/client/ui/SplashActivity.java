@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
-import com.sanda.truckdoc.client.service.AppSettings;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
 
 import org.androidannotations.annotations.EActivity;

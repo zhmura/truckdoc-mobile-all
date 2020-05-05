@@ -41,6 +41,7 @@ android {
         versionCode 39
         versionName "3.9"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
+        archivesBaseName = "com.sanda.truckdoc.client-${versionCode}"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ['resourcePackageName': android.defaultConfig.applicationId]
@@ -118,13 +119,6 @@ android {
             applicationId 'com.sanda.truckdoc.client.belkaspian'
         }*/
     }
-
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            output.outputFileName = "com.sanda.truckdoc.client-${versionCode}.apk"
-        }
-    }
-    buildToolsVersion "29.0.2"
 }
 
 def AAVersion = "4.7.0-SNAPSHOT" // change this to your desired version, for example the latest stable: 4.6.0
@@ -197,7 +191,7 @@ dependencies {
     compileOnly 'javax.annotation:jsr250-api:1.0'
     // Just for Generated annotation
     implementation 'net.tribe7.seeds:seeds-collect:16.0.1'
-    implementation 'ch.boye.httpclientandroidlib:httpclient:1.1.1'
+    //implementation 'ch.boye.httpclientandroidlib:httpclient:1.1.1'
 
     //retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.5.1'
     implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"

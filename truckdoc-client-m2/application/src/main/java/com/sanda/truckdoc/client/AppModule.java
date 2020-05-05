@@ -2,7 +2,7 @@ package com.sanda.truckdoc.client;
 
 import android.content.Context;
 
-import com.sanda.truckdoc.client.service.AppSettings;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
 
 import javax.inject.Singleton;

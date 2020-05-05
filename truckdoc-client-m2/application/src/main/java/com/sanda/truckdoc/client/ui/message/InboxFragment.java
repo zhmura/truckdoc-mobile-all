@@ -23,7 +23,6 @@ import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.ServerMessage;
 import com.sanda.truckdoc.client.receivers.IncomeMessagesAlarmManager;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
-import com.sanda.truckdoc.client.service.AppSettings;
 import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.service.NewMessageService_;
 import com.sanda.truckdoc.client.service.NotificationHelper;
@@ -33,7 +32,7 @@ import com.sanda.truckdoc.client.ui.Dialogs;
 import com.sanda.truckdoc.client.ui.TruckdocPreferenceActivity_;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.commons.FilenameUtils;
-import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
+import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
 
 import net.tribe7.common.base.Optional;
@@ -100,7 +99,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         assert userKey != null;
         TruckDocApp.get(this.getActivity())
                 .appComponent()
-                .plus(new AuthorizedNetworkModule(userKey))
+                .auth().create()
                 .authorizedBackend();
     }
 

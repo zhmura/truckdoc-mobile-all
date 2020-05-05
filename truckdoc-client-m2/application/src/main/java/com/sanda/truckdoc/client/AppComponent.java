@@ -18,19 +18,17 @@ import com.sanda.truckdoc.network.api.NetworkModule;
 import javax.inject.Singleton;
 
 import androidx.annotation.NonNull;
-import app.instructions.InstructionsActivityInjector;
 import app.instructions.InstructionsActivity;
+import app.instructions.InstructionsInjector;
 import app.instructions.InstructionsModule;
 import dagger.Component;
 
 @Singleton
 @Component(
-        modules = { AppModule.class, DbModule.class, NetworkModule.class, InstructionsModule.class })
-public interface AppComponent extends InstructionsActivityInjector {
+        modules = { AppModule.class, DbModule.class, NetworkModule.class, InstructionsModule.class, AuthorizedNetworkModule.class })
+public interface AppComponent extends InstructionsInjector {
 
-    AuthorizedNetworkComponent plus(AuthorizedNetworkModule userModule);
-
-    void inject(@NonNull MessagesDatabaseService service);
+    AuthorizedNetworkComponent.Builder auth();
 
     void inject(@NonNull MessageCheckService service);
 

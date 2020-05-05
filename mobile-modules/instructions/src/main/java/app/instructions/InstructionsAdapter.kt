@@ -11,7 +11,7 @@ import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.instructions_leaf_listitem.view.*
 
-class InstructionsAdapter() : ListAdapter<InstructionDb, InstructionsAdapter.ViewHolder>(object : DiffUtil.ItemCallback<InstructionDb?>() {
+class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<InstructionDb, InstructionsAdapter.ViewHolder>(object : DiffUtil.ItemCallback<InstructionDb?>() {
     override fun areItemsTheSame(oldItem: InstructionDb, newItem: InstructionDb): Boolean = oldItem.id == newItem.id
 
     override fun areContentsTheSame(oldItem: InstructionDb, newItem: InstructionDb): Boolean = oldItem == newItem
@@ -35,7 +35,7 @@ class InstructionsAdapter() : ListAdapter<InstructionDb, InstructionsAdapter.Vie
         }
     }
 
-    private class LeafVH(itemView: View) : ViewHolder(itemView) {
+    private inner class LeafVH(itemView: View) : ViewHolder(itemView) {
         override fun bind(entry: InstructionDb) {
             itemView.textView.text = entry.displayName
             itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
@@ -43,7 +43,7 @@ class InstructionsAdapter() : ListAdapter<InstructionDb, InstructionsAdapter.Vie
                 alignSelf = AlignItems.STRETCH
             }
             val c = itemView.context
-            itemView.isEnabled = entry.file?.pending == null
+            itemView.isEnabled = helper.exists(entry.file)
             itemView.setOnClickListener {
                 //c.startActivity(Intent(c, Ins))
             }
