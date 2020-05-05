@@ -6,8 +6,7 @@
   },
   "properties": {
     "file": {
-      "$ref": "instruction_file_info.json",
-      "required": true
+      "$ref": "instruction_file_info.json"
     }
   }
 }
