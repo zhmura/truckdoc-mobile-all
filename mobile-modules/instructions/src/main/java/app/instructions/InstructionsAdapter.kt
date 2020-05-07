@@ -1,14 +1,17 @@
 package app.instructions
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetNode
 import kotlinx.android.synthetic.main.instructions_leaf_listitem.view.*
 
 class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<InstructionDb, InstructionsAdapter.ViewHolder>(object : DiffUtil.ItemCallback<InstructionDb?>() {
@@ -21,7 +24,7 @@ class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<Instruct
         abstract fun bind(entry: InstructionDb)
     }
 
-    private class NodeVH(itemView: View) : ViewHolder(itemView) {
+    private class BranchVH(itemView: View) : ViewHolder(itemView) {
         override fun bind(entry: InstructionDb) {
             itemView.textView.text = entry.displayName
             itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
@@ -44,9 +47,14 @@ class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<Instruct
             }
             val c = itemView.context
             itemView.isEnabled = helper.exists(entry.file)
-            itemView.setOnClickListener {
-                //c.startActivity(Intent(c, Ins))
-            }
+            if (helper.exists(entry.file))
+                itemView.setOnClickListener {
+                    try {
+                        c.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(helper.getUri(entry.file), entry.file.mimeType))
+                    } catch (e: Exception) {
+                        Toast.makeText(c, c.getString(R.string.app_for_file_not_found, entry.file.fileId), Toast.LENGTH_SHORT).show()
+                    }
+                }
         }
     }
 
@@ -54,7 +62,7 @@ class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<Instruct
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.instructions_leaf_listitem, parent, false)
 
         return if (viewType == 0)
-            NodeVH(itemView)
+            BranchVH(itemView)
         else
             LeafVH(itemView)
     }
@@ -64,7 +72,7 @@ class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<Instruct
     }
 
     override fun getItemViewType(position: Int): Int =
-            if (getItem(position).file == null)
+            if (getItem(position).type == InstructionSetNode.Type.BRANCH)
                 0
             else
                 1

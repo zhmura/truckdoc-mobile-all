@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_for_file_not_found">Приложение для файла %d не найдено!</string>
+</resources>

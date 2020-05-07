@@ -3,9 +3,12 @@ package app.instructions
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetWithVersion
 import com.sanda.truckdoc.network.AuthorizedBackend
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class DownloadFilesWorker(private val appContext: Context, workerParams: WorkerParameters)
@@ -13,13 +16,19 @@ class DownloadFilesWorker(private val appContext: Context, workerParams: WorkerP
 
     companion object {
         @JvmStatic
-        fun start(c: Context) {
+        fun start(c: Context, set: InstructionSetWithVersion? = null) {
+            WorkManager.getInstance(c).cancelAllWork()
+            set?.let {
+                processConfig(c, set)
+            }
+
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
             val uploadWorkRequest = OneTimeWorkRequestBuilder<DownloadFilesWorker>()
                     .setConstraints(constraints)
+                    .setInitialDelay(500, TimeUnit.MICROSECONDS)
 /*                  TODO optimize this if you want, use defaults for now
                     .setBackoffCriteria(
                             BackoffPolicy.EXPONENTIAL,
@@ -27,6 +36,10 @@ class DownloadFilesWorker(private val appContext: Context, workerParams: WorkerP
                             TimeUnit.MILLISECONDS)*/
                     .build()
             WorkManager.getInstance(c).enqueue(uploadWorkRequest)
+        }
+
+        private fun processConfig(c: Context, set: InstructionSetWithVersion) {
+            (c.applicationContext as InstructionsInjectorProvider).appComponent().helper.processIncomingSet(set)
         }
     }
 
@@ -45,14 +58,27 @@ class DownloadFilesWorker(private val appContext: Context, workerParams: WorkerP
 
     override fun doWork(): Result {
         try {
+            rootFileDir.mkdirs()
             val pending = dao.findPending()
             pending.forEach {
-                api.downloadFile(it.file!!.fileName).execute().body().byteStream().saveToFile(it.file.fileName)
-                dao.update(it.copy(file = it.file.copy(timestamp = it.file.timestamp, pending = null)))
+                Log.i("DownloadFilesWorker", "Downloading file $it")
+                val response = api.downloadFile(it.file!!.fileId).execute()
+                if (response.isSuccessful) {
+                    response.body().byteStream().saveToFile(it.file.fileName)
+                    dao.update(it.copy(file = it.file.copy(timestamp = it.file.timestamp, pending = null)))
+                } else {
+                    //most probably it is server error like 4xx
+                    Log.e("DownloadFilesWorker", response.errorBody().string())
+                    return Result.failure()
+                }
             }
         } catch (e: Exception) {
             Log.e("DownloadFilesWorker", "Error downloading", e)
-            return Result.retry()
+            //connection reset, socket timeout, etc
+            return if (e is IOException)
+                Result.retry()
+            else
+                Result.failure()
         }
 
         // Indicate whether the task finished successfully with the Result

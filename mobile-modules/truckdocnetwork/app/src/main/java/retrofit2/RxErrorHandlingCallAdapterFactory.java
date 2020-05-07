@@ -22,11 +22,15 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
 
     @Override
     public CallAdapter<?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        CallAdapter<?> wrapped = original.get(returnType, annotations, retrofit);
+        if (wrapped == null) {
+            return null;
+        }
         return new RxCallAdapterWrapper(retrofit, original.get(returnType, annotations, retrofit));
     }
 
     private static class RxCallAdapterWrapper implements CallAdapter<Observable<?>> {
-        private final Retrofit retrofit;
+        private final Retrofit       retrofit;
         private final CallAdapter<?> wrapped;
 
         public RxCallAdapterWrapper(Retrofit retrofit, CallAdapter<?> wrapped) {

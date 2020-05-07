@@ -30,6 +30,8 @@ object InstructionsModule {
 interface InstructionsInjector {
     fun inject(act: InstructionsActivity)
     fun inject(act: DownloadFilesWorker)
+
+    val helper: InstructionsHelper
 }
 
 interface InstructionsInjectorProvider {

@@ -15,4 +15,7 @@
     <files-path
         name="files"
         path="." />
+    <files-path
+        name="instructions"
+        path="instructions" />
 </paths>

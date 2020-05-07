@@ -107,6 +107,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.camera.tdoc.camera_library.PreferenceKeys;
+import app.instructions.DownloadFilesWorker;
 import retrofit2.Response;
 import rx.Observable;
 import timber.log.Timber;
@@ -767,6 +768,8 @@ public class MessageCheckService extends IntentService {
                     LocationReceiver.requestLocationUpdates(this, gpsSyncInterval);
                 }
             }
+
+            DownloadFilesWorker.start(this, responseNew.getInstructionSetWithVersion());
 
             databaseService.deleteLocations(dbLocations);
 

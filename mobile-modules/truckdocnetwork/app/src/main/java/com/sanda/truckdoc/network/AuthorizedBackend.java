@@ -85,6 +85,6 @@ public interface AuthorizedBackend {
                            @Query("fileName") String fileName,
                            @Query("formatVersion") Integer formatVersion);
 
-    @GET("/messages/attachment/{fileName}")
-    Call<ResponseBody> downloadFile(@Path("fileName") String fileName);
+    @GET("/mobile-api/v3/instructions/file")
+    Call<ResponseBody> downloadFile(@Query("instructionFileId") long fileId);
 }

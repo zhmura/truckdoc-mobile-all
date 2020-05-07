@@ -2,6 +2,7 @@ package app.instructions
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetNode
 import java.io.Serializable
 
 data class FileDesc(
@@ -15,6 +16,7 @@ data class FileDesc(
 @Entity(tableName = "instructions")
 data class InstructionDb(
         @PrimaryKey val id: String,
+        val type: InstructionSetNode.Type,
         val icon: String?,
         val displayName: String,
 
@@ -50,7 +52,16 @@ interface InstructionsDao {
     fun findPending(): List<InstructionDb>
 }
 
+@TypeConverters(Converters::class)
 @Database(entities = [InstructionDb::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun instructionDao(): InstructionsDao
+}
+
+class Converters {
+    @TypeConverter
+    fun fromStringToType(s: String) = InstructionSetNode.Type.valueOf(s)
+
+    @TypeConverter
+    fun fromTypeToString(e: InstructionSetNode.Type) = e.name
 }
