@@ -45,6 +45,9 @@ interface InstructionsDao {
     @Query("DELETE FROM instructions where id NOT IN(:ids)")
     fun removeMissingNodes(ids: List<String>)
 
+    @Query("DELETE FROM instructions")
+    fun removeAll()
+
     @Query("SELECT * FROM instructions where id = :id")
     fun find(id: String): InstructionDb?
 

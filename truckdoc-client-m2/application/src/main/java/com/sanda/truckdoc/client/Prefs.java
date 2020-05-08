@@ -1,10 +1,11 @@
 package com.sanda.truckdoc.client;
 
+import de.devland.esperandro.SharedPreferenceActions;
 import de.devland.esperandro.annotations.Default;
 import de.devland.esperandro.annotations.SharedPreferences;
 
 @SharedPreferences(name = Prefs.FILENAME)
-public interface Prefs {
+public interface Prefs extends SharedPreferenceActions {
 
     String FILENAME = "PREFS_KEY";
 

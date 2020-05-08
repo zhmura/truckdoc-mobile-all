@@ -1,6 +1,8 @@
 package app.instructions
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.core.content.FileProvider
 import com.sanda.truckdoc.client.api.v3.sync.instructions.model.*
 import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetNode.Type.BRANCH
@@ -13,9 +15,17 @@ import kotlin.contracts.contract
 class InstructionsHelper @Inject constructor(
         private val dao: InstructionsDao,
         val rootDir: File,
-        private val context: Context
+        private val context: Context,
+        private val instructionsPrefs: InstructionsPrefs
 ) {
     fun processIncomingSet(setWithVersion: InstructionSetWithVersion) {
+        if (setWithVersion.version > instructionsPrefs.lastKnownInstructionsVersion()) {
+            Log.i("InstructionsHelper", "New config version found. Old ${setWithVersion.version} new ${instructionsPrefs.lastKnownInstructionsVersion()}")
+            dao.removeAll()
+            rootDir.delete()
+        }
+        instructionsPrefs.lastKnownInstructionsVersion(setWithVersion.version)
+
         val set = setWithVersion.instructionSet
         val configNodes = set.entries.flatMap { mapNodes(it, null) }
         dao.removeMissingNodes(configNodes.map { it.id })
@@ -49,7 +59,7 @@ class InstructionsHelper @Inject constructor(
 
     private fun InstructionFileInfo.toFileDesc(): FileDesc = FileDesc(fileId, fileName, mimeType, timestamp, null)
 
-    fun getUri(f: FileDesc) = FileProvider.getUriForFile(context, "com.sanda.truckdoc.client.provider", File(rootDir, f.fileName));
+    fun getUri(f: FileDesc): Uri = FileProvider.getUriForFile(context, "com.sanda.truckdoc.client.provider", File(rootDir, f.fileName));
 }
 
 @OptIn(ExperimentalContracts::class)
