@@ -35,10 +35,10 @@ class InstructionsHelper @Inject constructor(
             if (db == null) {
                 dao.insert(server.copy(file = server.file!!.copy(pending = server.file.timestamp)))
             } else {
-                if (db.file?.timestamp == server.file!!.timestamp)
-                    dao.update(server.copy(file = server.file.copy(pending = db.file.pending)))
-                else
+                if (db.file?.timestamp != server.file!!.timestamp || !exists(db.file))
                     dao.update(server.copy(file = server.file.copy(pending = server.file.timestamp)))
+                else
+                    dao.update(server.copy(file = server.file.copy(pending = db.file.pending)))
             }
         }
         configNodes.filter { it.file == null }.forEach {

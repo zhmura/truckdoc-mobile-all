@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_for_file_not_found">Приложение для файла %d не найдено!</string>
+    <string name="instructions_title_version">Инструкции (%d вер.)</string>
+    <string name="instructions_no_files_downloaded">Нет файлов для загрузки</string>
+    <string name="instructions_downloading">Загрузка файла</string>
+    <plurals name="instructions_files_downloaded">
+        <item quantity="one">1 файл загружен</item>
+        <item quantity="few">%d файла загружено</item>
+        <item quantity="many">%d файлов загружено</item>
+    </plurals>
 </resources>

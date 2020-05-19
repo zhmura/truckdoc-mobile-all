@@ -8,6 +8,7 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sanda.truckdoc.network.Backend;
+import com.sanda.truckdoc.network.BuildConfig;
 import com.sanda.truckdoc.network.api.interceptors.ClientVersionHeaderInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.HttpLoggingInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.UserAgentInterceptor;
@@ -54,7 +55,7 @@ public class NetworkModule {
     @Singleton
     HttpLoggingInterceptor provideHttpLoggingInterceptor() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        interceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.BASIC);
         return interceptor;
     }
 

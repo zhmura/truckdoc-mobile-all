@@ -23,6 +23,9 @@ class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
     @Inject
     lateinit var dao: InstructionsDao
 
+    @Inject
+    lateinit var prefs: InstructionsPrefs
+
     private val parent by lazy { intent.getSerializableExtra("parent") as? InstructionDb }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,11 +34,12 @@ class InstructionsActivity : AppCompatActivity(R.layout.instructions_activity) {
 
         val adapter = InstructionsAdapter(helper)
         recyclerView.adapter = adapter
-        if (parent == null)
+        if (parent == null) {
             dao.findRoot().observe(this, Observer {
                 adapter.submitList(it)
             })
-        else {
+            supportActionBar?.title = getString(R.string.instructions_title_version, prefs.lastKnownInstructionsVersion())
+        } else {
             supportActionBar?.title = parent!!.displayName
             dao.findEntries(parent!!.id).observe(this, Observer {
                 adapter.submitList(it)
