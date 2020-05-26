@@ -50,7 +50,10 @@ class InstructionsAdapter(val helper: InstructionsHelper) : ListAdapter<Instruct
             if (helper.exists(entry.file))
                 itemView.setOnClickListener {
                     try {
-                        c.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(helper.getUri(entry.file), entry.file.mimeType))
+                        c.startActivity(
+                                Intent(Intent.ACTION_VIEW)
+                                        .setDataAndType(helper.getUri(entry.file), entry.file.mimeType)
+                                        .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
                     } catch (e: Exception) {
                         Toast.makeText(c, c.getString(R.string.app_for_file_not_found, entry.file.fileId), Toast.LENGTH_SHORT).show()
                     }
