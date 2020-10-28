@@ -168,17 +168,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private void createDefaultButtons() {
         ArrayList<DbContactRecord> records = Lists.newArrayList(//
-                new DbContactRecord(1l,
+                new DbContactRecord(1L,
                         "Колонный",
                         null,
                         context.getResources().getColor(R.color.button_default_green),
                         null),
-                new DbContactRecord(2l,
+                new DbContactRecord(2L,
                         "Экспедитор",
                         null,
                         context.getResources().getColor(R.color.button_default_blue),
                         null),
-                new DbContactRecord(3l,
+                new DbContactRecord(3L,
                         "Оператор",
                         null,
                         context.getResources().getColor(R.color.button_default_red),
