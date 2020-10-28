@@ -139,6 +139,7 @@ dependencies {
     implementation project(':truckdoc-util')
     implementation project(':truckdoc-client-api')
     implementation project(':instructions')
+    implementation project(':data')
 
  //   implementation project(':to')
 /*    releaseCompile (project(path: ':checker', configuration: 'release')) {
@@ -162,7 +163,7 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.1.7'
     implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.1.7'
 
-    implementation 'com.j256.ormlite:ormlite-android:4.48'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
     implementation 'org.jetbrains:annotations:19.0.0'
     //dagger 2

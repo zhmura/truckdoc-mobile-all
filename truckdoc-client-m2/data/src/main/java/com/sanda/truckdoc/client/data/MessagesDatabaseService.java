@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
@@ -43,9 +44,6 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-import static rx.Observable.from;
-import static rx.Observable.just;
-
 /**
  * @author Alexei Osipov
  */
@@ -87,13 +85,13 @@ public class MessagesDatabaseService {
     public Observable<Integer> markMessageAsDownloaded(ServerMessage message) {
         return Observable.defer(() -> {
             message.setDownloaded(true);
-            return just(serverMessagesDao.update(message));
+            return Observable.just(serverMessagesDao.update(message));
         });
     }
 
     public Observable<Integer> insertLocation(DbLocation location) {
         return Observable.defer(() -> {
-            return just(locationDao.create(location));
+            return Observable.just(locationDao.create(location));
         });
     }
 
@@ -128,7 +126,7 @@ public class MessagesDatabaseService {
     }
 
     public Observable<DbContactRecord> getContactRecords() {
-        return Observable.defer(() -> from(contactRecordDao.queryForAll()));
+        return Observable.defer(() -> Observable.from(contactRecordDao.queryForAll()));
     }
 
     public Observable<MessageFileRecord> getMessageFiles() {
@@ -178,13 +176,13 @@ public class MessagesDatabaseService {
             });
             return true;
         } catch (SQLException e) {
-            Timber.e(e, "Replace Contact Records failed");
+            Log.e("tag","Replace Contact Records failed", e);
             return false;
         }
     }
 
     public Observable<Integer> updateContactRecord(DbContactRecord record) {
-        return Observable.defer(() -> just(contactRecordDao.update(record)));
+        return Observable.defer(() -> Observable.just(contactRecordDao.update(record)));
     }
 
     public void deleteAssignments() {
@@ -202,7 +200,7 @@ public class MessagesDatabaseService {
     public Observable<Integer> markFileAsDownloaded(final AttachmentInfo attachment) {
         return Observable.defer(() -> {
             attachment.setDownloaded(true);
-            return just(attachmentDao.update(attachment));
+            return Observable.just(attachmentDao.update(attachment));
         });
     }
 
@@ -224,7 +222,7 @@ public class MessagesDatabaseService {
                 }
                 serverMessagesDao.delete(message);
             }
-            return just(0);
+            return Observable.just(0);
         }).subscribeOn(Schedulers.newThread());
     }
 
@@ -316,15 +314,6 @@ public class MessagesDatabaseService {
     }
 
     public Observable<ServerMessage> getMessages(boolean showHidden) {
-        //for debug
-        ServerMessage sm = new ServerMessage();
-        sm.setDownloaded(true);
-        sm.setSavedDate(DateTime.now());
-        sm.setRecipientId(RoleTypeMapper.IN_COLUMN);
-        sm.setText("text");
-        sm.setSenderRoleId(RoleTypeMapper.OUT_EXPEDITER);
-        sm.setOutgoing(false);
-        sm.setId(888000);
 
         return Observable.defer(() -> {
             //SELECT * FROM server_message WHERE (outgoing=1 OR (outgoing=0 AND downloaded=1)) AND hidden?=0
@@ -338,7 +327,7 @@ public class MessagesDatabaseService {
                 }
                 q.orderBy("savedDate", false);
                 q.limit(50L);
-                return from(serverMessagesDao.query(q.prepare()));
+                return Observable.from(serverMessagesDao.query(q.prepare()));
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
