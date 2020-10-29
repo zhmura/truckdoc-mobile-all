@@ -2,8 +2,16 @@ package com.sanda.truckdoc.client;
 
 import android.content.Context;
 
+import com.sanda.truckdoc.client.data.Deleter;
+import com.sanda.truckdoc.client.util.FileHelper;
+import com.sanda.truckdoc.client.util.commons.FileUtils;
+import com.sanda.truckdoc.client.util.timber.L;
 import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 
 import javax.inject.Singleton;
 
@@ -57,6 +65,27 @@ public class AppModule {
             @Override
             public long lastKnownInstructionsVersion() {
                 return p.get().getLong("lastKnownInstructionsVersion", -1);
+            }
+        };
+    }
+
+    @Provides
+    @Singleton
+    @NotNull Deleter provideDeleter(Context c) {
+        return new Deleter() {
+
+            @Override
+            public void deleteAll() {
+                FileHelper.deleteAllAppFiles();
+            }
+
+            @Override
+            public void deleteDirectoryForMessage(int id) {
+                try {
+                    FileUtils.deleteDirectory(FileHelper.getIncomeDirectory(id, "*"));
+                } catch (IOException e) {
+                    L.e(e);
+                }
             }
         };
     }

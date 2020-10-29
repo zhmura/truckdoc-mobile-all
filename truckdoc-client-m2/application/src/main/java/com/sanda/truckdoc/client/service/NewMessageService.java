@@ -239,7 +239,7 @@ public class NewMessageService extends AbstractIntentService {
                         //если все файлы для получателя загружены - отправляем
                         if (allFilesUploaded(fileRecords)) {
                             // TODO: This is wrong! We should take recipientIdType from MessageFileRecord
-                            String recipientIdType = db.getContactRecords().filter(contact -> contact.getRecipientId().equals(recipientId))
+                            String recipientIdType = db.getContactRecords().filter(contact -> contact.getRecipientId() == recipientId)
                                     .toBlocking().single().getRecipientIdType();
                             return sendMessageForRecipient(recipientId, recipientIdType, fileRecords);
                         } else {

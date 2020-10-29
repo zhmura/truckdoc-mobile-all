@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.sanda.checker.Checker;
-import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.ui.DashboardActivity_;
 
 import androidx.annotation.NonNull;
@@ -25,7 +25,7 @@ public class BootCompletedJobIntentService extends JobIntentService {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        MessagesDatabaseService.deleteOldMessages(getApplicationContext());
+        TruckDocApp.get(getApplicationContext()).appComponent().db().deleteOldMessages();
         DashboardActivity_.intent(getApplicationContext()).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
     }
 

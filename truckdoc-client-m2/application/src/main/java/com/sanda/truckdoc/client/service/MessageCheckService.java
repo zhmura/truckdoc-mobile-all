@@ -440,7 +440,7 @@ public class MessageCheckService extends IntentService {
                 return;
             }
             pojo.setSent(true);
-            MessagesDatabaseService.saveOutgoingMessages(this, list);
+            databaseService.saveOutgoingMessages(list);
             sendNotificationMessageonUI(getResources().getString(R.string.messages_sent), false);
             SoundUtils.soundNotification(this, false);
         } catch (IOException e) {
@@ -651,9 +651,7 @@ public class MessageCheckService extends IntentService {
                     return;
                 }
                 RoutePath routePath = (RoutePath) route.body();
-                DbRouteAssignment routeAssignment = new DbRouteAssignment(routeAssignmentInfo.getRouteAssignment(), routePath);
-                DbRouteAssignment assignment = databaseService.insertRouteAssignment(routeAssignment);
-                databaseService.initializeRoutePoints(assignment.getRoute(), routePath.getPoints());
+                DbRouteAssignment assignment = databaseService.insertRouteAssignmentAndPath(routeAssignmentInfo.getRouteAssignment(), routePath);
                 prefs.currentRouteAssignment(assignment.getId());
             }
         } catch (IOException e) {
@@ -774,22 +772,22 @@ public class MessageCheckService extends IntentService {
             databaseService.deleteLocations(dbLocations);
 
             for (ServerToClientMessagePojoNew messagePojo : newMessages) {
-                MessagesDatabaseService.saveMessageIfNotExist(this, messagePojo);
+                databaseService.saveMessageIfNotExist(messagePojo);
                 if (messagePojo.getAttachments().size() == 0) {
                     receivedMessages.add(messagePojo.getId());
                 }
             }
-            List<ServerMessage> notDownLoadedMessages = MessagesDatabaseService.getNotDownloadedMessages(this);
+            List<ServerMessage> notDownLoadedMessages = databaseService.getNotDownloadedMessages();
             totalMessageCount = notDownLoadedMessages.size();
             for (ServerMessage message : notDownLoadedMessages) {
                 // Mark messages on server as received
-                List<AttachmentInfo> notDownloadedFiles = MessagesDatabaseService.getNotDownloadedFiles(this, message);
+                List<AttachmentInfo> notDownloadedFiles = databaseService.getNotDownloadedFiles( message);
                 for (AttachmentInfo attachmentInfo : notDownloadedFiles) {
                     if (!attachmentInfo.isDownloaded()) {
                         totalAttachmentCount++;
                         InputStream stream = MessageServiceClient.getFileBinaryData(queryContext,
                                 attachmentInfo.getServerId());
-                        saveFile(attachmentInfo, stream);
+                        saveFile(attachmentInfo, message.getId(), stream);
                         databaseService.markFileAsDownloaded(attachmentInfo).toBlocking().last();
                         receivedAttachmentCount++;
                     }
@@ -1014,14 +1012,14 @@ public class MessageCheckService extends IntentService {
         //r.play();
     }
 
-    private void saveFile(AttachmentInfo attachmentInfo, InputStream is) throws CommunicationException {
+    private void saveFile(AttachmentInfo attachmentInfo, int messageId, InputStream is) throws CommunicationException {
         String originalFileName = attachmentInfo.getFileName();
         String extension = FilenameUtils.getExtension(originalFileName);
 
-        File directory = FileHelper.getIncomeDirectory(attachmentInfo.getMessage().getId(), extension);
+        File directory = FileHelper.getIncomeDirectory(messageId, extension);
 
         File file = new File(directory, "TruckDoc_" +
-                formatMessageId(attachmentInfo.getMessage().getId()) +
+                formatMessageId(messageId) +
                 "_" +
                 formatAttachmentId(attachmentInfo.getId()) +
                 "." +

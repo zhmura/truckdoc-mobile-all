@@ -58,7 +58,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         sm.setDownloaded(true);
                         sm.setSavedDate(new DateTime(msg.getTimestampMillis()));
                         sm.setText(msg.getMessageBody());
-                        sm.setRecipientId(record.get().getRecipientId().intValue());
+                        sm.setRecipientId((int) record.get().getRecipientId());
                         sm.setOutgoing(false);
                         sm.setHidden(true);
                         db.addSmsMessage(sm);

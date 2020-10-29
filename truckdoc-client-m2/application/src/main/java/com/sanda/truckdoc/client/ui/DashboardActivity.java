@@ -17,10 +17,10 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
+import com.sanda.truckdoc.client.data.DbRouteAssignmentWithPath;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.DbPathWithPoints;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
-import com.sanda.truckdoc.client.data.model.route.DbRouteAssignment;
-import com.sanda.truckdoc.client.data.model.route.DbRoutePath;
 import com.sanda.truckdoc.client.data.model.route.DbRoutePoint;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.service.MessageCheckService;
@@ -397,7 +397,7 @@ public class DashboardActivity extends AppCompatActivity {
             }
         }
 
-        public void runCommand(DbRoutePath routePath) {
+        public void runCommand(DbPathWithPoints routePath) {
             StringBuilder route = new StringBuilder("$destination=");
             int i = 1;
             for (DbRoutePoint point : routePath.getPoints()) {
@@ -449,10 +449,10 @@ public class DashboardActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             if (prefs.currentRouteAssignment() != 0) {
-                DbRouteAssignment assignment = databaseService.findRouteAssignmentById(prefs.currentRouteAssignment());
+                DbRouteAssignmentWithPath assignment = databaseService.findRouteAssignmentById(prefs.currentRouteAssignment());
                 if (assignment != null) {
                     connect();
-                    DbRoutePath route = assignment.getRoute();
+                    DbPathWithPoints route = assignment.getPathWithPoints();
                     runCommand(route);
                     disconnect();
                 }
