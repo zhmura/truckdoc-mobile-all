@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 
 
 @Entity(tableName = "server_message")
-class ServerMessage(
+data class ServerMessage(
         @PrimaryKey(autoGenerate = true)
         private var id: Int = 0,
 

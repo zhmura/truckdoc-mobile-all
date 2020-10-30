@@ -13,7 +13,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.sanda.truckdoc.client.updater"
-        minSdkVersion 26
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 7
         versionName "2.5"

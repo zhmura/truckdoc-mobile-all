@@ -3,6 +3,7 @@
 package com.sanda.truckdoc.client.data
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.sanda.truckdoc.client.api.AttachmentPojo
@@ -14,8 +15,9 @@ import com.sanda.truckdoc.client.data.model.*
 import com.sanda.truckdoc.client.data.model.route.DbRouteAssignment
 import com.sanda.truckdoc.client.data.model.route.DbRoutePath
 import com.sanda.truckdoc.client.data.model.route.DbRoutePoint
+import common.toObservable
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.ISODateTimeFormat
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.File
@@ -58,7 +60,7 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
     fun findAll(): List<ServerMessage>
 
     @Query("SELECT * FROM server_message WHERE (isOutgoing=1 OR (isOutgoing=0 AND isDownloaded=1)) AND isHidden=:hidden order by savedDate desc")
-    fun findMessages(hidden: Boolean): List<ServerMessage>
+    fun findMessages(hidden: Boolean): LiveData<List<ServerMessage>>
 
     @Query("select * from server_message where isDownloaded = 0")
     fun findNotDownloadedMessages(): List<ServerMessage>
@@ -110,6 +112,9 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
 
     @Query("select * from contact_records")
     fun findContacts(): List<DbContactRecord>
+
+    @Query("select * from contact_records")
+    fun findContactsLive(): LiveData<List<DbContactRecord>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun createAssignment(dbRouteAssignment: DbRouteAssignment): Long
@@ -218,6 +223,9 @@ class MessagesDatabaseService @Inject constructor(
         }
     val contactRecords: Observable<DbContactRecord>
         get() = Observable.fromCallable { serverMessagesDao.findContacts() }.flatMapIterable { it }
+
+    fun getContacts() = serverMessagesDao.findContactsLive()
+
     val messageFiles: Observable<MessageFileRecord>
         get() = Observable.fromCallable { fileRecordDao.queryForAll() }.flatMap { iterable: List<MessageFileRecord>? -> Observable.from(iterable) }
     val notSentMessageFiles: Observable<MessageFileRecord>
@@ -298,9 +306,11 @@ class MessagesDatabaseService @Inject constructor(
     }
 
     fun getMessages(showHidden: Boolean): Observable<List<ServerMessage>> {
-        return Observable.fromCallable {
-            serverMessagesDao.findMessages(!showHidden)
-        }
+        return serverMessagesDao.findMessages(!showHidden).toObservable()
+    }
+
+    fun getMessagesLive(showHidden: Boolean): LiveData<List<ServerMessage>> {
+        return serverMessagesDao.findMessages(!showHidden)
     }
 
     fun deleteAllData() {
@@ -344,6 +354,7 @@ class MessagesDatabaseService @Inject constructor(
                 serverMessagesDao.update(oldMessage)
             }
             if (oldMessage == null) {
+                messagePojo.id = 0
                 val message = ServerMessage(messagePojo)
                 message.savedDate = DateTime.now()
                 message.isOutgoing = true
@@ -393,10 +404,10 @@ interface Deleter {
 
 class Converters {
     @TypeConverter
-    fun fromStringToDatetime(s: String) = DateTime.parse(s)
+    fun fromStringToDatetime(s: String?) = s?.let { DateTime.parse(it) }
 
     @TypeConverter
-    fun fromTypeToString(e: DateTime) = e.toString(DateTimeFormat.fullDateTime())
+    fun fromTypeToString(e: DateTime) = e.toString(ISODateTimeFormat.dateTime())
 }
 
 @TypeConverters(Converters::class)

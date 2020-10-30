@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
-import com.sanda.truckdoc.client.data.model.AttachmentInfo;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.ServerMessage;
 import com.sanda.truckdoc.client.receivers.IncomeMessagesAlarmManager;
@@ -31,7 +30,6 @@ import com.sanda.truckdoc.client.service.SyncReason;
 import com.sanda.truckdoc.client.ui.Dialogs;
 import com.sanda.truckdoc.client.ui.TruckdocPreferenceActivity_;
 import com.sanda.truckdoc.client.util.FileHelper;
-import com.sanda.truckdoc.client.util.commons.FilenameUtils;
 import com.sanda.truckdoc.network.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -57,7 +55,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import rx.Observable;
 
-import static net.tribe7.common.collect.FluentIterable.from;
 import static org.androidannotations.annotations.Receiver.RegisterAt.OnResumeOnPause;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
@@ -117,7 +114,6 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
 
         databaseService.getMessages(showHidden)
                 .doOnTerminate(pDialog::dismiss)
-                .toList()
                 .zipWith(contacts, Pair::create)
                 .subscribe(adapter::swapItems); //TODO bind activity
     }
@@ -143,7 +139,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     public void onServiceMessageClicked(ServerMessage sm) {
         final Integer messageId = sm.getId();
 
-        FluentIterable<AttachmentInfo> messageAttachments = from(sm.getAttachments()).filter(AttachmentInfo::isDownloaded);
+       /* FluentIterable<AttachmentInfo> messageAttachments = from(sm.getAttachments()).filter(AttachmentInfo::isDownloaded);
         if (sm.getAttachments().size() == 0) {
             replyToSender(sm);
         }
@@ -189,7 +185,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                     installApk(messageId);
                 }
             }
-        }
+        }*/
     }
 
     @Override
@@ -366,7 +362,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         databaseService.getMessages(true)
                 .subscribeOn(newThread())
                 .observeOn(mainThread())
-                .toList()
+
                 .doOnNext((messages1) -> FileHelper.exportMessages(getActivity(), messages1))
                 .subscribe(messages -> Toast.makeText(getActivity(), R.string.file_exported, Toast.LENGTH_SHORT)
                         .show());

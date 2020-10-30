@@ -17,9 +17,9 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
+import com.sanda.truckdoc.client.data.DbPathWithPoints;
 import com.sanda.truckdoc.client.data.DbRouteAssignmentWithPath;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
-import com.sanda.truckdoc.client.data.DbPathWithPoints;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.route.DbRoutePoint;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
@@ -30,7 +30,6 @@ import com.sanda.truckdoc.client.to.service.NewMntService;
 import com.sanda.truckdoc.client.to.service.NewMntService_;
 import com.sanda.truckdoc.client.to.utils.LocalStorage;
 import com.sanda.truckdoc.client.to.utils.SetupMaintenanceUtils;
-import com.sanda.truckdoc.client.ui.message.InboxActivity;
 import com.sanda.truckdoc.client.util.NotificationHelper;
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -59,6 +58,7 @@ import androidx.core.app.ActivityCompat;
 import app.camera.tdoc.camera_library.CamActivity;
 import app.camera.tdoc.camera_library.PrefixList;
 import app.instructions.InstructionsActivity;
+import app.messages2.ContactListActivity;
 import rx.functions.Action1;
 import timber.log.Timber;
 
@@ -151,8 +151,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     @Click(R.id.btnMessages)
     void onMessagesBtn() {
-        Intent intent = new Intent(this, InboxActivity.class);
-        DashboardActivity.this.startActivity(intent);
+        Intent intent = new Intent(this, ContactListActivity.class);
+        startActivity(intent);
     }
 
     @Click(R.id.btnScan)

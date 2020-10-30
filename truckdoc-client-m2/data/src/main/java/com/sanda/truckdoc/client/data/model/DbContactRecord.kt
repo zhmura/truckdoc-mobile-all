@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.sanda.truckdoc.client.api.model.ContactListAttribute
 import com.sanda.truckdoc.client.api.model.ContactRecord
+import java.io.Serializable
 
 @Entity(tableName = "contact_records")
 data class DbContactRecord(
@@ -18,7 +19,7 @@ data class DbContactRecord(
         val color: Int,
 
         var phone: String? = null
-) {
+) : Serializable {
 
     constructor(contactRecord: ContactRecord) : this(contactRecord.recipientId, contactRecord.label, contactRecord.recipientIdType, if (contactRecord.attributes != null && contactRecord.attributes.containsKey(ContactListAttribute.COLOR.key)) {
         Color.parseColor(contactRecord.attributes[ContactListAttribute.COLOR.key])

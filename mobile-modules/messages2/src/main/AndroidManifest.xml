@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.instructions">
+    package="app.messages2">
 
     <application>
         <activity
-            android:name=".InstructionsActivity"
+            android:name=".ChatActivity"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar" />
+        <activity
+            android:name=".ContactListActivity"
             android:theme="@style/Theme.MaterialComponents" />
     </application>
-</manifest>
 
+</manifest>

@@ -1,5 +1,5 @@
 include ':data'
-include ':standout', ':app', ':checker', ':updater', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api', ':instructions'
+include ':standout', ':app', ':checker', ':updater', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api', ':instructions', ':messages2'
 project(':app').projectDir = new File(settingsDir, 'truckdoc-client-m2/application')
 project(':checker').projectDir = new File(settingsDir, 'truckdoc-client-m2/checker')
 project(':standout').projectDir = new File(settingsDir, 'truckdoc-client-m2/standout')
@@ -9,4 +9,5 @@ project(':camera').projectDir = new File(settingsDir, 'mobile-modules/camera')
 project(':truckdoc-util').projectDir = new File(rootDir, 'mobile-modules/truckdoccommon/truckdoc-util')
 project(':truckdoc-client-api').projectDir = new File(rootDir, 'mobile-modules/truckdoccommon/truckdoc-client-api')
 project(':instructions').projectDir = new File(rootDir, 'mobile-modules/instructions')
+project(':messages2').projectDir = new File(rootDir, 'mobile-modules/messages2')
 project(':data').projectDir = new File(rootDir, 'truckdoc-client-m2/data')

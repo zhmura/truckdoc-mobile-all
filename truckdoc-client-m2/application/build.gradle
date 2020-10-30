@@ -36,7 +36,7 @@ android {
 
     defaultConfig {
         applicationId "com.sanda.truckdoc.client"
-        minSdkVersion 26
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 39
         versionName "3.9"
@@ -131,6 +131,9 @@ dependencies {
 }
 
 dependencies {
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.android.support:recyclerview-v7:$supportVersion"
     implementation "com.android.support:design:$supportVersion"
@@ -140,6 +143,14 @@ dependencies {
     implementation project(':truckdoc-client-api')
     implementation project(':instructions')
     implementation project(':data')
+    implementation project(':messages2')
+
+    def commonLibs = "0.1.7"
+    implementation ("com.github.naixx.common-libs:logger:$commonLibs@aar"){
+        transitive = true
+    }
+    implementation ("com.github.naixx.common-libs:adapters:$commonLibs@aar")
+    implementation ("com.github.naixx.common-libs:common:$commonLibs@aar")
 
  //   implementation project(':to')
 /*    releaseCompile (project(path: ':checker', configuration: 'release')) {

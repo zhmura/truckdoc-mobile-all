@@ -1,0 +1,4 @@
+<resources>
+    <string name="sent_text">Отправить</string>
+    <string name="message_hint">Сообщение</string>
+</resources>

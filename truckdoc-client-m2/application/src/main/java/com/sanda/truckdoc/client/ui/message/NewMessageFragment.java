@@ -57,7 +57,7 @@ public class NewMessageFragment extends Fragment implements BaseAdapter.Interact
     void afterViews() {
         TruckDocApp.get(getActivity()).appComponent().inject(this);
         ButtonAdapter adapter = new ButtonAdapter(this);
-        db.getContactRecords().toList().subscribe(adapter::swapItems);
+       // db.getContactRecords().toList().subscribe(adapter::swapItems);
         recyclerView.setAdapter(adapter);
         recyclerView.setVisibility(View.INVISIBLE);
     }
@@ -85,7 +85,7 @@ public class NewMessageFragment extends Fragment implements BaseAdapter.Interact
             MessagesDatabaseService db = TruckDocApp.get(getActivity()).appComponent().db();
             rx.Observable<DbContactRecord> contact = db.getContactRecords().filter(dbContactRecord -> dbContactRecord.getId() == recipientId.longValue());
             if (!contact.isEmpty().toBlocking().single()) {
-                contact.toList().subscribe(adapter::swapItems);
+                //contact.toList().subscribe(adapter::swapItems);
                 recyclerView = getActivity().findViewById(R.id.buttonList);
                 recyclerView.setAdapter(adapter);
                 recyclerView.setVisibility(View.VISIBLE);

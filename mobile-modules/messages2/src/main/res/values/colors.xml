@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="secondary_background">#68474747</color>
+    <color name="message_out">#424242</color>
+    <color name="message_in">@color/material_blue_grey_800</color>
+</resources>

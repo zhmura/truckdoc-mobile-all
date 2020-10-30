@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.sanda.truckdoc.client"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.sanda.truckdoc.client">
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -39,9 +39,9 @@
         android:name=".TruckDocApp"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        tools:replace="android:icon"
         android:usesCleartextTraffic="true"
-        tools:ignore="HardcodedDebugMode">
+        tools:ignore="HardcodedDebugMode"
+        tools:replace="android:icon">
         <activity
             android:name=".ui.SplashActivity_"
             android:icon="@drawable/icon"
@@ -86,7 +86,13 @@
             android:label="@string/activity_scanner_title"
             android:theme="@style/Theme.AppCompat" />
 
-        <service android:name=".service.MessageCheckService" />
+        <service android:name=".service.MessageCheckService">
+            <intent-filter>
+                <action android:name="com.sanda.truckdoc.client.service.action.REGISTER" />
+                <action android:name="com.sanda.truckdoc.client.service.action.GET_NEW_MESSAGES" />
+                <action android:name="com.sanda.truckdoc.client.service.action.UPLOAD_FILE" />
+            </intent-filter>
+        </service>
         <service android:name=".to.service.NewMntService_" />
 
         <receiver android:name=".receivers.SmsReceiver">
@@ -125,25 +131,24 @@
             android:name=".wizard.wizardpager.WizardActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
-
         <activity
             android:name=".to.TOTreeActivity"
+            android:configChanges="screenSize|orientation"
             android:label="TO"
             android:screenOrientation="portrait"
-            android:configChanges="screenSize|orientation"
             android:theme="@style/MyMaterialTheme.Base" />
 
         <activity
-            android:parentActivityName=".to.TOTreeActivity"
             android:name=".to.PerformMntActivity"
             android:label="TO"
+            android:parentActivityName=".to.TOTreeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".to.EnterTruckDataActivity"
-            android:screenOrientation="portrait"
             android:label="TO"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".to.UntrackedToItemsActivity"

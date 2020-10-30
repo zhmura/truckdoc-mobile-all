@@ -25,12 +25,13 @@ allprojects {
         aaVersion = "3.3.2"
         buildToolsVersion = "28.0.3"
         dagger = "2.29.1"
+        commonLibs = "0.1.7"
     }
     repositories {
         jcenter()
         google()
         mavenLocal()
-
+        maven { url "https://jitpack.io" }
     }
 }
 

@@ -13,9 +13,12 @@ import com.github.naixx.BaseViewHolder;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 
-public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.ViewHolder> {
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-    public ButtonAdapter(InteractionListener<DbContactRecord> listener) {
+public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder> {
+
+    public ButtonAdapter(BaseAdapter.InteractionListener<DbContactRecord> listener) {
         this.listener = listener;
     }
 
@@ -25,7 +28,17 @@ public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.Vi
                 .inflate(R.layout.listitem_message_button_send, parent, false));
     }
 
-    private final InteractionListener<DbContactRecord> listener;
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return 0;
+    }
+
+    private final BaseAdapter.InteractionListener<DbContactRecord> listener;
 
     class ViewHolder extends BaseViewHolder<DbContactRecord> {
 

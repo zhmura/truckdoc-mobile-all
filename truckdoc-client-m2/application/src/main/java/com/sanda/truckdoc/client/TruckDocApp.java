@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.instructions.InstructionsInjectorProvider;
+import app.messages2.Messages2InjectorProvider;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.LocationReceiver.ACTION_LOCATION_CHANGED;
@@ -46,7 +47,7 @@ import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICA
  * Date: 19.02.14
  * Time: 20:43
  */
-public class TruckDocApp extends Application implements InstructionsInjectorProvider {
+public class TruckDocApp extends Application implements InstructionsInjectorProvider, Messages2InjectorProvider {
 
     private Activity currentActivity;
 

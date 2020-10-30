@@ -21,12 +21,13 @@ import androidx.annotation.NonNull;
 import app.instructions.InstructionsActivity;
 import app.instructions.InstructionsInjector;
 import app.instructions.InstructionsModule;
+import app.messages2.Messages2Injector;
 import dagger.Component;
 
 @Singleton
 @Component(
         modules = { AppModule.class, DbModule.class, NetworkModule.class, InstructionsModule.class, AuthorizedNetworkModule.class })
-public interface AppComponent extends InstructionsInjector {
+public interface AppComponent extends InstructionsInjector, Messages2Injector {
 
     AuthorizedNetworkComponent.Builder auth();
 
