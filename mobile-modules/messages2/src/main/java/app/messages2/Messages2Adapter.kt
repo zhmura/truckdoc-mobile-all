@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sanda.truckdoc.client.data.model.ServerMessage
 import kotlinx.android.synthetic.main.messages_chat_in_listitem.view.*
+import java.util.*
 
 internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder>(/**/) {
     private val items = mutableListOf<ServerMessage>()
@@ -27,7 +28,7 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
                 subject.text = item.text
 
                 subject.text = item.text
-                date.setText(item.savedDate?.toString("yyyy-MMMM-dd HH:mm:ss"))
+                date.setText(item.savedDate?.toString("yyyy-MMM-dd HH:mm:ss", Locale.getDefault()))
                 status.setText(if (item.isSent) R.string.status_sent else R.string.status_wait)
                 hidden.visibility = if (item.isHidden) View.VISIBLE else View.GONE
             }

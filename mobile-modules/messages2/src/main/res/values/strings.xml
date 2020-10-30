@@ -5,4 +5,13 @@
 
     <string name="status_sent">Статус: Отправлено</string>
     <string name="status_wait">Статус: Ожидает</string>
+
+    <string name="menu_inbox_export">Экспорт сообщений в файл</string>
+    <string name="menu_inbox_refresh">Обновить</string>
+    <string name="menu_inbox_delete_all">Удалить все сообщения</string>
+    <string name="menu_inbox_autoload_options">Опции автоcинхронизации</string>
+    <string name="menu_inbox_show_hidden">Показать скрытые</string>
+    <string name="menu_send_log_info">Отправить логи</string>
+    <string name="menu_clear_app_data">Очистить все данные</string>
+
 </resources>

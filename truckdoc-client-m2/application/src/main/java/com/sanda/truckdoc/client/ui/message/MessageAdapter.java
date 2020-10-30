@@ -73,7 +73,7 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
             avatar.setImageDrawable(getColoredAvatar(context, params.second));
             subject.setText(item.getText());
             date.setText(item.getSavedDate().toString(Consts.DATE_TIME_FORMAT));
-            //TODO attachment.setVisibility(item.getAttachments().size() > 0 ? VISIBLE : GONE);
+//            attachment.setVisibility(item.getAttachments().size() > 0 ? VISIBLE : GONE);
             itemView.setOnClickListener(v -> listener.onServiceMessageClicked(item));
             hidden.setVisibility(item.isHidden() ? VISIBLE : GONE);
         }

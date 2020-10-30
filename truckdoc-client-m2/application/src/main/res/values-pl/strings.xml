@@ -231,11 +231,11 @@
     <string name="userRegisteredSuccessfully">Вы успешно зарегистрированы!</string>
     <string name="commonException">Ошибка [Код A2]. Метод {0}. Возникла непредвиденная проблема.</string>
     <string name="to_settings_received">Получены настройки для ТО</string>
-    <string name="send_log_info">Отправить логи</string>
+    <string name="menu_send_log_info">Отправить логи</string>
     <string name="check_anyway">Проверить все равно</string>
     <string name="mnt_sending_start">Отправка отчета ТО...</string>
     <string name="return_to_dashboard">Закрыть</string>
-    <string name="clear_app_data">Очистить все данные</string>
+    <string name="menu_clear_app_data">Очистить все данные</string>
     <string name="clear_app_data_dialog">Очистить все данные приложения? Это приведет также к перерегистрации</string>
     <string name="enter_code">Введите код регистрации:</string>
     <string name="continue_local">Продолжить оффлайн</string>

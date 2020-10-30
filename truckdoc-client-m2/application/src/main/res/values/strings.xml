@@ -99,9 +99,7 @@
     <string name="success_loading">Загрузка всех файлов успешно завершена</string>
     <string name="error_loading">Произошел сбой при загрузке </string>
     <string name="of_file"> файла</string>
-    <string name="menu_inbox_refresh">Обновить</string>
-    <string name="menu_inbox_delete_all">Удалить все сообщения</string>
-    <string name="menu_inbox_autoload_options">Опции автоcинхронизации</string>
+
 
     <string name="send_error">Произошел сбой при отправке файлов на сервер</string>
     <string name="new_doc_send">Новые документы успешно отправлены</string>
@@ -134,9 +132,7 @@
     <string name="prefs_expediterPhone_title">Телефон экспедитора</string>
     <string name="prefs_techSupportPhone_title">Телефон техподдержки</string>
     <string name="preferences_title">Настройки</string>
-    <string name="menu_inbox_show_hidden">Показать скрытые</string>
     <string name="hidden">Скрыто</string>
-    <string name="menu_inbox_export">Экспорт сообщений в файл</string>
     <string name="file_exported">Файл сохранён</string>
     <string name="csv_target">Кому</string>
     <string name="csv_text">Текст</string>
@@ -227,11 +223,9 @@
     <string name="commonException">Ошибка [Код A02{0}]. Возникла непредвиденная проблема.</string>
     <string name="to_settings_received">Получены настройки для ТО</string>
     <string name="common532response">Null response</string>
-    <string name="send_log_info">Отправить логи</string>
     <string name="check_anyway">Проверить все равно</string>
     <string name="mnt_sending_start">Отправка отчета ТО...</string>
     <string name="return_to_dashboard">Закрыть</string>
-    <string name="clear_app_data">Очистить все данные</string>
     <string name="clear_app_data_dialog">Очистить все данные приложения? Это приведет также к необходимости перерегистрации.</string>
     <string name="enter_code">Введите код регистрации:</string>
     <string name="logout">Перерегистрировать клиент</string>

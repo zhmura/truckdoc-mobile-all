@@ -353,7 +353,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     }
 
     @OptionsItem
-    void logReport() {
+    void menuLogReport() {
         NewMessageService_.intent(this.getActivity()).sendLogReport().start();
     }
 
