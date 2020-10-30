@@ -41,13 +41,13 @@
                 android:layout_marginBottom="4dp"
                 android:textAppearance="?textAppearanceBody1"
                 android:textColor="?colorOnSurface"
-                app:layout_constraintBottom_toTopOf="@+id/status"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHeight_default="wrap"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/date"
-                tools:text="@tools:sample/lorem/random"
+                tools:text="@tools:sample/lorem"
                 />
 
             <TextView
@@ -61,6 +61,7 @@
                 android:textAppearance="?textAppearanceCaption"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/attachment"
                 tools:text="status"
                 />
 
@@ -78,6 +79,28 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:visibility="visible"
+                />
+
+            <ImageView
+                android:id="@+id/attachment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/subject"
+                android:src="@drawable/ic_baseline_attachment_24"
+                app:layout_constraintStart_toEndOf="@+id/count"
+                app:layout_constraintTop_toBottomOf="@id/subject"
+                app:tint="?colorOnSurface"
+                />
+
+            <TextView
+                android:id="@+id/count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?textAppearanceCaption"
+                app:layout_constraintBottom_toBottomOf="@id/attachment"
+                app:layout_constraintStart_toStartOf="@id/subject"
+                app:layout_constraintTop_toTopOf="@id/attachment"
+                tools:text="3"
                 />
 
             <TextView

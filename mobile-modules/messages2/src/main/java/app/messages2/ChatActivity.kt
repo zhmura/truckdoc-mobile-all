@@ -54,7 +54,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         val adapter = MessageAdapter()
         recyclerView.adapter = adapter
 
-        db.getMessagesLive(showHidden).observe {
+        db.getMessagesLive().observe {
             adapter.submitList(it)
             recyclerView.scrollToPosition(0)
         }

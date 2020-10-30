@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.sanda.truckdoc.client.api.AttachmentPojo
 import com.sanda.truckdoc.util.entity.EntityWithId
@@ -8,7 +9,9 @@ import com.sanda.truckdoc.util.entity.EntityWithId
 /**
  * @author Alexei Osipov
  */
-@Entity(tableName = "attachment_info")
+@Entity(tableName = "attachment_info", foreignKeys = [
+    ForeignKey(entity = ServerMessage::class, parentColumns = ["id"], childColumns = ["messageId"])
+])
 data class AttachmentInfo(
         @PrimaryKey(autoGenerate = true)
         @JvmField

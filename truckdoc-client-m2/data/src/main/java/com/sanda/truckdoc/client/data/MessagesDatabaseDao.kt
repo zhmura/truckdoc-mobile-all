@@ -65,6 +65,14 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
     @Query("SELECT * FROM server_message WHERE (isOutgoing=1 OR (isOutgoing=0 AND isDownloaded=1)) AND isHidden=0 order by savedDate desc")
     fun findMessages(): LiveData<List<ServerMessage>>
 
+    @Query("""  select msg.*, count(info.id) as count 
+                from server_message msg left join attachment_info info on msg.id =info.messageId 
+                WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0
+                group by msg.id
+                order by msg.savedDate desc
+                """)
+    fun findMessagesWithAttach(): LiveData<List<ServerMessageWithAttachmentCount>>
+
     @Query("select * from server_message where isDownloaded = 0")
     fun findNotDownloadedMessages(): List<ServerMessage>
 
@@ -158,6 +166,12 @@ data class DbPathWithPoints(
         val path: DbRoutePath,
         @Relation(parentColumn = "id", entityColumn = "pathId")
         val points: List<DbRoutePoint>
+)
+
+data class ServerMessageWithAttachmentCount(
+        @Embedded
+        val message: ServerMessage,
+        val count: Int
 )
 
 @Singleton
@@ -317,6 +331,10 @@ class MessagesDatabaseService @Inject constructor(
         else serverMessagesDao.findMessages()
     }
 
+    fun getMessagesLive(): LiveData<List<ServerMessageWithAttachmentCount>> {
+        return serverMessagesDao.findMessagesWithAttach()
+    }
+
     fun deleteAllData() {
         try {
             deleter.deleteAll()
@@ -424,7 +442,7 @@ class Converters {
     DbRouteAssignment::class,
     DbRoutePoint::class,
     DbRoutePath::class
-], version = 1)
+], version = 2)
 abstract class MessageDatabase : RoomDatabase() {
     abstract fun messageDao(): ServerMessageDao
     abstract fun fileRecordDao(): FileRecordDao
