@@ -59,8 +59,11 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
     @Query("select * from server_message")
     fun findAll(): List<ServerMessage>
 
-    @Query("SELECT * FROM server_message WHERE (isOutgoing=1 OR (isOutgoing=0 AND isDownloaded=1)) AND isHidden=:hidden order by savedDate desc")
-    fun findMessages(hidden: Boolean): LiveData<List<ServerMessage>>
+    @Query("SELECT * FROM server_message WHERE (isOutgoing=1 OR (isOutgoing=0 AND isDownloaded=1)) order by savedDate desc")
+    fun findMessagesWithHidden(): LiveData<List<ServerMessage>>
+
+    @Query("SELECT * FROM server_message WHERE (isOutgoing=1 OR (isOutgoing=0 AND isDownloaded=1)) AND isHidden=0 order by savedDate desc")
+    fun findMessages(): LiveData<List<ServerMessage>>
 
     @Query("select * from server_message where isDownloaded = 0")
     fun findNotDownloadedMessages(): List<ServerMessage>
@@ -306,11 +309,12 @@ class MessagesDatabaseService @Inject constructor(
     }
 
     fun getMessages(showHidden: Boolean): Observable<List<ServerMessage>> {
-        return serverMessagesDao.findMessages(!showHidden).toObservable()
+        return getMessagesLive(!showHidden).toObservable()
     }
 
     fun getMessagesLive(showHidden: Boolean): LiveData<List<ServerMessage>> {
-        return serverMessagesDao.findMessages(!showHidden)
+        return if (showHidden) serverMessagesDao.findMessagesWithHidden()
+        else serverMessagesDao.findMessages()
     }
 
     fun deleteAllData() {

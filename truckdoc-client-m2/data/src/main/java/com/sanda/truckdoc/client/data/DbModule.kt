@@ -2,7 +2,6 @@ package com.sanda.truckdoc.client.data
 
 import android.content.ContentValues
 import android.content.Context
-import androidx.room.OnConflictStrategy
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -46,7 +45,8 @@ class DbModule {
                         c.put("recipientId", it.id)
                         c.put("label", it.label)
                         c.put("color", it.color)
-                        sqldb.insert("contact_records", OnConflictStrategy.IGNORE, c)
+                        //TODO seems we don't need this
+                        // sqldb.insert("contact_records", OnConflictStrategy.IGNORE, c)
                     }
                 }
 

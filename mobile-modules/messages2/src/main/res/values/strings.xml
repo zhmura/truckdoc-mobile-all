@@ -1,4 +1,8 @@
 <resources>
     <string name="sent_text">Отправить</string>
     <string name="message_hint">Сообщение</string>
+    <string name="hidden">Скрыто</string>
+
+    <string name="status_sent">Статус: Отправлено</string>
+    <string name="status_wait">Статус: Ожидает</string>
 </resources>

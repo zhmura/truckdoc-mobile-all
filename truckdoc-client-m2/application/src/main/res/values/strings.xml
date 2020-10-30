@@ -68,8 +68,6 @@
     <string name="send_mess_failure">Сбой при отправке сообщения</string>
     <string name="messages_sent">Сообщения отправлены</string>
     <string name="message_sent">Сообщение отправлено</string>
-    <string name="status_sent">Статус: Отправлено</string>
-    <string name="status_wait">Статус: Ожидает</string>
 
     <string name="connection_failure">Соединение с сервером нарушено. Проверьте подключение к интернету</string>
     <string name="check_new_mess">Проверка новых сообщений…</string>
