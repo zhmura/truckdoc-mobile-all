@@ -4,16 +4,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sanda.truckdoc.client.data.ServerMessageWithAttachmentCount
 import kotlinx.android.synthetic.main.messages_chat_in_listitem.view.*
 import java.util.*
 
-internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder>(/**/) {
-    private val items = mutableListOf<ServerMessageWithAttachmentCount>()
+internal class MessageAdapter() : PagingDataAdapter<ServerMessageWithAttachmentCount, MessageAdapter.ViewHolder>(DiffCallback) {
+//    private val items = mutableListOf<ServerMessageWithAttachmentCount>()
 
-    private object DiffCallback : DiffUtil.ItemCallback<ServerMessageWithAttachmentCount?>() {
+    private object DiffCallback : DiffUtil.ItemCallback<ServerMessageWithAttachmentCount>() {
         override fun areItemsTheSame(oldItem: ServerMessageWithAttachmentCount,
                                      newItem: ServerMessageWithAttachmentCount): Boolean = oldItem.message.id == newItem.message.id
 
@@ -22,7 +23,7 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
     }
 
     init {
-        setHasStableIds(true)
+//        setHasStableIds(true)
     }
 
     abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -55,18 +56,18 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
             else
                 OutViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.messages_chat_out_listitem, parent, false))
 
-    override fun getItemViewType(position: Int): Int = if (getItem(position).message.isOutgoing) 1 else 0
+    override fun getItemViewType(position: Int): Int = if (getItem(position)!!.message.isOutgoing) 1 else 0
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position)!!)
     }
 
-    fun getItem(position: Int) = items[position]
+//    fun getItem(position: Int) = items[position]
 
     //    override fun getItemId(position: Int): Long = super.getItem(position).id.toLong()
-    override fun getItemCount(): Int = items.size
+//    override fun getItemCount(): Int = items.size
 
-    fun submitList(list: List<ServerMessageWithAttachmentCount>) {
+   /* fun submitList(list: List<ServerMessageWithAttachmentCount>) {
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize(): Int = items.size
 
@@ -82,9 +83,9 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
         items += list
 //        notifyDataSetChanged()
         diffResult.dispatchUpdatesTo(this)
-    }
+    }*/
 
-    override fun getItemId(position: Int): Long {
+/*    override fun getItemId(position: Int): Long {
         return items[position].message.id.toLong()
-    }
+    }*/
 }

@@ -7,6 +7,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.sanda.truckdoc.client.data.MessagesDatabaseService
 import com.sanda.truckdoc.client.data.model.DbContactRecord
@@ -24,7 +27,6 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
 
     @Inject
     lateinit var db: MessagesDatabaseService
-
 
     lateinit var onMessagesMenu: OnMessagesMenu
 
@@ -54,8 +56,10 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         val adapter = MessageAdapter()
         recyclerView.adapter = adapter
 
-        db.getMessagesLive().observe {
-            adapter.submitList(it)
+        Pager(PagingConfig(30)) {
+            db.getMessagesLive()
+        }.liveData.observe {
+            adapter.submitData(lifecycle, it)
             recyclerView.scrollToPosition(0)
         }
     }

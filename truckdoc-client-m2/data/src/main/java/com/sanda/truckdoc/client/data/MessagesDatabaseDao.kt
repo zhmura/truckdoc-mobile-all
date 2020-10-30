@@ -4,6 +4,7 @@ package com.sanda.truckdoc.client.data
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.sanda.truckdoc.client.api.AttachmentPojo
@@ -71,7 +72,7 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
                 group by msg.id
                 order by msg.savedDate desc
                 """)
-    fun findMessagesWithAttach(): LiveData<List<ServerMessageWithAttachmentCount>>
+    fun findMessagesWithAttach(): PagingSource<Int, ServerMessageWithAttachmentCount>
 
     @Query("select * from server_message where isDownloaded = 0")
     fun findNotDownloadedMessages(): List<ServerMessage>
@@ -331,7 +332,7 @@ class MessagesDatabaseService @Inject constructor(
         else serverMessagesDao.findMessages()
     }
 
-    fun getMessagesLive(): LiveData<List<ServerMessageWithAttachmentCount>> {
+    fun getMessagesLive(): PagingSource<Int, ServerMessageWithAttachmentCount> {
         return serverMessagesDao.findMessagesWithAttach()
     }
 
