@@ -1,11 +1,13 @@
 package com.sanda.truckdoc.client;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.sanda.truckdoc.client.data.Deleter;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.MessagesMenu;
+import com.sanda.truckdoc.client.util.ShowAttachments;
 import com.sanda.truckdoc.client.util.commons.FileUtils;
 import com.sanda.truckdoc.client.util.timber.L;
 import com.sanda.truckdoc.network.AppSettings;
@@ -20,7 +22,9 @@ import javax.inject.Singleton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import app.instructions.InstructionsPrefs;
-import app.messages2.OnMenuProvider;
+import app.messages2.MessageDependenciesProvider;
+import app.messages2.OnMessageClicked;
+import app.messages2.OnMessagesMenu;
 import dagger.Module;
 import dagger.Provides;
 import de.devland.esperandro.Esperandro;
@@ -95,7 +99,19 @@ public class AppModule {
 
     @Provides
     @NonNull
-    OnMenuProvider onMessagesMenu(MessagesDatabaseService databaseService) {
-        return activity -> new MessagesMenu(activity, databaseService);
+    MessageDependenciesProvider onMessagesMenu(MessagesDatabaseService databaseService) {
+        return new MessageDependenciesProvider() {
+            @NotNull
+            @Override
+            public OnMessagesMenu provideOnMessageMenu(@NotNull Activity activity) {
+                return new MessagesMenu(activity, databaseService);
+            }
+
+            @NotNull
+            @Override
+            public OnMessageClicked provideOnMessageClicked(@NotNull Activity activity) {
+                return new ShowAttachments(activity);
+            }
+        };
     }
 }

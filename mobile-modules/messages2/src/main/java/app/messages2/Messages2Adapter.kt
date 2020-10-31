@@ -5,12 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.sanda.truckdoc.client.data.ServerMessageWithAttachmentCount
+import com.sanda.truckdoc.client.data.model.ServerMessage
 import kotlinx.android.synthetic.main.messages_chat_in_listitem.view.*
 import java.util.*
 
-internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder>(/**/) {
+internal class MessageAdapter(
+        private val onMessageClicked: (ServerMessage) -> Unit,
+        private val onDismiss: (ServerMessage) -> Boolean
+) : RecyclerView.Adapter<MessageAdapter.ViewHolder>(/**/) {
     private val items = mutableListOf<ServerMessageWithAttachmentCount>()
 
     private object DiffCallback : DiffUtil.ItemCallback<ServerMessageWithAttachmentCount?>() {
@@ -25,22 +30,24 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
         setHasStableIds(true)
     }
 
-    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    abstract inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         open fun bind(item: ServerMessageWithAttachmentCount) {
             itemView.apply {
                 subject.text = item.message.text
 
                 subject.text = item.message.text
-                date.setText(item.message.savedDate?.toString("yyyy-MMM-dd HH:mm:ss", Locale.getDefault()))
+                date.text = item.message.savedDate?.toString("yyyy-MMM-dd HH:mm:ss", Locale.getDefault())
                 status.setText(if (item.message.isSent) R.string.status_sent else R.string.status_wait)
                 hidden.visibility = if (item.message.isHidden) View.VISIBLE else View.GONE
+
+                setOnClickListener { onMessageClicked(item.message) }
             }
         }
     }
 
-    class OutViewHolder(itemView: View) : ViewHolder(itemView)
+    inner class OutViewHolder(itemView: View) : ViewHolder(itemView)
 
-    class InViewHolder(itemView: View) : ViewHolder(itemView) {
+    inner class InViewHolder(itemView: View) : ViewHolder(itemView) {
         override fun bind(item: ServerMessageWithAttachmentCount) {
             super.bind(item)
             itemView.attachment.isVisible = item.count > 0
@@ -86,5 +93,39 @@ internal class MessageAdapter() : RecyclerView.Adapter<MessageAdapter.ViewHolder
 
     override fun getItemId(position: Int): Long {
         return items[position].message.id.toLong()
+    }
+
+    fun attachSwipeCallback(recyclerView: RecyclerView?) {
+        val swipeItemCallback: ItemTouchHelper.SimpleCallback = object : ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView,
+                                viewHolder: RecyclerView.ViewHolder,
+                                target: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                val position = viewHolder.position
+                val sm: ServerMessage = items[position].message
+                if (onDismiss(sm)) {
+                    notifyItemChanged(position)
+                } else {
+                    items.remove(items[position])
+                    notifyItemRemoved(position)
+                }
+            }
+
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                val position = viewHolder.position
+                val sm = items[position].message
+                var swipeFlags = 0
+                if (!sm.isHidden) {
+                    swipeFlags = ItemTouchHelper.RIGHT
+                }
+                return makeMovementFlags(0, swipeFlags)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeItemCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 }

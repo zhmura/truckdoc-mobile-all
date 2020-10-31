@@ -70,6 +70,7 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
                 WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0
                 group by msg.id
                 order by msg.savedDate desc
+                limit 50
                 """)
     fun findMessagesWithAttach(): LiveData<List<ServerMessageWithAttachmentCount>>
 
@@ -150,6 +151,9 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
 
     @Query("select * from route_assignments where id = :id")
     fun findAssignmentWithPath(id: Long): DbRouteAssignmentWithPath?
+
+    @Query("select * from attachment_info where messageId = :id")
+    fun findAttachments(id: Int): List<AttachmentInfo>
 }
 
 data class DbRouteAssignmentWithPath(
@@ -415,6 +419,10 @@ class MessagesDatabaseService @Inject constructor(
                 //
             }
         }
+    }
+
+    fun findAttachments(serverMessage: ServerMessage): List<AttachmentInfo> {
+        return serverMessagesDao.findAttachments(serverMessage.id)
     }
 }
 

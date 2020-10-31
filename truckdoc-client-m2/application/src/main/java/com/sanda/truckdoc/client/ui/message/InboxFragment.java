@@ -67,14 +67,10 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     private ProgressDialog pDialog;
     private MessageAdapter adapter;
 
-    @Inject
-    MessagesDatabaseService databaseService;
-    @InstanceState
-    boolean showHidden = false;
-    @Nullable
-    private UserKey userKey;
-    @Inject
-    NotificationHelper notificationHelper;
+    @Inject        MessagesDatabaseService databaseService;
+    @InstanceState boolean                 showHidden = false;
+    @Nullable private UserKey userKey;
+    @Inject NotificationHelper notificationHelper;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -94,10 +90,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
 
     private void createAuthorizedBackend() {
         assert userKey != null;
-        TruckDocApp.get(this.getActivity())
-                .appComponent()
-                .auth().create()
-                .authorizedBackend();
+        TruckDocApp.get(this.getActivity()).appComponent().auth().create().authorizedBackend();
     }
 
     private void loadInbox() {
@@ -118,8 +111,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 .subscribe(adapter::swapItems); //TODO bind activity
     }
 
-    @Receiver(actions = ServiceResultReceiver.ACTION_PROCESS_FINISHED,
-            registerAt = OnResumeOnPause)
+    @Receiver(actions = ServiceResultReceiver.ACTION_PROCESS_FINISHED, registerAt = OnResumeOnPause)
     void onMessagesLoaded(Intent intent) {
         //String text = intent.getStringExtra(MessageCheckService.PARAM_OUT_MSG);
         showProgressBar(null, null, 0);
@@ -127,12 +119,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         loadInbox();
     }
 
-    @Receiver(actions = ServiceResultReceiver.ACTION_PROCESS_START,
-            registerAt = OnResumeOnPause)
+    @Receiver(actions = ServiceResultReceiver.ACTION_PROCESS_START, registerAt = OnResumeOnPause)
     void onMessagesLoadStarted() {
-        showProgressBar(getResources().getString(R.string.loading),
-                getResources().getString(R.string.wait_for_loading),
-                1);
+        showProgressBar(getResources().getString(R.string.loading), getResources().getString(R.string.wait_for_loading), 1);
     }
 
     @Override
@@ -204,7 +193,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", pic);
+                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()),
+                            "com.sanda.truckdoc.client.provider",
+                            pic);
                     intent.setDataAndType(uri, "image/*");
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 } else {
@@ -224,14 +215,17 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         FluentIterable<DbContactRecord> contactRecords = FluentIterable.from(contacts.toList().toBlocking().single());
         if (sm.getSenderUserId() != null || sm.getSenderVirtualGroupId() != null) {
             if (sm.getSenderVirtualGroupId() != null) {
-                Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() == sm.getSenderVirtualGroupId().longValue());
+                Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() ==
+                                                                                        sm.getSenderVirtualGroupId().longValue());
                 recipientId = contact.isPresent() ? contact.get().getRecipientId() : null;
             } else {
-                Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() == sm.getSenderUserId().longValue());
+                Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() ==
+                                                                                        sm.getSenderUserId().longValue());
                 recipientId = contact.isPresent() ? contact.get().getRecipientId() : null;
             }
         } else if (sm.getRecipientId() != null) {
-            Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() == sm.getRecipientId().longValue());
+            Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() ==
+                                                                                    sm.getRecipientId().longValue());
             recipientId = contact.isPresent() ? contact.get().getRecipientId() : null;
         }
         if (recipientId != null) {
@@ -239,7 +233,6 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
             args.putLong("recipientId", recipientId);
             ((InboxActivity) getActivity()).setCurrentTab(1, args);
         }
-
     }
 
     private void installApk(Integer messageId) {
@@ -251,7 +244,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", apk);
+                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()),
+                            "com.sanda.truckdoc.client.provider",
+                            apk);
                     intent.setDataAndType(uri, "application/vnd.android.package-archive");
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 } else {
@@ -364,8 +359,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 .observeOn(mainThread())
 
                 .doOnNext((messages1) -> FileHelper.exportMessages(getActivity(), messages1))
-                .subscribe(messages -> Toast.makeText(getActivity(), R.string.file_exported, Toast.LENGTH_SHORT)
-                        .show());
+                .subscribe(messages -> Toast.makeText(getActivity(), R.string.file_exported, Toast.LENGTH_SHORT).show());
     }
 
     @Override

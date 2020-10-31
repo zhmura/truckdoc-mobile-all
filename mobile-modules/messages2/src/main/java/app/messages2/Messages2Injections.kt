@@ -25,8 +25,10 @@ interface ChatComponent {
     }
 }*/
 
-interface OnMenuProvider {
-    fun provide(activity: Activity): OnMessagesMenu
+//TODO can we do that via subcomponent?
+interface MessageDependenciesProvider {
+    fun provideOnMessageMenu(activity: Activity): OnMessagesMenu
+    fun provideOnMessageClicked(activity: Activity): OnMessageClicked
 }
 
 interface Messages2InjectorProvider {

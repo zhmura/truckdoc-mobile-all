@@ -5,11 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.sanda.truckdoc.client.data.MessagesDatabaseService
+import com.sanda.truckdoc.client.data.model.AttachmentInfo
 import com.sanda.truckdoc.client.data.model.DbContactRecord
+import com.sanda.truckdoc.client.data.model.ServerMessage
 import common.LiveDataObserveDsl
 import common.RxObserveDsl
 import common.serializable
@@ -18,25 +21,26 @@ import javax.inject.Inject
 
 class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObserveDsl, LiveDataObserveDsl {
 
-    val ACTION_SEND_TEXT_MESSAGE = "com.sanda.truckdoc.client.service.action.UPLOAD_FILE"
+    private val ACTION_SEND_TEXT_MESSAGE = "com.sanda.truckdoc.client.service.action.UPLOAD_FILE"
 
     private val contact by serializable<DbContactRecord>()
 
     @Inject
     lateinit var db: MessagesDatabaseService
 
-
-    lateinit var onMessagesMenu: OnMessagesMenu
+    private lateinit var onMessagesMenu: OnMessagesMenu
+    private lateinit var onMessageClick: OnMessageClicked
 
     @Inject
-    lateinit var provider: OnMenuProvider
+    lateinit var provider: MessageDependenciesProvider
 
     var showHidden = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as Messages2InjectorProvider).appComponent().inject(this)
-        onMessagesMenu = provider.provide(this)
+        onMessagesMenu = provider.provideOnMessageMenu(this)
+        onMessageClick = provider.provideOnMessageClicked(this)
 
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
@@ -51,13 +55,19 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
             sendMessageToOperator(messageTxt.text.toString(), contact)
         }
 
-        val adapter = MessageAdapter()
+        val adapter = MessageAdapter(::onMessageClicked, ::onDismiss)
         recyclerView.adapter = adapter
+        adapter.attachSwipeCallback(recyclerView)
 
         db.getMessagesLive().observe {
             adapter.submitList(it)
             recyclerView.scrollToPosition(0)
         }
+    }
+
+    private fun onDismiss(serverMessage: ServerMessage): Boolean {
+        db.markHidden(serverMessage)
+        return showHidden
     }
 
     override fun getContext(): Context? = this
@@ -96,6 +106,14 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         }
         return super.onOptionsItemSelected(item)
     }
+
+    private fun onMessageClicked(serverMessage: ServerMessage) {
+        val attachments = db.findAttachments(serverMessage)
+        onMessageClick.show(serverMessage, attachments) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(messageTxt, 0)
+        }
+    }
 }
 
 interface OnMessagesMenu {
@@ -105,4 +123,8 @@ interface OnMessagesMenu {
     fun refresh()
     fun export()
     fun logReport()
+}
+
+interface OnMessageClicked {
+    fun show(sm: ServerMessage, attachments: List<AttachmentInfo>, onReply: () -> Unit)
 }
