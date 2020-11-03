@@ -67,12 +67,12 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
 
     @Query("""  select msg.*, count(info.id) as count 
                 from server_message msg left join attachment_info info on msg.id =info.messageId 
-                WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0
+                WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0 AND msg.recipientId = :recipientId 
                 group by msg.id
                 order by msg.savedDate desc
                 limit 50
                 """)
-    fun findMessagesWithAttach(): LiveData<List<ServerMessageWithAttachmentCount>>
+    fun findMessagesWithAttach(recipientId: Int): LiveData<List<ServerMessageWithAttachmentCount>>
 
     @Query("select * from server_message where isDownloaded = 0")
     fun findNotDownloadedMessages(): List<ServerMessage>
@@ -335,8 +335,8 @@ class MessagesDatabaseService @Inject constructor(
         else serverMessagesDao.findMessages()
     }
 
-    fun getMessagesLive(): LiveData<List<ServerMessageWithAttachmentCount>> {
-        return serverMessagesDao.findMessagesWithAttach()
+    fun getMessagesLive(recipientId: Int): LiveData<List<ServerMessageWithAttachmentCount>> {
+        return serverMessagesDao.findMessagesWithAttach(recipientId)
     }
 
     fun deleteAllData() {

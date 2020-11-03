@@ -48,7 +48,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
 
         sendBtn.isEnabled = false
         RxTextView.textChanges(messageTxt).observe {
-            sendBtn.isEnabled = messageTxt.toString().isNotBlank()
+            sendBtn.isEnabled = messageTxt.text.toString().isNotBlank()
         }
 
         sendBtn.setOnClickListener {
@@ -59,7 +59,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         recyclerView.adapter = adapter
         adapter.attachSwipeCallback(recyclerView)
 
-        db.getMessagesLive().observe {
+        db.getMessagesLive(contact.id.toInt()).observe {
             adapter.submitList(it)
             recyclerView.scrollToPosition(0)
         }
