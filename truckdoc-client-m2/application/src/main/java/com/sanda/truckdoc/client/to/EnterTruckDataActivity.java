@@ -114,7 +114,6 @@ public class EnterTruckDataActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener((View v) -> {
             //TODO implement request with sending numbers to server
             if (isValid()) {
-
                 Model.getInstance(getApplicationContext()).setupMaintenance(trailerId);
                 startActivity(new Intent(getApplicationContext(), TOTreeActivity.class));
                 storage.removePreference(LocalStorage.TO_SEND_PROGRESS);

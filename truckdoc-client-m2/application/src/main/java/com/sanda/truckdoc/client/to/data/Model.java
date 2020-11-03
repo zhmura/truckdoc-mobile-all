@@ -16,6 +16,8 @@ import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.to.utils.JacksonUtils;
 import com.sanda.truckdoc.client.to.utils.LocalStorage;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -192,8 +194,8 @@ public class Model {
         }
 
         Map<String, Object> map = node.getClassifier().getAdditionalProperties();
-        Map<String, String> types = (Map<String, String>) map.get("additionalProperties");
-        String tentType = types.get("trailerType");
+        System.out.println("$$$$$$$$$ Map:" + StringUtils.join(map));
+        String tentType = (String) map.get("trailerType");
         return type.equals(tentType);
     }
 
