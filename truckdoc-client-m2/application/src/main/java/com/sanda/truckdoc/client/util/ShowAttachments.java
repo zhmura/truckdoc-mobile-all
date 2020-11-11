@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.data.model.AttachmentInfo;
 import com.sanda.truckdoc.client.data.model.ServerMessage;
+import com.sanda.truckdoc.client.receivers.IncomeMessagesAlarmManager;
 import com.sanda.truckdoc.client.ui.Dialogs;
 import com.sanda.truckdoc.client.util.commons.FilenameUtils;
 
@@ -27,11 +28,11 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import androidx.core.content.FileProvider;
-import app.messages2.OnMessageClicked;
+import app.messages2.OnMessageCallbacks;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
-public class ShowAttachments implements OnMessageClicked {
+public class ShowAttachments implements OnMessageCallbacks {
 
     private final Activity activity;
 
@@ -187,5 +188,11 @@ public class ShowAttachments implements OnMessageClicked {
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(layout);
         toast.show();
+    }
+
+    @Override
+    public void onMessagesChanged() {
+        IncomeMessagesAlarmManager.cancelAlarm(activity);
+        IncomeMessagesAlarmManager.cancelAlarmWithDialog(activity);
     }
 }

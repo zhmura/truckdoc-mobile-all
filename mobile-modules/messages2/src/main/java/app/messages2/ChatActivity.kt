@@ -29,7 +29,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
     lateinit var db: MessagesDatabaseService
 
     private lateinit var onMessagesMenu: OnMessagesMenu
-    private lateinit var onMessageClick: OnMessageClicked
+    private lateinit var onMessageCallbacks: OnMessageCallbacks
 
     @Inject
     lateinit var provider: MessageDependenciesProvider
@@ -40,7 +40,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         super.onCreate(savedInstanceState)
         (applicationContext as Messages2InjectorProvider).appComponent().inject(this)
         onMessagesMenu = provider.provideOnMessageMenu(this)
-        onMessageClick = provider.provideOnMessageClicked(this)
+        onMessageCallbacks = provider.provideOnMessageClicked(this)
 
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
@@ -60,6 +60,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
         adapter.attachSwipeCallback(recyclerView)
 
         db.getMessagesLive(contact.id.toInt()).observe {
+            onMessageCallbacks.onMessagesChanged()
             adapter.submitList(it)
             recyclerView.scrollToPosition(0)
         }
@@ -109,7 +110,7 @@ class ChatActivity : AppCompatActivity(R.layout.messages_chat_activity), RxObser
 
     private fun onMessageClicked(serverMessage: ServerMessage) {
         val attachments = db.findAttachments(serverMessage)
-        onMessageClick.show(serverMessage, attachments) {
+        onMessageCallbacks.show(serverMessage, attachments) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(messageTxt, 0)
         }
@@ -125,6 +126,7 @@ interface OnMessagesMenu {
     fun logReport()
 }
 
-interface OnMessageClicked {
+interface OnMessageCallbacks {
     fun show(sm: ServerMessage, attachments: List<AttachmentInfo>, onReply: () -> Unit)
+    fun onMessagesChanged()
 }

@@ -37,7 +37,8 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
                     .start();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setAlarm(context, receiveAll, IncomeMessagesAlarmManager.NOTIFY_INTERVAL);
+            // TODO why do we loop?
+            // setAlarm(context, receiveAll, IncomeMessagesAlarmManager.NOTIFY_INTERVAL);
         }
 
         soundNotification(context, receiveAll);

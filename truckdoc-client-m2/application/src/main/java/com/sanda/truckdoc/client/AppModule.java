@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import app.instructions.InstructionsPrefs;
 import app.messages2.MessageDependenciesProvider;
-import app.messages2.OnMessageClicked;
+import app.messages2.OnMessageCallbacks;
 import app.messages2.OnMessagesMenu;
 import dagger.Module;
 import dagger.Provides;
@@ -109,7 +109,7 @@ public class AppModule {
 
             @NotNull
             @Override
-            public OnMessageClicked provideOnMessageClicked(@NotNull Activity activity) {
+            public OnMessageCallbacks provideOnMessageClicked(@NotNull Activity activity) {
                 return new ShowAttachments(activity);
             }
         };
