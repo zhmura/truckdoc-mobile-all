@@ -53,6 +53,7 @@ internal class MessageAdapter(
             itemView.attachment.isVisible = item.count > 0
             itemView.count.isVisible = item.count > 0
             itemView.count.text = item.count.toString()
+            itemView.status.isVisible = false
         }
     }
 
