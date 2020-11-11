@@ -67,7 +67,7 @@ interface ServerMessageDao : BaseDao<ServerMessage> {
 
     @Query("""  select msg.*, count(info.id) as count 
                 from server_message msg left join attachment_info info on msg.id =info.messageId 
-                WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0 AND msg.recipientId = :recipientId 
+                WHERE (msg.isOutgoing=1 OR (msg.isOutgoing=0 AND msg.isDownloaded=1)) AND msg.isHidden=0 AND (msg.recipientId = :recipientId OR msg.senderUserId = :recipientId) 
                 group by msg.id
                 order by msg.savedDate desc
                 limit 50

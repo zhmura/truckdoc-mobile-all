@@ -120,14 +120,9 @@ public class ShowAttachments implements OnMessageClicked {
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.activity), "com.sanda.truckdoc.client.provider", pic);
-                    intent.setDataAndType(uri, "image/*");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                } else {
-                    intent.setDataAndType(Uri.parse(pic.getAbsolutePath()), "image/*");
-                    intent = Intent.createChooser(intent, "Open File");
-                }
+                Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.activity), "com.sanda.truckdoc.client.provider", pic);
+                intent.setDataAndType(uri, "image/*");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 activity.startActivity(intent);
             } catch (Exception e) {
                 showMessageToast(activity.getResources().getString(R.string.cannot_open_file));

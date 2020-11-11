@@ -808,8 +808,19 @@ public class MessageCheckService extends IntentService {
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.cancel(NEW_MESSAGE_NOTIFICATION);
-        notifyActivity(receivedMessages, newMessages, directRefresh, totalMessageCount, withError, totalAttachmentCount, receivedAttachmentCount);
-        notifyActivity("", null, false);
+        try {
+            //don't know what to fix there
+            notifyActivity(receivedMessages,
+                    newMessages,
+                    directRefresh,
+                    totalMessageCount,
+                    withError,
+                    totalAttachmentCount,
+                    receivedAttachmentCount);
+            notifyActivity("", null, false);
+        } catch (Exception e){
+            L.e(e);
+        }
 
         return !withError;
     }

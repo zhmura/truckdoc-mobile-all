@@ -2,7 +2,9 @@ package app.instructions
 
 import android.app.NotificationChannel
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.*
 import androidx.core.app.NotificationManagerCompat
@@ -62,7 +64,9 @@ class DownloadFilesWorker(appContext: Context, workerParams: WorkerParameters)
 
     override fun doWork(): Result {
         try {
-            createNotificationChannel()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel()
+            }
             val downloadedFiles = mutableListOf<String>()
             rootFileDir.mkdirs()
             val pending = dao.findPending()
@@ -99,7 +103,7 @@ class DownloadFilesWorker(appContext: Context, workerParams: WorkerParameters)
     private fun showNotification(files: List<String>) {
         val notification = NotificationCompat.Builder(applicationContext, "instructions_channel").apply {
             if (files.isNotEmpty()) {
-                setContentTitle(applicationContext.resources.getQuantityString(R.plurals.instructions_files_downloaded, files.size))
+                setContentTitle(applicationContext.resources.getQuantityString(R.plurals.instructions_files_downloaded, files.size, files.size))
                 setContentText(files.joinToString())
                 setStyle(InboxStyle().also { style ->
                     style.setBigContentTitle(applicationContext.resources.getQuantityString(R.plurals.instructions_files_downloaded, files.size))
@@ -126,6 +130,7 @@ class DownloadFilesWorker(appContext: Context, workerParams: WorkerParameters)
         NotificationManagerCompat.from(applicationContext).notify(452, notification.build())
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel() {
         val channel = NotificationChannel("instructions_channel", "instructions_channel", NotificationManagerCompat.IMPORTANCE_LOW)
         NotificationManagerCompat.from(applicationContext).createNotificationChannel(channel)
