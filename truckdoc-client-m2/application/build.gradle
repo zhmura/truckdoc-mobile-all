@@ -131,13 +131,13 @@ dependencies {
 }
 
 dependencies {
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation "com.android.support:appcompat-v7:$supportVersion"
-    implementation "com.android.support:recyclerview-v7:$supportVersion"
-    implementation "com.android.support:design:$supportVersion"
-    implementation "com.android.support:cardview-v7:$supportVersion"
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "com.google.android.material:material:1.2.1"
+    implementation "androidx.cardview:cardview:1.0.0"
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':truckdoc-util')
     implementation project(':truckdoc-client-api')

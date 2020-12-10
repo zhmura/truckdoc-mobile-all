@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     signingConfigs {
@@ -9,12 +11,12 @@ android {
             storePassword 'K9bPfqqu5I'
         }
     }
-    compileSdkVersion 28
+    compileSdkVersion 30
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.sanda.truckdoc.client.updater"
         minSdkVersion 22
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 7
         versionName "2.5"
         signingConfig signingConfigs.config
@@ -59,32 +61,35 @@ android.applicationVariants.all { variant ->
 
 
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
-    implementation 'org.jetbrains:annotations:19.0.0'
+    implementation 'org.jetbrains:annotations:20.1.0'
     //dagger 2
     implementation "com.google.dagger:dagger:$dagger"
-    annotationProcessor "com.google.dagger:dagger-compiler:$dagger"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
 
     //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
     implementation "com.google.dagger:dagger-android:$dagger"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger"
+    kapt "com.google.dagger:dagger-android-processor:$dagger"
 
     //support libraries with dagger 2
-    implementation 'com.google.dagger:dagger-android-support:2.27'
+    implementation 'com.google.dagger:dagger-android-support:2.29.1'
 
     implementation 'commons-io:commons-io:2.4'
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.jakewharton.timber:timber:2.2.2'
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife:10.2.1'
+//    implementation 'com.jakewharton:butterknife:10.2.1'
+//    kapt 'com.jakewharton:butterknife:10.2.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'de.devland.esperandro:esperandro-api:2.2.0'
-    annotationProcessor 'de.devland.esperandro:esperandro:2.2.0'
+    kapt 'de.devland.esperandro:esperandro:2.2.0'
     implementation 'org.apache.commons:commons-lang3:3.8'
-    implementation "org.androidannotations:androidannotations-api:4.6.0"
-    annotationProcessor "org.androidannotations:androidannotations:4.6.0"
+//    implementation "org.androidannotations:androidannotations-api:4.6.0"
+//    kapt "org.androidannotations:androidannotations:4.6.0"
+
+    api "androidx.work:work-runtime:$work"
+    implementation "androidx.work:work-runtime-ktx:$work"
 }
