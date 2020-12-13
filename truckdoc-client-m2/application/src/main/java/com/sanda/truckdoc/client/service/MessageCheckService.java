@@ -150,7 +150,7 @@ public class MessageCheckService extends IntentService {
     private static final long MIN_CHECK_INTERVAL_MS = TimeUnit.MINUTES.toMillis(1);
     // Acceptable violation of time schedule. This is needed to handle situation when android fires timer earlier than needed.
     private static final long MAX_AHEAD_OF_TIME_CHECK_MS = TimeUnit.SECONDS.toMillis(60);
-    private static final String NOTIFICATION_CHANNEL_ID = "messagecheck.ch1";
+    private static final String NOTIFICATION_CHANNEL_ID = "truckdoc.message.ch";
 
     @Nullable
     private HttpExecutor httpsExecutor = null;
@@ -219,7 +219,7 @@ public class MessageCheckService extends IntentService {
                 .setContentIntent(pendingIntent);
         Notification notification = builder.build();
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "messagecheck.channel", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "truckdoc.message.channel", NotificationManager.IMPORTANCE_MAX);
             channel.setDescription("Truckdoc message channel");
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
@@ -230,38 +230,6 @@ public class MessageCheckService extends IntentService {
             e.printStackTrace();
         }
     }
-
-/*
-    @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel(String channelId, String channelName) {
-        NotificationChannel chan = new NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        service.createNotificationChannel(chan);
-        return channelId;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private Notification buildForegroundNotification() {
-        NotificationCompat.Builder b=new NotificationCompat.Builder(this, createNotificationChannel("message_check", "Truckdoc message service"));
-
-        b.setOngoing(true)
-                .setOngoing(true)
-                .setPriority(PRIORITY_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setContentTitle(getString(R.string.message_check))
-                .setContentText("message check service")
-                .setSmallIcon(android.R.drawable.ic_popup_sync);
-        try {
-            return b.build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-*/
 
     private void createAuthorizedBackend() {
         assert userKey != null;

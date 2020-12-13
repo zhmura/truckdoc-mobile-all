@@ -192,8 +192,7 @@ public class Model {
         }
 
         Map<String, Object> map = node.getClassifier().getAdditionalProperties();
-        Map<String, String> types = (Map<String, String>) map.get("additionalProperties");
-        String tentType = types.get("trailerType");
+        String tentType = (String) map.get("trailerType");
         return type.equals(tentType);
     }
 

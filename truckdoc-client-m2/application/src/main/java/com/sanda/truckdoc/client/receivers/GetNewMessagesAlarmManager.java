@@ -1,8 +1,6 @@
 package com.sanda.truckdoc.client.receivers;
 
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -12,7 +10,6 @@ import android.os.Build;
 import android.os.PowerManager;
 
 import com.sanda.truckdoc.client.Prefs;
-import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.service.SyncReason;
@@ -20,7 +17,6 @@ import com.sanda.truckdoc.client.util.PrefUtil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
 
 
 /**
@@ -138,79 +134,11 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
     protected static void timeServiceStatusNotifier(Context context) {
         //Notification message ID
         //Counter
-        int count = 0;
-        NotificationManager notifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        String id = "getnewmess_channel_01";
-        CharSequence name = "getnewmess.channel";
-        String description = "Description";
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-
-        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-        mChannel.setDescription(description);
-        // mChannel.enableLights(true);
-        //mChannel.setLightColor(Color.RED);
-        //mChannel.enableVibration(true);
-        //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-        notifyMgr.createNotificationChannel(mChannel);
-        String CHANNEL_ID = id;
-        //Create NotificationManager  object
-        //Instantiate notification with icon and ticker message
-
-        //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), 0);
-        //Set the info that show in the notification panel
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
-
-        builder.setContentTitle(context.getResources().getString(R.string.autoloader));
-        builder.setContentText(context.getResources().getString(R.string.autoloader_service_on));
-        builder.setContentIntent(i);
-        builder.setSmallIcon(R.drawable.clock_history);
-        builder.setChannelId(CHANNEL_ID);
-        builder.setTicker(context.getResources().getString(R.string.autoloader));
-        builder.setNumber(++count);
-        Notification notifyObj = builder.build();
-        //Value indicates the current number of events represented by the notification
-        notifyObj.number = ++count;
-        //Set default notification sound
-        notifyObj.defaults |= Notification.DEFAULT_LIGHTS;
-        //Clear the status notification when the user selects it
-        notifyObj.flags |= Notification.FLAG_NO_CLEAR;
-        notifyObj.flags |= Notification.FLAG_ONGOING_EVENT;
-        //Send notification
-        notifyMgr.notify(AUTOSYNC_NOTIFICATION_ID, notifyObj);
     }
 
 
     protected static void timeServiceStatusOldNotifier(Context context) {
         //Notification message ID
         //Counter
-        int count = 0;
-        //Create NotificationManager  object
-        NotificationManager notifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        //Instantiate notification with icon and ticker message
-
-        //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), 0);
-        //Set the info that show in the notification panel
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-
-        builder.setContentTitle(context.getResources().getString(R.string.autoloader));
-        builder.setContentText(context.getResources().getString(R.string.autoloader_service_on));
-        builder.setContentIntent(i);
-        builder.setSmallIcon(R.drawable.clock_history);
-        builder.setTicker(context.getResources().getString(R.string.autoloader));
-        builder.setNumber(++count);
-        Notification notifyObj = builder.build();
-        //Value indicates the current number of events represented by the notification
-        notifyObj.number = ++count;
-        //Set default notification sound
-        notifyObj.defaults |= Notification.DEFAULT_LIGHTS;
-        //Clear the status notification when the user selects it
-        notifyObj.flags |= Notification.FLAG_NO_CLEAR;
-        notifyObj.flags |= Notification.FLAG_ONGOING_EVENT;
-        //Send notification
-        notifyMgr.notify(AUTOSYNC_NOTIFICATION_ID, notifyObj);
     }
 }
