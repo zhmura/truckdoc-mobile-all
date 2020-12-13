@@ -47,9 +47,7 @@ import androidx.core.content.ContextCompat;
 import rx.Observable;
 import timber.log.Timber;
 
-import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findUpdaterVersionCode;
 import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findVersionCode;
-import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findVersionName;
 import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.getDeviceId;
 
 /**
@@ -170,7 +168,7 @@ public class UpdaterIntentService extends IntentService {
             Timber.e("Target package not set for updater. Skipping update request...");
         } else {
             DeviceIds ids = getDeviceId(this);
-            backend.checkUpdates(prefs.targetPackage(),
+           /* backend.checkUpdates(prefs.targetPackage(),
                     findVersionName(prefs.targetPackage(), this),
                     android.os.Build.VERSION.SDK_INT,
                     findVersionCode(prefs.targetPackage(), this),
@@ -186,7 +184,7 @@ public class UpdaterIntentService extends IntentService {
                         Timber.i("Update available: %s", updateAvailable);
                         return updateAvailable;
                     })
-                    .subscribe(this::startDownloadService, this::updateErrorHandle);
+                    .subscribe(this::startDownloadService, this::updateErrorHandle);*/
 
         }
     }

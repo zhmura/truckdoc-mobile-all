@@ -10,5 +10,8 @@
     <string name="download_wifi_only">Скачивать только через WiFi</string>
     <string name="download_3g">Скачивать через 3G</string>
     <string name="app_name">ТракДок Обновления</string>
+    <string name="install_error">Ошибка при установке: %s</string>
+    <string name="check_error">Ошибка при проверке: %s</string>
+    <string name="download_error">Ошибка при скачивании: %s</string>
 
 </resources>

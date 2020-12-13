@@ -25,7 +25,7 @@ public class DeviceHelper {
         final String androidId;
         androidId = android.provider.Settings.Secure.getString(c.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 
-        UUID deviceUuid = UUID.fromString(androidId);
+        UUID deviceUuid = UUID.nameUUIDFromBytes(androidId.getBytes());
 
         DeviceIds ids = new DeviceIds();
         ids.deviceId = null;

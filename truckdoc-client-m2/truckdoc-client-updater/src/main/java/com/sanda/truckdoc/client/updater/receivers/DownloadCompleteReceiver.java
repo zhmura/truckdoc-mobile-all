@@ -60,7 +60,7 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
                     }
                     if (StringUtils.isNotEmpty(path)) {
                         prefs.apkPath(path);
-                        notificationHelper.notifyAppDownloaded();
+                        notificationHelper.notifyAppDownloaded("");
                         CheckInstallReceiver.startCheckInstallReceiver(context);
                     }
                 }
