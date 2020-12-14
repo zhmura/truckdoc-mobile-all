@@ -20,12 +20,6 @@ android {
         versionCode 7
         versionName "2.5"
         signingConfig signingConfigs.config
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
     }
 
     buildTypes {

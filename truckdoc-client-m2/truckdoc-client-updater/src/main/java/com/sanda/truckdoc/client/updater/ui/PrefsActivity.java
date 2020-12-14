@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import com.sanda.truckdoc.client.updater.Prefs;
 import com.sanda.truckdoc.client.updater.R;
 import com.sanda.truckdoc.client.updater.UpdaterApp;
-import com.sanda.truckdoc.client.updater.receivers.CheckUpdateReceiver;
 import com.sanda.truckdoc.client.updater.work.CheckUpdatesWorker;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -25,7 +24,6 @@ public class PrefsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         UpdaterApp.get(this).appComponent().inject(this);
-        CheckUpdateReceiver.restartCheckUpdateReceiver(this, true);
         new RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE).subscribe(aBoolean -> {
             if (aBoolean) {
                 CheckUpdatesWorker.start(this);

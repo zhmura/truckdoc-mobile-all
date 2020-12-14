@@ -12,20 +12,6 @@ import de.devland.esperandro.Esperandro;
 @Module
 public class UpdaterAppModule {
 
-    @NonNull
-    private final UpdaterApp app;
-
-    UpdaterAppModule(@NonNull UpdaterApp app) {
-        this.app = app;
-    }
-
-    @Provides
-    @NonNull
-    @Singleton
-    Context provideContext() {
-        return app;
-    }
-
     @Provides
     @NonNull
     @Singleton
