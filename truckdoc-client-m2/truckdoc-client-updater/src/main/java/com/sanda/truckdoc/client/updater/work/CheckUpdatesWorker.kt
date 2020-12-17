@@ -66,19 +66,18 @@ class CheckUpdatesWorker(appContext: Context, workerParams: WorkerParameters)
                 return Result.failure(workDataOf("msg" to "target package is empty"))
             }
             val ids = DeviceHelper.getDeviceId(applicationContext)
-            val updateResponse = api.checkUpdates(prefs.targetPackage(),
-                    "1",
-                    //TODO DeviceHelper.findVersionName(prefs.targetPackage(), applicationContext),
-                    Build.VERSION.SDK_INT,
-                    20,
-                    //TODO DeviceHelper.findVersionCode(prefs.targetPackage(), applicationContext),
-                    DeviceHelper.findUpdaterVersionCode(applicationContext),
-                    ids.deviceId,
-                    ids.androidId,
-                    ids.deviceUuid)
+            val updateResponse = api.checkUpdates(applicationId = prefs.targetPackage(),
+//                    versionName = "1",
+                    versionName = DeviceHelper.findVersionName(prefs.targetPackage(), applicationContext),
+                    androidVersion = Build.VERSION.SDK_INT,
+                    applicationCode = 38,
+//                    applicationCode =DeviceHelper.findVersionCode(prefs.targetPackage(), applicationContext),
+                    updaterVersionCode = DeviceHelper.findUpdaterVersionCode(applicationContext),
+                    deviceId = ids.deviceId,
+                    androidId = ids.androidId,
+                    deviceUuid = ids.deviceUuid)
             L.i(updateResponse)
 
-            DownloadWorker.start(applicationContext, "http://tut.by")
             if (updateResponse.updateAvailable) {
                 DownloadWorker.start(applicationContext, updateResponse.url!!)
             }

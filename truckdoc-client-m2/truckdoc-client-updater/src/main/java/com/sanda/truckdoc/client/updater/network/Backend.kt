@@ -13,7 +13,7 @@ interface Backend {
     suspend fun checkUpdates(@Query("applicationId") applicationId: String?,
                              @Query("applicationVersion") versionName: String?,
                              @Query("androidVersion") androidVersion: Int,
-                             @Query("applicationCode") versionCode: Int,
+                             @Query("applicationCode") applicationCode: Int,
                              @Query("updaterVersionCode") updaterVersionCode: Int,
                              @Query("deviceId") deviceId: String?,
                              @Query("androidId") androidId: String?,

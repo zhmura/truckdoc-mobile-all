@@ -10,6 +10,7 @@ import android.telephony.TelephonyManager;
 import java.io.File;
 import java.util.UUID;
 
+import androidx.core.content.FileProvider;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.updater.BuildConfig.APPLICATION_ID;
@@ -69,9 +70,11 @@ public class DeviceHelper {
 
     public static void installFile(Context context, File file) {
         Timber.i("Install file " + file);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(intent);
         NotificationHelper.soundNotification(context);
     }

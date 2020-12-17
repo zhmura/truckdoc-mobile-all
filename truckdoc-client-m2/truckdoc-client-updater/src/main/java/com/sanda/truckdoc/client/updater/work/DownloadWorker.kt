@@ -64,7 +64,9 @@ class DownloadWorker(appContext: Context, workerParams: WorkerParameters)
             val url = inputData.getString("url")
 
             val execute = api.downloadFile(url)
+            //we can show info later
 //            setForegroundAsync(ForegroundInfo())
+            L.i("Starting download $url")
             val (file, size) = execute.byteStream().saveToFile("file.apk")
             L.d("Bytes written: $size")
             notificationHelper.notifyAppDownloaded(file.absolutePath)
@@ -89,7 +91,7 @@ class DownloadWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun InputStream.saveToFile(file: String) = use { input ->
-        File(applicationContext.cacheDir, file).let {
+        File(applicationContext.filesDir, file).let {
             it to it.outputStream().use { output ->
                 input.copyTo(output)
             }

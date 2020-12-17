@@ -1,6 +1,8 @@
 package com.sanda.truckdoc.client.updater.work
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.work.*
 import com.sanda.truckdoc.client.updater.Prefs
 import com.sanda.truckdoc.client.updater.R
@@ -50,7 +52,9 @@ class CheckInstallWorker(appContext: Context, workerParams: WorkerParameters)
         val targetVersionCode = DeviceHelper.findVersionCode(prefs.targetPackage(), applicationContext)
         val file = File(apk)
         if (fileVersionCode > targetVersionCode) {
-            DeviceHelper.installFile(applicationContext, file)
+            Handler(Looper.getMainLooper()).post {
+                DeviceHelper.installFile(applicationContext, file)
+            }
             Result.retry()
         } else {
             alreadyInstalled(file)
