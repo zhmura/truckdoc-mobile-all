@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "description": "File info for an instruction",
+  "properties": {
+
+    "fileId": {
+      "type": "integer",
+      "required": true
+    },
+    "fileName": {
+      "type": "string",
+      "required": true
+    },
+    "mimeType": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "integer"
+    }
+  }
+}

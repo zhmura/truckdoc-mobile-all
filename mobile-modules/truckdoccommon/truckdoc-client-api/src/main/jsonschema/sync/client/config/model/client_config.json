@@ -20,6 +20,10 @@
         "maintenanceReports": {
           "type": "boolean",
           "description": "Enables maintenanceReports feature"
+        },
+        "instructions": {
+          "type": "boolean",
+          "description": "Enables enables instruction list feature"
         }
       }
     }

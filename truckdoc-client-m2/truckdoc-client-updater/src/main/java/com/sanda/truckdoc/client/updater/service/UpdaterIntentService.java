@@ -109,7 +109,7 @@ public class UpdaterIntentService extends IntentService {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startInForeground() {
         Intent notificationIntent = new Intent(this, UpdaterIntentService.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationintent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle("truckdoc")

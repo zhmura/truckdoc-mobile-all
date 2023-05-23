@@ -15,8 +15,7 @@
  */
 package com.sanda.truckdoc.network.api.jackson;
 
-
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 

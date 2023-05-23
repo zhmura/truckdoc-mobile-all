@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": [
+    "type",
+    "id",
+    "displayName",
+    "icon"
+  ],
+  "properties": {
+    "type": {
+      "$id": "#/properties/entries/items/properties/type",
+      "type": "string",
+      "enum": ["node", "leaf"],
+      "title": "The Type Schema",
+      "default": "",
+      "examples": [
+        "node"
+      ]
+    },
+    "id": {
+      "$id": "#/properties/entries/items/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "default": "",
+      "examples": [
+        "aps_safe"
+      ]
+    },
+    "displayName": {
+      "$id": "#/properties/entries/items/properties/displayName",
+      "type": "string",
+      "title": "The Displayname Schema",
+      "default": "",
+      "examples": [
+        "APS-Safe"
+      ]
+    },
+    "icon": {
+      "$id": "#/properties/entries/items/properties/icon",
+      "type": "string",
+      "title": "The Icon Schema",
+      "default": "",
+      "examples": [
+        "menu/aps_safe.png"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "entry.json"
+      }
+    },
+    "current": {
+      "$id": "#/properties/entries/items/properties/entries/items/properties/current",
+      "type": "object",
+      "title": "The Current Schema",
+      "default": {},
+      "examples": [
+        {
+          "fileName": "belarus_stops.pdf",
+          "timestamp": 123232324.0,
+          "fileId": 1233.0,
+          "mimeType": "application/pdf"
+        }
+      ],
+      "additionalProperties": true,
+      "required": [
+        "fileId",
+        "fileName",
+        "mimeType",
+        "timestamp"
+      ],
+      "properties": {
+        "fileId": {
+          "$id": "#/properties/entries/items/properties/entries/items/properties/current/properties/fileId",
+          "type": "integer",
+          "title": "The Fileid Schema",
+          "default": 0,
+          "examples": [
+            1233.0
+          ]
+        },
+        "fileName": {
+          "$id": "#/properties/entries/items/properties/entries/items/properties/current/properties/fileName",
+          "type": "string",
+          "title": "The Filename Schema",
+          "default": "",
+          "examples": [
+            "belarus_stops.pdf"
+          ]
+        },
+        "mimeType": {
+          "$id": "#/properties/entries/items/properties/entries/items/properties/current/properties/mimeType",
+          "type": "string",
+          "title": "The Mimetype Schema",
+          "default": "",
+          "examples": [
+            "application/pdf"
+          ]
+        },
+        "timestamp": {
+          "$id": "#/properties/entries/items/properties/entries/items/properties/current/properties/timestamp",
+          "type": "integer",
+          "title": "The Timestamp Schema",
+          "default": 0,
+          "examples": [
+            123232324.0
+          ]
+        }
+      }
+    }
+  }
+}

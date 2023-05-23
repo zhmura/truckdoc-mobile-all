@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
@@ -33,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.multidex.MultiDexApplication;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.LocationReceiver.ACTION_LOCATION_CHANGED;
@@ -44,7 +44,7 @@ import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICA
  * Date: 19.02.14
  * Time: 20:43
  */
-public class TruckDocApp extends MultiDexApplication {
+public class TruckDocApp extends Application {
 
     private Activity currentActivity;
 

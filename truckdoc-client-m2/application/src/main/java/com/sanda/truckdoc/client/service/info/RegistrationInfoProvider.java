@@ -1,17 +1,19 @@
 package com.sanda.truckdoc.client.service.info;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 import com.sanda.truckdoc.client.BuildConfig;
+import com.sanda.truckdoc.client.api.v3.configuration.model.app.AppFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.AppInfo;
-import com.sanda.truckdoc.client.api.v3.configuration.model.app.SupportedFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.features.GeoFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.features.MessageFeatures;
 import com.sanda.truckdoc.client.api.v3.configuration.model.device.DeviceInfo;
@@ -26,6 +28,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 /**
  * @author Alexei Osipov
@@ -33,10 +36,14 @@ import androidx.annotation.NonNull;
 public class RegistrationInfoProvider {
 
     @NonNull
-    public static SimInfo getSimInfo(TelephonyManager tMgr) {
+    public static SimInfo getSimInfo(Context context, TelephonyManager tMgr) {
         SimInfo simInfo = new SimInfo();
-        simInfo.setPhoneNumber(tMgr.getLine1Number());
-        simInfo.setSimSerialNumber(tMgr.getSimSerialNumber());
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            simInfo.setPhoneNumber(tMgr.getLine1Number());
+            simInfo.setSimSerialNumber(tMgr.getSimSerialNumber());
+        }
         return simInfo;
     }
 
@@ -45,10 +52,10 @@ public class RegistrationInfoProvider {
         TelephonyManager tMgr = (TelephonyManager) contextWrapper.getSystemService(Context.TELEPHONY_SERVICE);
 
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.setAndroidId(android.provider.Settings.Secure.getString(contextWrapper.getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID));
-
-        deviceInfo.setDeviceId(tMgr.getDeviceId());
+        String androidId = Settings.Secure.getString(contextWrapper.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        deviceInfo.setAndroidId(androidId);
+        deviceInfo.setDeviceId(tMgr.getImei());
         deviceInfo.setPhoneModel(android.os.Build.MODEL);
         deviceInfo.setPhoneManufacturer(android.os.Build.MANUFACTURER);
         deviceInfo.setAndroidVersion(android.os.Build.VERSION.RELEASE);
@@ -100,8 +107,8 @@ public class RegistrationInfoProvider {
      * In this method we should set all features current client version supports.
      *
      */
-    private static SupportedFeatures getClientSupportedFeatures(ContextWrapper contextWrapper) {
-        SupportedFeatures supportedFeatures = new SupportedFeatures();
+    private static AppFeatures getClientSupportedFeatures(ContextWrapper contextWrapper) {
+        AppFeatures supportedFeatures = new AppFeatures();
         GeoFeatures geoFeatures = new GeoFeatures();
 
         PackageManager packageManager = contextWrapper.getPackageManager();

@@ -2,7 +2,7 @@ package com.sanda.truckdoc.client.to.data;
 
 import android.util.Log;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 

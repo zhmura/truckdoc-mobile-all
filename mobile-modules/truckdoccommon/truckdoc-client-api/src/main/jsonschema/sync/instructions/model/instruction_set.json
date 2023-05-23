@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "description": "Instruction set root element",
+  "properties": {
+
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "instruction_set_node.json"
+      },
+      "required": true
+    }
+  }
+}

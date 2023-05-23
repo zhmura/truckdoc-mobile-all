@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.api.legacy;
 import com.sanda.truckdoc.client.api.AttachmentPojo;
 import com.sanda.truckdoc.util.entity.EntityWithId;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Collection;
 

@@ -97,7 +97,7 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
     public static void addPendingSessionFinish(Context context) {
         L.v();
         Intent serviceIntent = NewMessageService_.intent(context).photoSessionFinished().get();
-        PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + SESSION_FINISH_TIMEOUT, pi);
     }

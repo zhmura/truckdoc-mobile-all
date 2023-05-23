@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "Instruction set node",
+  "javaType": "com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetNode",
+
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["branch", "leaf"],
+      "required": true
+    },
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "icon": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

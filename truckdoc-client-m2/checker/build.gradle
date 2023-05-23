@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
     buildToolsVersion rootProject.ext.buildToolsVersion
     publishNonDefault true
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
         javaCompileOptions {
@@ -32,7 +32,7 @@ android {
     lintOptions {
         abortOnError false
     }
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '30.0.3'
 }
 
 dependencies {
@@ -41,7 +41,7 @@ dependencies {
     implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"
     implementation 'com.google.dagger:dagger:2.26'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.26'
-    annotationProcessor "de.devland.esperandro:esperandro:$esperandroVersion"
+    annotationProcessor "de.devland.esperandro:esperandro-preference-gen:$esperandroVersion"
     //implementation "de.devland.esperandro:esperandro-jackson-addon:$esperandroVersion"
     implementation "net.danlew:android.joda:$jodaVersion"
     implementation group: 'androidx.annotation', name: 'annotation', version: '1.1.0'

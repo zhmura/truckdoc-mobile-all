@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.api.legacy;
 import com.sanda.truckdoc.client.api.SynchronizeRequest;
 import com.sanda.truckdoc.client.api.base.SynchronizeResponseBase;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 

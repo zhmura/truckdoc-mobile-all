@@ -1,5 +1,7 @@
 package com.sanda.truckdoc.client.service.remote;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.data.model.file.FileType;
 import com.sanda.truckdoc.client.service.file.CountingInputStreamEntity;
 import com.sanda.truckdoc.client.service.remote.exceptions.CommunicationException;
@@ -7,8 +9,6 @@ import com.sanda.truckdoc.client.service.remote.exceptions.RemoteCallException;
 import com.sanda.truckdoc.client.service.remote.exceptions.ServiceUnavailableException;
 import com.sanda.truckdoc.client.util.commons.IOUtils;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -36,9 +36,9 @@ public class MessageServiceClient {
     public static final String MESSAGES_NEW_PATH = "/messages/new";
     public static final String CONTACT_LIST_PATH = "/config/contacts/list";
     public static final String CONTACT_CONFIRM_PATH = "/config/contacts/confirm";
-    public static final String MESSAGES_CREATE_PATH = "/messages/create";
-    public static final String MESSAGES_MARK_RECEIVED_PATH = "/messages/mark-received";
-    public static final String FILE_BINARY_DATA_PATH = "/messages/attachment";
+    public static final String MESSAGES_CREATE_PATH = "v2/messages/create";
+    public static final String MESSAGES_MARK_RECEIVED_PATH = "v2/messages/mark-received";
+    public static final String FILE_BINARY_DATA_PATH = "v2/messages/attachment";
     public static final String UPLOAD_FILE_PATH = "/messages/upload-file";
     public static final String REGISTER_CLIENT_PATH = "/config/register";
 
@@ -65,7 +65,7 @@ public class MessageServiceClient {
     public static final String APP_VERSION = "appVersion";
     public static final String GENERATED_NAME = "generatedName";
 
-    protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
+    protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
             false);
 
     public static void markMessagesAsReceived(QueryContext context,

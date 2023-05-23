@@ -17,9 +17,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
@@ -80,7 +82,6 @@ import net.tribe7.common.base.Optional;
 import net.tribe7.common.collect.FluentIterable;
 import net.tribe7.common.collect.ImmutableList;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,7 +143,7 @@ public class MessageCheckService extends IntentService {
     //Notification message ID
     private static final int NEW_MESSAGE_NOTIFICATION = 1448;
     private static final int SYNC_RESULTS_NOTIFICATION_ID = 1337;
-    private static final String SYNC_CHECK_URL = "http://mobile-api.truckdoc.ru/mobile-api/v2/messages/syncCheck"; // TODO: Use api_service_path!
+    private static final String SYNC_CHECK_URL = "https://mobile.aps-solver.com/mobile-api/v2/messages/syncCheck"; // TODO: Use api_service_path!
     private static final ImmutableList<String> DOC_TYPES = ImmutableList.of("INVOICE", "CARNET-TIR", "CMR", "COM-DESCR", "PACK-LIST", "EXPORT-DECL", "DKD");
 
     // Checks should not be done when time passed is less than this.
@@ -194,6 +195,7 @@ public class MessageCheckService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         if (intent == null) {
             return START_NOT_STICKY;
         }
@@ -208,7 +210,7 @@ public class MessageCheckService extends IntentService {
 
     private void startInForeground() {
         Intent notificationIntent = new Intent(this, MessageCheckService.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_action_refresh)
                 .setContentTitle("truckdoc")
@@ -318,7 +320,7 @@ public class MessageCheckService extends IntentService {
         String generatedName = !TextUtils.isEmpty(line1Number) ? line1Number : "CLIENT_TRUCKDOC_" + sdf.format(new Date());
 
         AppInfo clientAppInfo = RegistrationInfoProvider.getClientAppInfo(this);
-        registerRequest.setSimInfo(RegistrationInfoProvider.getSimInfo(tMgr));
+        registerRequest.setSimInfo(RegistrationInfoProvider.getSimInfo(this, tMgr));
         registerRequest.setDeviceInfo(RegistrationInfoProvider.getClientDeviceInfo(this));
 
         registerRequest.setAppInfo(clientAppInfo);
@@ -478,7 +480,7 @@ public class MessageCheckService extends IntentService {
             if (!currentVersionCode.equals(savedClientVersionCode)) {
                 TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
                 UpdateRequest updateRequest = new UpdateRequest();
-                updateRequest.setSimInfo(RegistrationInfoProvider.getSimInfo(tMgr));
+                updateRequest.setSimInfo(RegistrationInfoProvider.getSimInfo(this, tMgr));
                 updateRequest.setDeviceInfo(RegistrationInfoProvider.getClientDeviceInfo(this));
                 updateRequest.setAppInfo(clientAppInfo);
                 updateRequest.setCurrentClientTime(new Date().getTime());
@@ -929,7 +931,7 @@ public class MessageCheckService extends IntentService {
         NotificationManager notifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         //Instantiate notification with icon and ticker message
         //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getActivity(this, 0, new Intent(this, InboxActivity.class), 0);
+        PendingIntent i = PendingIntent.getActivity(this, 0, new Intent(this, InboxActivity.class), PendingIntent.FLAG_IMMUTABLE);
         //Set the info that show in the notification panel
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "syncchannel");
 
@@ -968,7 +970,7 @@ public class MessageCheckService extends IntentService {
         }
 
         //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getActivity(this, 0, new Intent(this, InboxActivity.class), 0);
+        PendingIntent i = PendingIntent.getActivity(this, 0, new Intent(this, InboxActivity.class), PendingIntent.FLAG_IMMUTABLE);
         //Set the info that show in the notification panel
         Notification.Builder builder = new Notification.Builder(this);
 

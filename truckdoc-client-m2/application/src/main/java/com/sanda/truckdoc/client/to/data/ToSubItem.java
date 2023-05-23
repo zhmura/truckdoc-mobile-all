@@ -1,7 +1,7 @@
 package com.sanda.truckdoc.client.to.data;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 /**
  * Created by k.natallie on 03.02.2016.
  */
-@JsonIgnoreProperties(value = {"parent", "id"})
+@JsonIgnoreProperties(value = { "parent", "id"})
 public class ToSubItem implements Serializable {
     private String id;
     private TOState value;

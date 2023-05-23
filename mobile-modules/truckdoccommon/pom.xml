@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.sanda.truckdoc</groupId>
         <artifactId>truckdoc-root-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.2-SNAPSHOT</version>
         <relativePath>truckdoc-root-parent/pom.xml</relativePath>
     </parent>
 
@@ -28,6 +28,7 @@
         <module>truckdoc-root-parent</module>
         <module>common-bom</module>
 
+        <module>truckdoc-client-api-annotator</module>
         <module>truckdoc-client-api</module>
         <module>truckdoc-util</module>
     </modules>

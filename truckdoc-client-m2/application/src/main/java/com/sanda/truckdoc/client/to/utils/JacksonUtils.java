@@ -2,9 +2,8 @@ package com.sanda.truckdoc.client.to.utils;
 
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResult;
-
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 

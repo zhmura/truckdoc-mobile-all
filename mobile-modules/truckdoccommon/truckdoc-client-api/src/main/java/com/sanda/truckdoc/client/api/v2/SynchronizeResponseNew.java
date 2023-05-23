@@ -3,10 +3,11 @@ package com.sanda.truckdoc.client.api.v2;
 import com.sanda.truckdoc.client.api.base.SynchronizeResponseBase;
 import com.sanda.truckdoc.client.api.model.ContactListData;
 import com.sanda.truckdoc.client.api.v3.sync.client.config.model.ClientConfigWithVersion;
+import com.sanda.truckdoc.client.api.v3.sync.instructions.model.InstructionSetWithVersion;
 import com.sanda.truckdoc.client.api.v3.sync.maintenance.model.MaintenanceConfigInfo;
 import com.sanda.truckdoc.client.api.v3.sync.routing.model.RouteAssignmentInfo;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
     private MaintenanceConfigInfo maintenanceConfigInfo;
 
     private ClientConfigWithVersion clientConfigWithVersion;
+
+    private InstructionSetWithVersion instructionSetWithVersion;
 
 
     /*Getter and setter*/
@@ -85,6 +88,14 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
         this.clientConfigWithVersion = clientConfigWithVersion;
     }
 
+    public InstructionSetWithVersion getInstructionSetWithVersion() {
+        return instructionSetWithVersion;
+    }
+
+    public void setInstructionSetWithVersion(InstructionSetWithVersion instructionSetWithVersion) {
+        this.instructionSetWithVersion = instructionSetWithVersion;
+    }
+
     @Override
     public String toString() {
         return "SynchronizeResponseNew{" +
@@ -94,6 +105,7 @@ public class SynchronizeResponseNew implements SynchronizeResponseBase {
                 ", routeAssignmentInfo=" + routeAssignmentInfo +
                 ", maintenanceConfigInfo=" + maintenanceConfigInfo +
                 ", clientConfigWithVersion=" + clientConfigWithVersion +
+                ", instructionSetWithVersion=" + instructionSetWithVersion +
                 '}';
     }
 }

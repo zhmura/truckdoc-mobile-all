@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "description": "Instruction set with version number",
+  "properties": {
+
+    "version": {
+      "type": "integer",
+      "required": true
+    },
+
+    "instruction_set": {
+      "$ref": "instruction_set.json",
+      "required": true
+    }
+  }
+}

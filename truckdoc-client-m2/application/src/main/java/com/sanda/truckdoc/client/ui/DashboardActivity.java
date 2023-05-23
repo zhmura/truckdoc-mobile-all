@@ -174,6 +174,11 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
+    @Click(R.id.btnInstructions)
+    void onInstructions() {
+        //startActivity(new Intent(this, InstructionsActivity.class));
+    }
+
     public void startCameraActivity(app.camera.tdoc.camera_library.ImageType type, Long recipientId) {
         ArrayList<PrefixList> prefixes = new ArrayList<>();
         prefixes.add(new PrefixList("Обычное фото", "PHOTO"));

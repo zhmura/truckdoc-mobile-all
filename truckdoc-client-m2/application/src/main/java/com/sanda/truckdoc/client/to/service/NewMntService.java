@@ -110,7 +110,7 @@ public class NewMntService extends AbstractIntentService {
     public static void addPendingSessionFinish(Context context) {
         L.v();
         Intent serviceIntent = NewMntService_.intent(context).photoSessionFinished().get();
-        PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
