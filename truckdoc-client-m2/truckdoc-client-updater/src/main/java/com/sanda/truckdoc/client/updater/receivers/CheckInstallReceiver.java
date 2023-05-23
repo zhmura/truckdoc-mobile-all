@@ -32,10 +32,10 @@ public class CheckInstallReceiver extends BroadcastReceiver {
     public static void startCheckInstallReceiver(Context context) {
         Intent alarmIntent = new Intent(context, CheckInstallReceiver.class);
 //        alarmIntent.setAction(INTENT_ACTION);
-        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_NO_CREATE) != null;
+        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE) != null;
         if (!isAlarmUp) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
             alarmManager.setInexactRepeating(AlarmManager.RTC,
                     System.currentTimeMillis(),
                     ReceiverConfig.INSTALL_DELAY, pendingIntent);
@@ -47,7 +47,7 @@ public class CheckInstallReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(context, CheckInstallReceiver.class);
         alarmIntent.setAction(INTENT_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
     }
 }

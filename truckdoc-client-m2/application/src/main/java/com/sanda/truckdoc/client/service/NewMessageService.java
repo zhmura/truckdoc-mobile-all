@@ -135,7 +135,7 @@ public class NewMessageService extends AbstractIntentService {
     private static void setUploadReAttemptAlarm(Context context, boolean triggerMessageSendingOnCompletion) {
         Intent intent = NewMessageService_.intent(context).uploadFiles(triggerMessageSendingOnCompletion).get();
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pi = PendingIntent.getBroadcast(context, RE_CHECK_UPLOAD_ALARM, intent, 0);
+        PendingIntent pi = PendingIntent.getBroadcast(context, RE_CHECK_UPLOAD_ALARM, intent, PendingIntent.FLAG_IMMUTABLE);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY_OF_FILE_UPLOAD_ON_ERROR, pi);
     }
 

@@ -31,7 +31,7 @@ public class ApnWaiterReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
                 0,
                 alarmIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_IMMUTABLE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + INTERVAL, pendingIntent);
     }
 
@@ -40,7 +40,7 @@ public class ApnWaiterReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(context, ApnWaiterReceiver.class);
         alarmIntent.setAction(INTENT_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
     }
 }

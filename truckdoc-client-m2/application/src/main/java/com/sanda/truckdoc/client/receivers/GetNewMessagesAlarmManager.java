@@ -90,7 +90,7 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
         Intent intent = new Intent(context, GetNewMessagesAlarmManager.class);
         intent.setAction(ACTION);
         intent.putExtra(GET_NEW_MESSAGES_ALARM_INTENT_EXTRA_KEY, true);
-        PendingIntent pi = PendingIntent.getBroadcast(context, INTENT_GET_NEW_MESSAGE_ALARM, intent, 0);
+        PendingIntent pi = PendingIntent.getBroadcast(context, INTENT_GET_NEW_MESSAGE_ALARM, intent, PendingIntent.FLAG_IMMUTABLE);
         assert am != null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmActivation, pi);
@@ -128,7 +128,7 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
         notifyMgr.cancel(AUTOSYNC_NOTIFICATION_ID);
         Intent intent = new Intent(context, GetNewMessagesAlarmManager.class);
         intent.putExtra(GET_NEW_MESSAGES_ALARM_INTENT_EXTRA_KEY, true);
-        PendingIntent sender = PendingIntent.getBroadcast(context, INTENT_GET_NEW_MESSAGE_ALARM, intent, 0);
+        PendingIntent sender = PendingIntent.getBroadcast(context, INTENT_GET_NEW_MESSAGE_ALARM, intent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         sender.cancel();
         alarmManager.cancel(sender);
@@ -159,7 +159,7 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
         //Instantiate notification with icon and ticker message
 
         //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), 0);
+        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), PendingIntent.FLAG_IMMUTABLE);
         //Set the info that show in the notification panel
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
@@ -192,7 +192,7 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
         //Instantiate notification with icon and ticker message
 
         //PendingIntent to launch our activity if the user selects it
-        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), 0);
+        PendingIntent i = PendingIntent.getService(context, 0, new Intent(context, MessageCheckService.class), PendingIntent.FLAG_IMMUTABLE);
         //Set the info that show in the notification panel
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 

@@ -50,11 +50,11 @@ public class CheckUpdateReceiver extends BroadcastReceiver {
     public static void startCheckUpdateReceiver(Context context, boolean delayedStart) {
         Timber.i("Restarting CheckUpdateReceiver");
         Intent alarmIntent = new Intent(context, CheckUpdateReceiver.class);
-        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_NO_CREATE) != null;
+        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE) != null;
         if (!isAlarmUp) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmIntent.setAction(INTENT_ACTION);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
             alarmManager.setInexactRepeating(AlarmManager.RTC,
                     delayedStart
                             ? System.currentTimeMillis() + ReceiverConfig.UPDATE_DELAY
@@ -68,7 +68,7 @@ public class CheckUpdateReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(context, CheckUpdateReceiver.class);
         alarmIntent.setAction(INTENT_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
     }
 }

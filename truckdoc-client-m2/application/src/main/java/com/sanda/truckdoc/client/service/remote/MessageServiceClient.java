@@ -36,9 +36,9 @@ public class MessageServiceClient {
     public static final String MESSAGES_NEW_PATH = "/messages/new";
     public static final String CONTACT_LIST_PATH = "/config/contacts/list";
     public static final String CONTACT_CONFIRM_PATH = "/config/contacts/confirm";
-    public static final String MESSAGES_CREATE_PATH = "/messages/create";
-    public static final String MESSAGES_MARK_RECEIVED_PATH = "/messages/mark-received";
-    public static final String FILE_BINARY_DATA_PATH = "/messages/attachment";
+    public static final String MESSAGES_CREATE_PATH = "v2/messages/create";
+    public static final String MESSAGES_MARK_RECEIVED_PATH = "v2/messages/mark-received";
+    public static final String FILE_BINARY_DATA_PATH = "v2/messages/attachment";
     public static final String UPLOAD_FILE_PATH = "/messages/upload-file";
     public static final String REGISTER_CLIENT_PATH = "/config/register";
 

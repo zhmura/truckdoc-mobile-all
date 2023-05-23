@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client.receivers;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -42,22 +43,25 @@ public class LocationReceiver extends AbstractBroadcastReceiver {
     public static void requestLocationUpdates(@NonNull Context context, long timeMs) {
         Intent intent = new Intent(context, LocationReceiver_.class);
         intent.setAction(ACTION_LOCATION_CHANGED);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         if (timeMs <= 0L) {
             if (pendingIntent != null) {
                 pendingIntent.cancel();
             }
             return;
         }
-        final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         final Criteria locationCriteria = new Criteria();
 
-        locationCriteria.setAccuracy(Criteria.ACCURACY_LOW);
+        locationCriteria.setAccuracy(Criteria.ACCURACY_FINE);
         locationCriteria.setPowerRequirement(Criteria.POWER_MEDIUM);
 
         if (pendingIntent != null) {
             L.v("Starting location updates");
             try {
+                final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                             || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

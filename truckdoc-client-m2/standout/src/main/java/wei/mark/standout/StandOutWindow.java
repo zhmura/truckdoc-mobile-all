@@ -586,7 +586,7 @@ public abstract class StandOutWindow extends Service {
         if (notificationIntent != null) {
             contentIntent = PendingIntent.getService(this, 0, notificationIntent,
                     // flag updates existing persistent notification
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_IMMUTABLE);
         }
 
         Notification notification = new Notification.Builder(getApplicationContext())
@@ -633,7 +633,7 @@ public abstract class StandOutWindow extends Service {
         if (notificationIntent != null) {
             contentIntent = PendingIntent.getService(this, 0, notificationIntent,
                     // flag updates existing persistent notification
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_IMMUTABLE);
         }
 
         Notification notification = new Notification.Builder(getApplicationContext())

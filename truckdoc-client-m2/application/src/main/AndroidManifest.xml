@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.sanda.truckdoc.client"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.sanda.truckdoc.client">
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -13,9 +13,15 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        android:minSdkVersion="30" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -26,6 +32,8 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.MANAGE_ALL_FILES_ACCESS_PERMISSION" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <uses-feature android:name="android.hardware.camera.flash" />
 
@@ -39,12 +47,16 @@
         android:name=".TruckDocApp"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        tools:ignore="HardcodedDebugMode"
         tools:replace="android:icon"
-        tools:ignore="HardcodedDebugMode">
+        tools:targetApi="m">
         <activity
             android:name=".ui.SplashActivity_"
             android:icon="@drawable/icon"
-            android:theme="@style/Base.Theme.AppCompat">
+            android:theme="@style/Base.Theme.AppCompat"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -85,10 +97,12 @@
             android:label="@string/activity_scanner_title"
             android:theme="@style/Theme.AppCompat" />
 
-        <service android:name=".service.MessageCheckService" />
+        <service android:name=".service.MessageCheckService" android:exported="true" />
         <service android:name=".to.service.NewMntService_" />
 
-        <receiver android:name=".receivers.SmsReceiver">
+        <receiver android:name=".receivers.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>

@@ -38,10 +38,10 @@ public class Checker {
         }
 
         Intent alarmIntent = getAfterBootIntent(context);
-        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_NO_CREATE) != null; //No creation
+        boolean isAlarmUp = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE) != null; //No creation
         if (!isAlarmUp) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0); //Creation
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE); //Creation
             alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
                     /*start time immediately*/ 0, AFTER_BOOT_DELAY, pendingIntent);
         }
@@ -59,7 +59,7 @@ public class Checker {
         Log.d("Checker", "cancelCheckConnectionAfterBoot");
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = getAfterBootIntent(context);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
     }
 

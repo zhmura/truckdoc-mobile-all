@@ -81,7 +81,7 @@ public class NetworkModule {
     @Singleton
     Retrofit.Builder provideRetrofitBuilder(ObjectMapper objectMapper) {
         // TODO: Use api_service_path!
-        return new Retrofit.Builder().baseUrl("https://mobile-api.truckdoc.ru/mobile-api/")
+        return new Retrofit.Builder().baseUrl("https://mobile.aps-solver.com/mobile-api/")
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .addCallAdapterFactory(EasyCallAdapterFactory.create())
                 .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())

@@ -49,7 +49,7 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         intent.setAction(ACTION);
         intent.putExtra("receiveAll", receiveAll);
         intent.putExtra("skippedRead", false);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 1, intent, 0);
+        PendingIntent pi = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + notifyInterval, pi);
     }
 
@@ -59,14 +59,14 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         intent.setAction(ACTION);
         intent.putExtra("skippedRead", true);
         intent.putExtra("receiveAll", true);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 2, intent, 0);
+        PendingIntent pi = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_IMMUTABLE);
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
     }
 
     public static void cancelAlarmWithDialog(Context context) {
         Intent intent = new Intent(context, IncomeMessagesAlarmManager.class);
         intent.setAction(ACTION);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 2, intent, 0);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
     }
@@ -74,7 +74,7 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
     public static void cancelAlarm(Context context) {
         Intent intent = new Intent(context, IncomeMessagesAlarmManager.class);
         intent.setAction(ACTION);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 1, intent, 0);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
     }
