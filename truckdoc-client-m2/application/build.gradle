@@ -77,13 +77,14 @@ android {
         debug {
             buildConfigField 'boolean', 'DEV', "Boolean.parseBoolean(\"$dev\")"
             ext.alwaysUpdateBuildId = false
+            debuggable true
             aaptOptions {
                 cruncherEnabled = false
             }
         }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.truckdoc_sign_config
