@@ -2,11 +2,12 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    buildToolsVersion "30.0.3"
     publishNonDefault true
 
     defaultConfig {
         minSdkVersion 21
+        compileSdkVersion 31
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -36,8 +37,8 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:support-annotations:$supportVersion"
-    implementation "com.android.support:appcompat-v7:$supportVersion"
+    implementation "androidx.annotation:annotation:1.0.0"
+    implementation "androidx.appcompat:appcompat:1.0.0"
     implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"
     implementation 'com.google.dagger:dagger:2.26'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.26'

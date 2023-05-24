@@ -9,12 +9,13 @@ android {
             storePassword 'K9bPfqqu5I'
         }
     }
-    compileSdkVersion 31
+    compileSdkVersion root.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.sanda.truckdoc.client.updater"
-        minSdkVersion 26
-        targetSdkVersion 31
+        minSdkVersion root.ext.minSdkVersion
+        compileSdkVersion root.ext.compileSdkVersion
+        targetSdkVersion root.ext.targetSdkVersion
         versionCode 7
         versionName "2.5"
         signingConfig signingConfigs.config
@@ -70,7 +71,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
 
     //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
-    implementation 'com.google.dagger:dagger-android:2.27'
+    implementation 'com.google.dagger:dagger-android:2.35.1'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.26'
 
     //support libraries with dagger 2
