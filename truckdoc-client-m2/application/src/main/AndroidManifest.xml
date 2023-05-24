@@ -166,10 +166,6 @@
         <service android:name=".ui.floating.HelpWindow" />
         <service android:name=".ui.floating.ApnHelpWindow" />
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="a1dbf2ed52fcf4e1152d18b938ec230991e9f03b" />
-
         <service
             android:name=".service.NewMessageService_"
             android:exported="false" />
