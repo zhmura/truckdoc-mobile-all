@@ -83,8 +83,8 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.1'
     annotationProcessor 'com.jakewharton:butterknife:10.2.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
-    implementation 'de.devland.esperandro:esperandro-api:2.2.0'
-    annotationProcessor 'de.devland.esperandro:esperandro:2.2.0'
+    implementation 'de.devland.esperandro:esperandro-api:3.0.3'
+    annotationProcessor 'de.devland.esperandro:esperandro:2.7.0'
     implementation 'org.apache.commons:commons-lang3:3.8'
     implementation "org.androidannotations:androidannotations-api:4.6.0"
     annotationProcessor "org.androidannotations:androidannotations:4.6.0"

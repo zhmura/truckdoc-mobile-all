@@ -3,6 +3,7 @@ package com.sanda.truckdoc.client.ui.message;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -138,6 +140,11 @@ public class NewMessageFragment extends Fragment implements BaseAdapter.Interact
         String message = ((EditText) getActivity().findViewById(R.id.txtMessage)).getText().toString();
         if (!TextUtils.isEmpty(message)) {
             sendMessageToOperator(message, item);
+            FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            if (Build.VERSION.SDK_INT >= 26) {
+                ft.setReorderingAllowed(false);
+            }
+            ft.detach(this).attach(this).commit();
         } else {
             showText(getResources().getString(R.string.enter_msg));
         }

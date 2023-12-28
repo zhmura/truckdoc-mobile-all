@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.Gravity;
@@ -53,6 +52,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -68,7 +68,7 @@ import static rx.schedulers.Schedulers.newThread;
 public class InboxFragment extends Fragment implements MessageAdapter.ServiceMessageClickListener {
 
     // Progress Dialog
-    private ProgressDialog pDialog;
+    private SpotsDialog pDialog;
     private MessageAdapter adapter;
 
     @Inject
@@ -80,10 +80,11 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     @Inject
     NotificationHelper notificationHelper;
 
+
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final Context context = getActivity();
-        TruckDocApp.get(context).appComponent().inject(this);
+        TruckDocApp.get(Objects.requireNonNull(context)).appComponent().inject(this);
         @NotNull AppSettings settings = new AppSettings(this.getActivity());
         userKey = settings.getUserKey();
         if (userKey != null) {
@@ -96,9 +97,15 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         loadInbox();
     }
 
+    @Override
+    public void onStart() {
+        loadInbox();
+        super.onStart();
+    }
+
     private void createAuthorizedBackend() {
         assert userKey != null;
-        TruckDocApp.get(this.getActivity())
+        TruckDocApp.get(this.requireActivity())
                 .appComponent()
                 .plus(new AuthorizedNetworkModule(userKey))
                 .authorizedBackend();
@@ -208,14 +215,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", pic);
-                    intent.setDataAndType(uri, "image/*");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                } else {
-                    intent.setDataAndType(Uri.parse(pic.getAbsolutePath()), "image/*");
-                    intent = Intent.createChooser(intent, "Open File");
-                }
+                Uri uri = FileProvider.getUriForFile(this.requireActivity(), "com.sanda.truckdoc.client.provider", pic);
+                intent.setDataAndType(uri, "image/*");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
             } catch (Exception e) {
                 showMessageToast(getResources().getString(R.string.cannot_open_file));
@@ -242,7 +244,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         if (recipientId != null) {
             Bundle args = new Bundle();
             args.putLong("recipientId", recipientId);
-            ((InboxActivity) getActivity()).setCurrentTab(1, args);
+            ((InboxActivity) requireActivity()).setCurrentTab(1, args);
         }
 
     }
@@ -255,13 +257,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 File apk = new File(directory, list[0]);
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", apk);
-                    intent.setDataAndType(uri, "application/vnd.android.package-archive");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                } else {
-                    intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
-                }
+                Uri uri = FileProvider.getUriForFile(this.requireActivity(), "com.sanda.truckdoc.client.provider", apk);
+                intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
             } catch (Exception e) {
                 showMessageToast(getResources().getString(R.string.cannot_open_file));
@@ -274,17 +272,11 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         String[] list = directory.list();
         Intent intent;
         try {
-            File pdf = new File(directory, list[0]);
+            File pdf = new File(directory, Objects.requireNonNull(list)[0]);
             intent = new Intent(Intent.ACTION_VIEW);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", pdf);
-                intent.setData(uri);
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                intent.setDataAndType(Uri.parse(pdf.getAbsolutePath()), "application/pdf");
-                intent = Intent.createChooser(intent, "Open File");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }
+            Uri uri = FileProvider.getUriForFile(this.requireActivity(), "com.sanda.truckdoc.client.provider", pdf);
+            intent.setData(uri);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(intent);
         } catch (Exception e) {
             showMessageToast(getResources().getString(R.string.cannot_open_file));
@@ -346,7 +338,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
 
     @OptionsItem
     void menuRefresh() {
-        Context context = getActivity().getApplicationContext();
+        Context context = requireActivity().getApplicationContext();
         MessageCheckService.executeGetNewMessagesAction(context, false, true, SyncReason.USER_DIRECT);
     }
 

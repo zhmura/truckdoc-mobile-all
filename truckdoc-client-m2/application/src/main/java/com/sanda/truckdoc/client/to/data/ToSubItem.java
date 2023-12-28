@@ -22,7 +22,6 @@ public class ToSubItem implements Serializable {
     private ToSubItem parent;
     private String comment;
 
-
     public ToSubItem(TOState toState, @NonNull String name, @Nullable List<ToSubItem> children, ToSubItem parent) {
         id = UUID.randomUUID().toString();
         this.value = toState;

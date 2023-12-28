@@ -34,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+Major refactoring doneimport androidx.multidex.MultiDexApplication;
+
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.LocationReceiver.ACTION_LOCATION_CHANGED;

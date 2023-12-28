@@ -29,17 +29,17 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    setCompileSdk(rootProject.ext.compileSdkVersion)
+    setBuildToolsVersion(rootProject.ext.buildToolsVersion)
     flavorDimensions "default"
 
     defaultConfig {
         applicationId "com.sanda.truckdoc.client"
         minSdkVersion rootProject.ext.minSdkVersion
-        compileSdkVersion rootProject.ext.compileSdkVersion
+        compileSdk rootProject.ext.compileSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 39
-        versionName "3.9"
+        versionCode 40
+        versionName "4.0"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -83,13 +83,12 @@ android {
             }
         }
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize'), 'proguard-rules.pro'
+            //minifyEnabled true
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.truckdoc_sign_config
             renderscriptDebuggable false
-            zipAlignEnabled true
             buildConfigField 'boolean', 'DEV', "Boolean.parseBoolean(\"false\")"
         }
     }
@@ -117,8 +116,8 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
             output.outputFileName = "com.sanda.truckdoc.client-${versionCode}.apk"
         }
     }
@@ -132,10 +131,13 @@ dependencies {
 }
 
 dependencies {
-    implementation "androidx.recyclerview:recyclerview:1.1.0"
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.6.0'
-    implementation "androidx.cardview:cardview:1.0.0"
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.github.d-max:spots-dialog:1.1'
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':truckdoc-util')
     implementation project(':truckdoc-client-api')
@@ -165,7 +167,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.29.1'
     implementation 'com.google.dagger:dagger-android-support:2.29.1'
 
-    implementation group: 'androidx.annotation', name: 'annotation', version: '1.6.0'
+    implementation group: 'androidx.annotation', name: 'annotation', version: '1.7.0'
     implementation group: 'androidx.viewpager', name: 'viewpager', version: '1.0.0'
     implementation group: 'androidx.localbroadcastmanager', name: 'localbroadcastmanager', version: '1.1.0'
 
@@ -178,8 +180,8 @@ dependencies {
     implementation "net.danlew:android.joda:$jodaVersion"
     //network
     implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     //implementation 'com.squareup.retrofit2:converter-jackson:2.1.0' // TODO: Use this after switch to Jackson 2
     compileOnly 'javax.annotation:jsr250-api:1.0'
     // Just for Generated annotation

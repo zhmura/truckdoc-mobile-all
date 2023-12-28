@@ -9,6 +9,7 @@ import com.sanda.truckdoc.client.R;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -33,7 +34,10 @@ public class InboxActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
 
-        tabLayout.setTabTextColors(getResources().getColorStateList(R.color.dark_tab_color));
+        tabLayout.setTabTextColors(ResourcesCompat.getColorStateList(
+                this.getResources(),
+                R.color.dark_tab_color,
+                null));
         viewPager = findViewById(pager);
 
         setSupportActionBar(toolbar);
@@ -45,11 +49,14 @@ public class InboxActivity extends AppCompatActivity {
 
         viewPager.setAdapter(new SectionPagerAdapter(getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setTabsFromPagerAdapter(viewPager.getAdapter());
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Drawable email = getResources().getDrawable(R.drawable.ic_email_white_36dp);
-            Drawable create = getResources().getDrawable(R.drawable.ic_create_white_36dp);
+            Drawable email = ResourcesCompat.getDrawable(this.getResources(),
+                    R.drawable.ic_email_white_36dp,
+                    null);
+            Drawable create = ResourcesCompat.getDrawable(this.getResources(),
+                    R.drawable.ic_create_white_36dp,
+                    null);
             Drawable wrapped = DrawableCompat.wrap(email);
             Drawable wrapped2 = DrawableCompat.wrap(create);
             DrawableCompat.setTintList(wrapped, tabLayout.getTabTextColors());//getResources().getColorStateList(R.color.tab_color));

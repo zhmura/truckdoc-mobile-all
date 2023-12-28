@@ -20,6 +20,7 @@ import com.sanda.truckdoc.client.to.data.ToNode;
 
 import java.util.List;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -146,8 +147,8 @@ public class MntItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                             holder.icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_ok), PorterDuff.Mode.SRC_ATOP);
                             holder.status.setTextColor(mContext.getResources().getColor(R.color.mnt_ok));
-                            holder.status.setText(R.string.mtn_ok);
-                            holder.status_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.mnt_ok));
+                            holder.status.setText(Boolean.TRUE.equals(item.getValidated()) ? "Сохранено" : mContext.getResources().getString(R.string.mtn_ok));
+                            holder.status_icon.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.mnt_ok, null));
                             holder.status_icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_ok), PorterDuff.Mode.SRC_ATOP);
                             holder.comment_icon.setVisibility(View.GONE);
                             holder.photo_icon.setVisibility(View.GONE);
@@ -156,9 +157,29 @@ public class MntItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             holder.icon.clearColorFilter();
                             holder.icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_problem), PorterDuff.Mode.SRC_ATOP);
                             holder.status.setTextColor(mContext.getResources().getColor(R.color.mnt_problem));
-                            holder.status_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.mnt_problems));
+                            holder.status_icon.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.mnt_problems, null));
                             holder.status_icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_problem), PorterDuff.Mode.SRC_ATOP);
                             holder.status.setText(R.string.mtn_problem);
+                            if (!TextUtils.isEmpty(item.getComment())) {
+                                holder.comment_icon.setVisibility(View.VISIBLE);
+                            } else {
+                                holder.comment_icon.setVisibility(View.GONE);
+                            }
+
+                            Log.d("item", item.getName() + item.getAttachedFiles().isEmpty());
+                            if (item.getAttachedFiles().isEmpty()) {
+                                holder.photo_icon.setVisibility(View.GONE);
+                            } else {
+                                holder.photo_icon.setVisibility(View.VISIBLE);
+                            }
+                            break;
+                        case "UNDEFINED":
+                            holder.icon.clearColorFilter();
+                            holder.icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_neutral, null), PorterDuff.Mode.SRC_ATOP);
+                            holder.status.setTextColor(mContext.getResources().getColor(R.color.mnt_neutral, null));
+                            holder.status_icon.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.mnt_icon_unknown, null));
+                            holder.status_icon.setColorFilter(mContext.getResources().getColor(R.color.mnt_neutral), PorterDuff.Mode.SRC_ATOP);
+                            holder.status.setText("Значение не определено");
                             if (!TextUtils.isEmpty(item.getComment())) {
                                 holder.comment_icon.setVisibility(View.VISIBLE);
                             } else {

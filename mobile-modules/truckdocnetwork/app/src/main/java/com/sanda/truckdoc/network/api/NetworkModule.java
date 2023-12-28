@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sanda.truckdoc.network.Backend;
@@ -13,6 +15,7 @@ import com.sanda.truckdoc.network.api.interceptors.UserAgentInterceptor;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -67,7 +70,11 @@ public class NetworkModule {
     @Singleton
     ObjectMapper provideObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.configOverride(Map.class).setInclude(
+                JsonInclude.Value.construct(
+                        JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL));
+
         return mapper;
     }
 

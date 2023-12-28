@@ -83,11 +83,7 @@ public class TOTreeActivity extends BaseActivity {
             adapter.addFragment(MaintenanceFragment.newInstance((ToNode) node), node.getName());
         }
         viewPager.setAdapter(adapter);
-        if (configNodes.size() == 0) {
-            sendTo.setEnabled(false);
-        } else {
-            sendTo.setEnabled(true);
-        }
+        sendTo.setEnabled(configNodes.size() != 0);
     }
 
 

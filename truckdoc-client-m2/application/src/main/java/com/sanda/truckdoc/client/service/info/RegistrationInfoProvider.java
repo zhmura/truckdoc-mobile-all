@@ -55,7 +55,7 @@ public class RegistrationInfoProvider {
         String androidId = Settings.Secure.getString(contextWrapper.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
         deviceInfo.setAndroidId(androidId);
-        deviceInfo.setDeviceId(tMgr.getImei());
+        deviceInfo.setDeviceId(androidId);
         deviceInfo.setPhoneModel(android.os.Build.MODEL);
         deviceInfo.setPhoneManufacturer(android.os.Build.MANUFACTURER);
         deviceInfo.setAndroidVersion(android.os.Build.VERSION.RELEASE);

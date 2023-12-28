@@ -136,14 +136,11 @@ public class GalleryActivity extends Activity implements View.OnClickListener {
 
         pagerAdapter = new GalleryPagerAdapter(imageList);
         mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (isTaskRunning) {
-                    return false;
-                }
-                return GalleryActivity.super.onTouchEvent(event);
+        mViewPager.setOnTouchListener((v, event) -> {
+            if (isTaskRunning) {
+                return false;
             }
+            return GalleryActivity.super.onTouchEvent(event);
         });
     }
 

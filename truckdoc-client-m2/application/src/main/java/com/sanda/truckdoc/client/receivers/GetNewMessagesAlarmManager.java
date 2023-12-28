@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import static com.sanda.truckdoc.client.receivers.IncomeMessagesAlarmManager.NOTIFY_INTERVAL_BUSY;
+
 
 /**
  * TruckDoc mobile client class
@@ -92,16 +94,13 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
         intent.putExtra(GET_NEW_MESSAGES_ALARM_INTENT_EXTRA_KEY, true);
         PendingIntent pi = PendingIntent.getBroadcast(context, INTENT_GET_NEW_MESSAGE_ALARM, intent, PendingIntent.FLAG_IMMUTABLE);
         assert am != null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()) {
             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmActivation, pi);
         } else {
-            am.setRepeating(AlarmManager.RTC_WAKEUP, nextAlarmActivation, syncIntervalMs, pi);
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            timeServiceStatusNotifier(context);
-        } else {
-            timeServiceStatusOldNotifier(context);
-        }
+
+        timeServiceStatusNotifier(context);
     }
 
     /**

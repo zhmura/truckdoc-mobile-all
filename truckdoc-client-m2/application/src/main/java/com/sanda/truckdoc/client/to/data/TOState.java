@@ -7,6 +7,6 @@ public enum TOState {
     NOT_CHECKED,
     IN_PROGRESS,
     OK,
-    NOT_OK
-
+    NOT_OK,
+    UNDEFINED
 }

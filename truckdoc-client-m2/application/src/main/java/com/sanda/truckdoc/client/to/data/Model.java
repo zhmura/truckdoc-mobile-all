@@ -158,6 +158,10 @@ public class Model {
             resultNode.setId(node.getId());
             resultNode.setValue(node.getValue());
             resultNode.setComment(node.getComment());
+            resultNode.setValidated(node.getValidated());
+            resultNode.setMayNotBeChecked(node.getMayNotBeChecked());
+            resultNode.setValidationRegExp(node.getValidationRegExp());
+            resultNode.setValidationMessage(node.getValidationMessage());
             resultNode.setAttachedFiles(node.getAttachedFiles());
             if (node.getChildren() != null && !node.getChildren().isEmpty()) {
                 resultNode.setChildren(initResultListNode(node.getChildren(), resultNode));
@@ -176,6 +180,10 @@ public class Model {
                 resultNode.setName(node.getName());
                 resultNode.setId(node.getId());
                 resultNode.setIcon(node.getIcon());
+                resultNode.setValidated(node.getValidated());
+                resultNode.setMayNotBeChecked(node.getMayNotBeChecked());
+                resultNode.setValidationRegExp(node.getValidationRegExp());
+                resultNode.setValidationMessage(node.getValidationMessage());
                 if (node.getChildren() != null && !node.getChildren().isEmpty()) {
                     resultNode.setChildren(initResultList(node.getChildren(), resultNode, null));
                 }
@@ -193,7 +201,7 @@ public class Model {
 
         Map<String, Object> map = node.getClassifier().getAdditionalProperties();
         Map<String, String> types = (Map<String, String>) map.get("additionalProperties");
-        String tentType = types.get("trailerType");
+        String tentType = types != null ? types.get("trailerType") : (String) map.get("trailerType");
         return type.equals(tentType);
     }
 
@@ -316,6 +324,7 @@ public class Model {
     private void updateParentNodeState(ToNode node) {
         switch (node.getValue()) {
             case "OK":
+            case "UNDEFINED":
             case "NOT_OK":
             case IN_PROGRESS:
                 ToNode parent = node.getParent();
@@ -326,8 +335,6 @@ public class Model {
                         if (subitem.getValue() == null) {
                             isAnyUnChecked = true;
                         } else {
-
-
                             //If any child has in progress state, parent also in progress
                             if (subitem.getValue().equals(IN_PROGRESS)) {
                                 parent.setValue(IN_PROGRESS);
@@ -337,12 +344,11 @@ public class Model {
                                 return;
                             }
 
-
                             if (subitem.getValue().equals("NOT_OK")) {
                                 isAnyChecked = true;
                                 isNegativeChecked = true;
                             }
-                            if (subitem.getValue().equals("OK")) {
+                            if (subitem.getValue().equals("UNDEFINED") || subitem.getValue().equals("OK")) {
                                 isAnyChecked = true;
                             }
                         }

@@ -22,8 +22,10 @@ import net.tribe7.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -137,7 +139,9 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
 
     @NonNull
     private Drawable getColoredAvatar(Context context, int color) {
-        Drawable image = DrawableCompat.wrap(context.getResources().getDrawable(R.drawable.avatar_placeholder));
+        Drawable image = DrawableCompat.wrap(Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.avatar_placeholder,
+                null)));
         DrawableCompat.setTint(image.mutate(), color);
         return image;
     }

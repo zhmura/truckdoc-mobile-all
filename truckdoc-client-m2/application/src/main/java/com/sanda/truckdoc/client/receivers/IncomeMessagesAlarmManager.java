@@ -50,7 +50,11 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         intent.putExtra("receiveAll", receiveAll);
         intent.putExtra("skippedRead", false);
         PendingIntent pi = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
-        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + notifyInterval, pi);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + notifyInterval, pi);
+        } else {
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
+        }
     }
 
     public static void setAlarmWithDialog(Context context, long notifyInterval) {
@@ -60,7 +64,11 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         intent.putExtra("skippedRead", true);
         intent.putExtra("receiveAll", true);
         PendingIntent pi = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_IMMUTABLE);
-        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
+        } else {
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFY_INTERVAL_BUSY, pi);
+        }
     }
 
     public static void cancelAlarmWithDialog(Context context) {

@@ -15,6 +15,18 @@
     "comment": {
       "type": "string"
     },
+    "validated": {
+      "type": "boolean"
+    },
+    "validationRegExp": {
+      "type": "string"
+    },
+    "validationMessage": {
+      "type": "string"
+    },
+    "mayNotBeChecked": {
+      "type": "boolean"
+    },
     "children": {
       "type": "array",
       "items": {

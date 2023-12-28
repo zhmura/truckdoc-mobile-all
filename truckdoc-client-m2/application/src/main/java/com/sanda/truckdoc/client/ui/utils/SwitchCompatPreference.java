@@ -54,7 +54,7 @@ public class SwitchCompatPreference extends SwitchPreference {
         super.onBindView(view);
 
         View checkableView = view.findViewById(android.R.id.toggle);
-        if (checkableView != null && checkableView instanceof Checkable) {
+        if (checkableView instanceof Checkable) {
             if (checkableView instanceof Switch) {
                 final Switch switchView = (Switch) checkableView;
                 switchView.setOnCheckedChangeListener(null);

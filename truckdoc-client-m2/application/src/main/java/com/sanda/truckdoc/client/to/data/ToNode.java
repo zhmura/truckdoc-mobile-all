@@ -40,7 +40,6 @@ public class ToNode extends ChecklistResultNode implements Serializable {
         return getName();
     }
 
-
     /**
      * returnt parent of item if available, or returns itself if no parent
      *

@@ -32,6 +32,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import androidx.core.content.res.ResourcesCompat;
 import app.camera.tdoc.camera_library.CamActivity;
 import app.camera.tdoc.camera_library.Controllers.CameraController;
 import app.camera.tdoc.camera_library.PreferenceKeys;
@@ -565,7 +566,8 @@ public class SettingsView extends LinearLayout {
             ll2.addView(prev_button);
 //            final int padding = (int) (0 * scale + 0.5f);
             ViewGroup.LayoutParams vg_params = prev_button.getLayoutParams();
-            prev_button.setImageDrawable(getResources().getDrawable(R.drawable.ic_left));
+            prev_button.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                    R.drawable.ic_left, null));
             prev_button.setLayoutParams(new LinearLayout.LayoutParams
                     (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
@@ -582,7 +584,8 @@ public class SettingsView extends LinearLayout {
             final ImageView next_button = new ImageView(this.getContext());
             next_button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
             ll2.addView(next_button);
-            next_button.setImageDrawable(getResources().getDrawable(R.drawable.ic_right));
+            next_button.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                    R.drawable.ic_right, null));
             next_button.setPadding(pdng, pdng, pdng, pdng);
             next_button.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 

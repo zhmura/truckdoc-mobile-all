@@ -1,6 +1,8 @@
 package app.camera.tdoc.camera_library;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +27,13 @@ public class CustomToast {
         View customToastRoot = inflater.inflate(R.layout.red_toast, null);
         TextView txt = customToastRoot.findViewById(R.id.textViewRedToast);
         txt.setText(message);
-        Toast customToast = Toast.makeText(context, message, Toast.LENGTH_LONG);
-        customToast.setView(customToastRoot);
-        customToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL, 0, 0);
-        customToast.show();
+        Handler mainThread = new Handler(Looper.getMainLooper());
+        mainThread.post(() -> {
+            Toast customToast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+            customToast.setView(customToastRoot);
+            customToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL, 0, 0);
+            customToast.show();
+        });
     }
 
     // Yellow toast
@@ -50,10 +55,13 @@ public class CustomToast {
         View customToastRoot = inflater.inflate(R.layout.blue_toast, null);
         TextView txt = customToastRoot.findViewById(R.id.textViewBlueToast);
         txt.setText(message);
-        Toast customToast = Toast.makeText(context, message, Toast.LENGTH_LONG);
-        customToast.setView(customToastRoot);
-        customToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL, 0, 0);
-        customToast.setDuration(Toast.LENGTH_LONG);
-        customToast.show();
+        Handler mainThread = new Handler(Looper.getMainLooper());
+        mainThread.post(() -> {
+            Toast customToast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+            customToast.setView(customToastRoot);
+            customToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL, 0, 0);
+            customToast.setDuration(Toast.LENGTH_LONG);
+            customToast.show();
+        });
     }
 }

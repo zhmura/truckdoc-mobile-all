@@ -112,8 +112,7 @@ public class NewMntService extends AbstractIntentService {
         Intent serviceIntent = NewMntService_.intent(context).photoSessionFinished().get();
         PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarm.canScheduleExactAlarms()) {
             alarm.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, pi);
         } else {
             alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, pi);

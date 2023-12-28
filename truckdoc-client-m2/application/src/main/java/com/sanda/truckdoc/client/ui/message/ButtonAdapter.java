@@ -13,6 +13,8 @@ import com.github.naixx.BaseViewHolder;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 
+import androidx.core.content.res.ResourcesCompat;
+
 public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.ViewHolder> {
 
     public ButtonAdapter(InteractionListener<DbContactRecord> listener) {
@@ -39,10 +41,12 @@ public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.Vi
         @Override
         public void bind(DbContactRecord item, int position) {
             Context context = itemView.getContext();
-            Drawable wrap = context.getResources().getDrawable(R.drawable.service_button_selector);
+            Drawable wrap = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.service_button_selector,
+                    null);
             //noinspection ConstantConditions
             wrap.setColorFilter(item.getColor(), Mode.MULTIPLY);
-            button.setBackgroundDrawable(wrap.mutate());
+            button.setBackground(wrap.mutate());
             button.setText(item.getLabel());
             button.setOnClickListener(v -> listener.onClick(item));
         }

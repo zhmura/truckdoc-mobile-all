@@ -1,14 +1,19 @@
 package com.sanda.truckdoc.client.ui;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -86,13 +91,19 @@ public class DashboardActivity extends AppCompatActivity {
     Prefs prefs;
 
     private void explicitPermissionsRequestIfRequired() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (SDK_INT >= Build.VERSION_CODES.M) {
             int PERMISSION_ALL = 1;
             PackageInfo info;
             try {
                 info = getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_PERMISSIONS);
                 if (!hasPermissions(this, info.requestedPermissions)) {
                     ActivityCompat.requestPermissions(this, info.requestedPermissions, PERMISSION_ALL);
+                }
+                if (SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
                 }
             } catch (Exception e) {
                 Timber.e(e, "Request permission handler failed");
@@ -172,11 +183,6 @@ public class DashboardActivity extends AppCompatActivity {
         populateRecipientDialog(recipientId -> {
             startCameraActivity(SCENE_PHOTO, recipientId);
         });
-    }
-
-    @Click(R.id.btnInstructions)
-    void onInstructions() {
-        //startActivity(new Intent(this, InstructionsActivity.class));
     }
 
     public void startCameraActivity(app.camera.tdoc.camera_library.ImageType type, Long recipientId) {

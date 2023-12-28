@@ -126,21 +126,17 @@ public class Window extends FrameLayout {
 
         addView(content);
 
-        body.setOnTouchListener(new OnTouchListener() {
+        body.setOnTouchListener((v, event) -> {
+            // pass all touch events to the implementation
+            boolean consumed = false;
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // pass all touch events to the implementation
-                boolean consumed = false;
+            // handle move and bring to front
+            consumed = context.onTouchHandleMove(id, Window.this, v, event) || consumed;
 
-                // handle move and bring to front
-                consumed = context.onTouchHandleMove(id, Window.this, v, event) || consumed;
+            // alert implementation
+            consumed = context.onTouchBody(id, Window.this, v, event) || consumed;
 
-                // alert implementation
-                consumed = context.onTouchBody(id, Window.this, v, event) || consumed;
-
-                return consumed;
-            }
+            return consumed;
         });
 
         // attach the view corresponding to the id from the
@@ -191,16 +187,13 @@ public class Window extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // handle touching outside
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_OUTSIDE:
-                // unfocus window
-                if (mContext.getFocusedWindow() == this) {
-                    mContext.unfocus(this);
-                }
+        if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {// unfocus window
+            if (mContext.getFocusedWindow() == this) {
+                mContext.unfocus(this);
+            }
 
-                // notify implementation that ACTION_OUTSIDE occurred
-                mContext.onTouchBody(id, this, this, event);
-                break;
+            // notify implementation that ACTION_OUTSIDE occurred
+            mContext.onTouchBody(id, this, this, event);
         }
 
         // handle multitouch
@@ -426,8 +419,7 @@ public class Window extends FrameLayout {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // handle dragging to move
-                boolean consumed = mContext.onTouchHandleMove(id, Window.this, v, event);
-                return consumed;
+                return mContext.onTouchHandleMove(id, Window.this, v, event);
             }
         });
 
@@ -438,9 +430,8 @@ public class Window extends FrameLayout {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // handle dragging to move
-                boolean consumed = mContext.onTouchHandleResize(id, Window.this, v, event);
 
-                return consumed;
+                return mContext.onTouchHandleResize(id, Window.this, v, event);
             }
         });
 
@@ -486,9 +477,8 @@ public class Window extends FrameLayout {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
                         // handle dragging to move
-                        boolean consumed = mContext.onTouchHandleResize(id, Window.this, v, event);
 
-                        return consumed;
+                        return mContext.onTouchHandleResize(id, Window.this, v, event);
                     }
                 });
             }

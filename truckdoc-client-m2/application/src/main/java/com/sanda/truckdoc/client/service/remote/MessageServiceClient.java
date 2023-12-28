@@ -2,8 +2,6 @@ package com.sanda.truckdoc.client.service.remote;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sanda.truckdoc.client.data.model.file.FileType;
-import com.sanda.truckdoc.client.service.file.CountingInputStreamEntity;
 import com.sanda.truckdoc.client.service.remote.exceptions.CommunicationException;
 import com.sanda.truckdoc.client.service.remote.exceptions.RemoteCallException;
 import com.sanda.truckdoc.client.service.remote.exceptions.ServiceUnavailableException;
@@ -24,46 +22,23 @@ import java.util.Map;
 import ch.boye.httpclientandroidlib.HttpResponse;
 import ch.boye.httpclientandroidlib.HttpStatus;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
-import timber.log.Timber;
 
 /**
  * @author Alexei Osipov
  */
 public class MessageServiceClient {
 
-    public static final String CHECK_UPDATES_PATH = "/data/check-updates";
-
-    public static final String MESSAGES_NEW_PATH = "/messages/new";
-    public static final String CONTACT_LIST_PATH = "/config/contacts/list";
-    public static final String CONTACT_CONFIRM_PATH = "/config/contacts/confirm";
-    public static final String MESSAGES_CREATE_PATH = "v2/messages/create";
     public static final String MESSAGES_MARK_RECEIVED_PATH = "v2/messages/mark-received";
     public static final String FILE_BINARY_DATA_PATH = "v2/messages/attachment";
-    public static final String UPLOAD_FILE_PATH = "/messages/upload-file";
-    public static final String REGISTER_CLIENT_PATH = "/config/register";
 
     public static final String DATA_TYPE_IDS_PARAM = "dataTypeIds";
 
     public static final String ATTACHMENT_ID_PARAM = "attachmentId";
-    public static final String MESSAGE_TEXT_PARAM = "messageText";
     public static final String MESSAGE_RECIPIENT_ID = "recipientId";
     public static final String MESSAGE_IDS_PARAM = "messageIds";
     public static final String CONTACTS_LIST_VERSION = "contacts_version";
-    public static final String FILE_METADATA_IDS_PARAM = "fileMetadataIds";
-    public static final String FILE_NAME_PARAM = "fileName";
-    public static final String FILE_TYPE_PARAM = "fileType";
-    public static final String DOC_TYPE_PARAM = "docType";
     public static final String CONVERSION_TYPE_PARAM = "conversionType";
     public static final String CONVERSION_SIDE_PARAM = "convertedByClient";
-    public static final String PHONE_NUMBER_PARAM = "phoneNumber";
-    public static final String IMEI_PARAM = "imei";
-    public static final String ANDROID_ID_PARAM = "androidId";
-    public static final String ANDROID_VERSION_PARAM = "androidVersion";
-    public static final String MODEL_NAME_PARAM = "modelName";
-    public static final String CLIENT_VERSION_PARAM = "clientVersion";
-    public static final String REGISTRATION_TOKEN_PARAM = "registrationToken";
-    public static final String APP_VERSION = "appVersion";
-    public static final String GENERATED_NAME = "generatedName";
 
     protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
             false);
@@ -74,18 +49,6 @@ public class MessageServiceClient {
         consume(postContent(context, MESSAGES_MARK_RECEIVED_PATH, params));
     }
 
-    public static void sendMessageByFileMetadataId(final QueryContext context,
-                                                   long recipientId,
-                                                   String messageText,
-                                                   List<Long> fileMetadataIds) throws RemoteCallException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(MESSAGE_TEXT_PARAM, messageText);
-        params.put(MESSAGE_RECIPIENT_ID, recipientId);
-        params.put(FILE_METADATA_IDS_PARAM, fileMetadataIds);
-
-        Reader r = postContent(context, MESSAGES_CREATE_PATH, params);
-        consume(r);
-    }
 
     /**
      * Loads content for the specified attachment.
@@ -105,45 +68,6 @@ public class MessageServiceClient {
 
             return resp.getEntity().getContent();
         } catch (IOException e) {
-            throw new CommunicationException("Problem reading remote response for " + FILE_BINARY_DATA_PATH, e);
-        }
-    }
-
-    /**
-     * Uploads single file without attaching it to com.sanda.truckdoc.client.ui.message.
-     *
-     * @param context query context
-     * @param entity  local file for upload
-     * @return file metadata id
-     * @throws RemoteCallException
-     */
-    public static Long uploadFileForMessage(final QueryContext context,
-                                            final CountingInputStreamEntity entity) throws RemoteCallException {
-        try {
-            Timber.i("File uploading started for file " + entity.getFileName());
-            HashMap<String, Object> params = new HashMap<>();
-            params.put(FILE_NAME_PARAM, entity.getFileName());
-            params.put(FILE_TYPE_PARAM, entity.getFileType());
-            if (entity.getFileType().equals(FileType.DOC)) {
-                if (entity.getDocType() != null) {
-                    params.put(DOC_TYPE_PARAM, entity.getDocType());
-                }
-                params.put(CONVERSION_TYPE_PARAM, entity.getConversionType());
-                params.put(CONVERSION_SIDE_PARAM, entity.isConvertedOnClient() ? 1 : 0);
-            }
-            final HttpResponse resp = context.getHttpClient()
-                    .execute(HttpPost.METHOD_NAME, context, UPLOAD_FILE_PATH, params, null, entity);
-            try {
-                checkStatus(resp, UPLOAD_FILE_PATH);
-                Reader r = getResponseReader(resp);
-                //return new Gson().fromJson(r, Long.class);
-                Timber.i("File uploading ended for file " + entity.getFileName());
-                return mapper.readValue(r, Long.class);
-            } finally {
-                IOUtils.closeQuietly(resp.getEntity().getContent());
-            }
-        } catch (Exception e) {
-            Timber.e(e, "upload file for message failed");
             throw new CommunicationException("Problem reading remote response for " + FILE_BINARY_DATA_PATH, e);
         }
     }

@@ -134,7 +134,7 @@ public class CSVWriter implements Closeable {
      */
     public void writeAll(List<String[]> allLines) {
         for (String[] line : allLines) {
-            writeNext(line);
+            writeNext((Object[]) line);
         }
     }
 

@@ -43,12 +43,8 @@ public class ResponseCheckHelper {
                     break;
                 case 401:
                     String authErrorHeader = response.headers().get(X_AUTH_ERROR_ACTION_HEADER);
-                    if (authErrorHeader != null
-                            && authErrorHeader.equalsIgnoreCase("Invalidate-Credentials")) {
-                        response401Action(context, true);
-                    } else {
-                        response401Action(context, false);
-                    }
+                    response401Action(context, authErrorHeader != null
+                            && authErrorHeader.equalsIgnoreCase("Invalidate-Credentials"));
                     errorMessage = R.string.common401response;
                     break;
                 case 402:

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sync_interval_array">
+        <item>1 мин</item>
+        <item>3 мин</item>
         <item>5 мин</item>
-        <item>7 мин</item>
-        <item>10 мин</item>
     </string-array>
     <string-array name="sync_interval_array_values">
+        <item>1</item>
+        <item>3</item>
         <item>5</item>
-        <item>7</item>
-        <item>10</item>
     </string-array>
 </resources>

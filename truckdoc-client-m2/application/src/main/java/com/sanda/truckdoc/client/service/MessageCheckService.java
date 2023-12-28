@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
@@ -77,6 +76,10 @@ import com.sanda.truckdoc.network.Backend;
 import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.SynchronizeCheckResponse;
 import com.sanda.truckdoc.network.api.UserKey;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 import net.tribe7.common.base.Optional;
 import net.tribe7.common.collect.FluentIterable;
@@ -88,7 +91,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -98,6 +100,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -230,38 +233,6 @@ public class MessageCheckService extends IntentService {
             e.printStackTrace();
         }
     }
-
-/*
-    @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel(String channelId, String channelName) {
-        NotificationChannel chan = new NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        service.createNotificationChannel(chan);
-        return channelId;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private Notification buildForegroundNotification() {
-        NotificationCompat.Builder b=new NotificationCompat.Builder(this, createNotificationChannel("message_check", "Truckdoc message service"));
-
-        b.setOngoing(true)
-                .setOngoing(true)
-                .setPriority(PRIORITY_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setContentTitle(getString(R.string.message_check))
-                .setContentText("message check service")
-                .setSmallIcon(android.R.drawable.ic_popup_sync);
-        try {
-            return b.build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-*/
 
     private void createAuthorizedBackend() {
         assert userKey != null;
@@ -675,7 +646,6 @@ public class MessageCheckService extends IntentService {
         long versionMnt = prefs.lastKnownMaintenanceConfigVersion();
         request.setLastKnownMaintenanceConfigVersion((versionMnt >= 0) ? versionMnt : null);
 
-
         Response response = authorizedBackend.synchronize(request).executeUnchecked();
         if (ResponseCheckHelper.checkIfError(response, this, "M2", true)) {
             return;
@@ -685,7 +655,8 @@ public class MessageCheckService extends IntentService {
 
 
     private void maintenanceConfigUpdate(SynchronizeResponseNew responseNew) throws IOException {
-        MaintenanceConfigInfo info = responseNew.getMaintenanceConfigInfo();
+        //MaintenanceConfigInfo info = responseNew.getMaintenanceConfigInfo();
+        MaintenanceConfigInfo info = parseJsonToMntConfig(readFileAsString(getApplicationContext()));
         if (info != null) {
             prefs.lastKnownMaintenanceConfigVersion(info.getConfigVersion());
             ObjectMapper mapper = new ObjectMapper();
@@ -695,6 +666,18 @@ public class MessageCheckService extends IntentService {
             LocalStorage.getInstance(getApplicationContext()).writeStringPreference(LocalStorage.CONFIG_INFO, json);
             //sendNotificationMessageonUI(getResources().getString(R.string.to_settings_received), false);
         }
+    }
+    public static String readFileAsString(Context context) throws IOException {
+        InputStream config = context.getResources().openRawResource(R.raw.maintenance_config);
+        Scanner scanner = new Scanner(config, "UTF-8");
+        String content = scanner.useDelimiter("\\A").next(); // "\\A" is the beginning of the input boundary, effectively reading the entire content
+        scanner.close();
+        return content;
+    }
+
+    public static MaintenanceConfigInfo parseJsonToMntConfig(String jsonContent) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(jsonContent, MaintenanceConfigInfo.class);
     }
 
     /**

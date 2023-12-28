@@ -21,6 +21,7 @@
     <color name="mnt_group_title">#adb2bf</color>
     <color name="mnt_wait">#adb2bf</color>
     <color name="mnt_ok">#1ac477</color>
+    <color name="mnt_can_not_check">#FF9800</color>
     <color name="mnt_problem">#ff5757</color>
     <color name="mnt_neutral">#4a7feb</color>
     <color name="mnt_white_text">#ffffff</color>

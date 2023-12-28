@@ -19,11 +19,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        android:minSdkVersion="30" />
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_ALL_FILES_ACCESS_PERMISSION" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -32,16 +33,12 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <uses-permission android:name="android.hardware.camera.autofocus" />
-    <uses-permission
-        android:name="android.permission.FLASHLIGHT"
-        android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
-        android:protectionLevel="normal" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
 
     <application
         android:name=".TruckDocApp"
@@ -50,8 +47,7 @@
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
         tools:ignore="HardcodedDebugMode"
-        tools:replace="android:icon"
-        tools:targetApi="m">
+        tools:replace="android:icon">
         <activity
             android:name=".ui.SplashActivity_"
             android:icon="@drawable/icon"
@@ -97,7 +93,7 @@
             android:label="@string/activity_scanner_title"
             android:theme="@style/Theme.AppCompat" />
 
-        <service android:name=".service.MessageCheckService" android:exported="true" />
+        <service android:name=".service.MessageCheckService" android:exported="true"/>
         <service android:name=".to.service.NewMntService_" />
 
         <receiver android:name=".receivers.SmsReceiver"
@@ -150,17 +146,17 @@
             android:parentActivityName=".to.TOTreeActivity"
             android:name=".to.PerformMntActivity"
             android:label="TO"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".to.EnterTruckDataActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:label="TO"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".to.UntrackedToItemsActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <service android:name=".ui.floating.HelpWindow" />
