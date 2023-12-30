@@ -67,7 +67,7 @@ public class FileLoggingTree implements Timber.Tree {
 
         SizeAndTimeBasedFNATP<ILoggingEvent> fileNamingPolicy = new SizeAndTimeBasedFNATP<>();
         fileNamingPolicy.setContext(loggerContext);
-        fileNamingPolicy.setMaxFileSize(FileSize.valueOf("1mb"));
+        fileNamingPolicy.setMaxFileSize("1mb");
 
         TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<>();
         rollingPolicy.setContext(loggerContext);
