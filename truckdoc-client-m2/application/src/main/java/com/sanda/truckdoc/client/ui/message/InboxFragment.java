@@ -1,6 +1,5 @@
 package com.sanda.truckdoc.client.ui.message;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,7 +67,6 @@ import static rx.schedulers.Schedulers.newThread;
 public class InboxFragment extends Fragment implements MessageAdapter.ServiceMessageClickListener {
 
     // Progress Dialog
-    private SpotsDialog pDialog;
     private MessageAdapter adapter;
 
     @Inject
@@ -112,11 +110,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     }
 
     private void loadInbox() {
-        pDialog = new ProgressDialog(getActivity());
-        pDialog.setMessage(getResources().getString(R.string.loading));
-        pDialog.setIndeterminate(false);
-        pDialog.setCancelable(false);
-        pDialog.show();
+        ProgressHelper.showDialog(this.getActivity(), getResources().getString(R.string.loading));
 
         IncomeMessagesAlarmManager.cancelAlarm(getActivity());
         IncomeMessagesAlarmManager.cancelAlarmWithDialog(getActivity());
@@ -124,7 +118,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         Observable<List<DbContactRecord>> contacts = databaseService.getContactRecords().toList().cache();
 
         databaseService.getMessages(showHidden)
-                .doOnTerminate(pDialog::dismiss)
+                .doOnTerminate(ProgressHelper::dismissDialog)
                 .toList()
                 .zipWith(contacts, Pair::create)
                 .subscribe(adapter::swapItems); //TODO bind activity
@@ -285,7 +279,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
 
     @Override
     public void onDestroy() {
-        pDialog.cancel();
+        ProgressHelper.dismissDialog();
         super.onDestroy();
     }
 
@@ -305,15 +299,10 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     }
 
     private void showProgressBar(@Nullable String header, @Nullable String message, int status) {
-        pDialog.setTitle(header);
-        pDialog.setMessage(message);
-        pDialog.setIndeterminate(true);
-        pDialog.setProgress(50);
-        pDialog.setCancelable(true);
         if (status > 0) {
-            pDialog.show();
+            ProgressHelper.showDialog(this.getActivity(), message);
         } else {
-            pDialog.cancel();
+            ProgressHelper.dismissDialog();
         }
     }
 

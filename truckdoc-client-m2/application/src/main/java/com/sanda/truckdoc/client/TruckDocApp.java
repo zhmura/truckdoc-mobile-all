@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-Major refactoring doneimport androidx.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication;
 
 import timber.log.Timber;
 
