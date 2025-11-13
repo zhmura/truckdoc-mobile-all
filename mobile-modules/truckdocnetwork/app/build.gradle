@@ -1,12 +1,25 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion '30.0.3'
+    namespace 'com.sanda.truckdoc.network'
+    compileSdk 34
+
+    buildFeatures {
+        viewBinding true
+    }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     lintOptions {
@@ -14,18 +27,12 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 26
-        compileSdkVersion 31
-        targetSdkVersion 31
+        minSdk 26
+        targetSdk 34
         versionCode 1
         versionName "1.0"
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -34,30 +41,32 @@ android {
     }
 }
 
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.multidex:multidex:2.0.0'
-    implementation 'io.reactivex:rxandroid:1.2.1'
-    implementation 'io.reactivex:rxjava:1.1.6'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
-    //dagger 2
-    implementation 'com.google.dagger:dagger:2.27'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
-
-    //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
-    implementation 'com.google.dagger:dagger-android:2.27'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
-
-    //support libraries with dagger 2
-    implementation 'com.google.dagger:dagger-android-support:2.27'
-    //  implementation 'com.sanda.truckdoc:truckdoc-util:1.0.1-SNAPSHOT'
+    implementation libs.multidex
+    implementation libs.rxandroid
+    implementation libs.retrofit.core
+    implementation libs.retrofit.rxjava3
+    implementation libs.retrofit.jackson
+    implementation libs.jackson.databind
+    
     implementation project(':truckdoc-client-api')
     implementation 'org.jetbrains:annotations:19.0.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.1.0'
-    //implementation 'com.android.support.test.espresso:espresso-core:2.2.2'
+
+    // Hilt
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
+
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }

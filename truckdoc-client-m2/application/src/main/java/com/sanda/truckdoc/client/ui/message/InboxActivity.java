@@ -81,10 +81,10 @@ public class InboxActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return InboxFragment_.builder().build();
+                    return createFragment();
                 case 1:
                 default:
-                    return NewMessageFragment_.builder().build();
+                    return createNewMessageFragment();
             }
         }
 
@@ -131,5 +131,11 @@ public class InboxActivity extends AppCompatActivity {
         }, 100);
     }
 
+    protected Fragment createFragment() {
+        return new InboxFragment();
+    }
 
+    protected Fragment createNewMessageFragment() {
+        return new NewMessageFragment();
+    }
 }

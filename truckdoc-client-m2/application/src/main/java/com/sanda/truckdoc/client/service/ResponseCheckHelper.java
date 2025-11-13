@@ -3,13 +3,16 @@ package com.sanda.truckdoc.client.service;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
-import com.sanda.truckdoc.client.ui.SplashActivity_;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
+import com.sanda.truckdoc.client.ui.SplashActivity;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 
 import app.camera.tdoc.camera_library.PreferenceKeys;
 import retrofit2.Response;
@@ -78,7 +81,6 @@ public class ResponseCheckHelper {
     }
 
     public static void response401Action(ContextWrapper context, boolean invalidateCredentials) {
-        Activity currentActivity = TruckDocApp.get(context).getActivityContext();
         disableSync(context);
         if (invalidateCredentials) {
             clearAppData(context);
@@ -86,7 +88,7 @@ public class ResponseCheckHelper {
         } else {
             deactivateClient(context, 1);
         }
-        SplashActivity_.intent(currentActivity).start();
+        startSplashActivity(context);
     }
 
     private static void disableSync(Context context) {
@@ -101,9 +103,18 @@ public class ResponseCheckHelper {
 
 
     private static void clearAppData(ContextWrapper context) {
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+        MessagesDatabaseService db = entryPoint.messagesDatabaseService();
+        MessagesDatabaseServiceJavaCompat.deleteAllDataBlocking(db);
         AppSettings settings = new AppSettings(context);
         settings.clearUserKey();
-        MessagesDatabaseService db = TruckDocApp.get(context).appComponent().db();
-        db.deleteAllData();
+    }
+
+    private static void startSplashActivity(Context context) {
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            Intent intent = new Intent(activity, SplashActivity.class);
+            activity.startActivity(intent);
+        }
     }
 }

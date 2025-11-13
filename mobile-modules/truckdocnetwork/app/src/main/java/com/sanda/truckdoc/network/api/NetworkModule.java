@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -18,86 +17,55 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
 import okhttp3.OkHttpClient;
 import retrofit2.EasyCallAdapterFactory;
 import retrofit2.Retrofit;
 import retrofit2.RxErrorHandlingCallAdapterFactory;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
+
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
 
 @Module
+@InstallIn(SingletonComponent.class)
 public class NetworkModule {
-
     @Provides
     @Singleton
-    OkHttpClient provideOkHttpClient(UserAgentInterceptor userAgentInterceptor,
-                                     HttpLoggingInterceptor httpLoggingInterceptor,
-                                     ClientVersionHeaderInterceptor clientVersionHeaderInterceptor) {
+    static OkHttpClient provideOkHttpClient() {
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         return new OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .addInterceptor(userAgentInterceptor)
-                .addInterceptor(clientVersionHeaderInterceptor)
-                .addInterceptor(httpLoggingInterceptor)
+                .addInterceptor(new UserAgentInterceptor("TruckDoc/1.0"))
+                .addInterceptor(new ClientVersionHeaderInterceptor("1.0"))
+                .addInterceptor(loggingInterceptor)
                 .build();
     }
 
     @Provides
     @Singleton
-    UserAgentInterceptor provideUserAgentInterceptor(Context context) {
-        return new UserAgentInterceptor(buildUserAgent(context));
+    static Retrofit.Builder provideRetrofitBuilder(OkHttpClient okHttpClient) {
+        return new Retrofit.Builder()
+                .baseUrl("https://mobile.aps-solver.com/mobile-api/")
+                .client(okHttpClient)
+                .addConverterFactory(JacksonConverterFactory.create())
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create());
     }
 
     @Provides
     @Singleton
-    HttpLoggingInterceptor provideHttpLoggingInterceptor() {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
-        return interceptor;
+    static Retrofit provideRetrofit(Retrofit.Builder builder) {
+        return builder.build();
     }
 
     @Provides
     @Singleton
-    ClientVersionHeaderInterceptor provideClientVersionHeaderInterceptor(Context context) {
-        return new ClientVersionHeaderInterceptor(getClientVersionName(context));
-    }
-
-    @Provides
-    @Singleton
-    ObjectMapper provideObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.configOverride(Map.class).setInclude(
-                JsonInclude.Value.construct(
-                        JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL));
-
-        return mapper;
-    }
-
-    @Provides
-    @Singleton
-    Retrofit provideRetrofit(Retrofit.Builder builder, OkHttpClient okHttpClient) {
-        return builder.client(okHttpClient).build();
-    }
-
-    @Provides
-    @Singleton
-    Retrofit.Builder provideRetrofitBuilder(ObjectMapper objectMapper) {
-        // TODO: Use api_service_path!
-        return new Retrofit.Builder().baseUrl("https://mobile.aps-solver.com/mobile-api/")
-                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                .addCallAdapterFactory(EasyCallAdapterFactory.create())
-                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
-    }
-
-    @Provides
-    @NotNull
-    Backend provideBackend(Retrofit retrofit) {
+    static Backend provideBackend(Retrofit retrofit) {
         return retrofit.create(Backend.class);
     }
 

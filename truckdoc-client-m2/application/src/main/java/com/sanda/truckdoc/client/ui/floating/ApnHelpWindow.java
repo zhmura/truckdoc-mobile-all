@@ -10,9 +10,6 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.R;
 
 import androidx.viewpager.widget.ViewPager;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
@@ -24,7 +21,6 @@ public class ApnHelpWindow extends HelpWindow {
 
     public static final String CONFIRM = "CONFIRM";
 
-    @BindView(R.id.pager)
     ViewPager pager;
     private WizardPagerAdapter adapter;
 
@@ -45,42 +41,47 @@ public class ApnHelpWindow extends HelpWindow {
     public void createAndAttachView(int id, FrameLayout frame) {
         View view = LayoutInflater.from(this).inflate(R.layout.widget_floating_wizard, frame, true);
         adapter = new WizardPagerAdapter();
-        ButterKnife.bind(this, view);
+        
+        // Initialize views
+        pager = view.findViewById(R.id.pager);
+        
+        // Set up click listeners
+        view.findViewById(R.id.apn_page1_btn_yes).setOnClickListener(v -> goToApnDataPage());
+        view.findViewById(R.id.apn_page1_btn_no).setOnClickListener(v -> askUserToSetElisaApn());
+        view.findViewById(R.id.apn_page2_btn_yes).setOnClickListener(v -> dataApnConfirmed());
+        view.findViewById(R.id.apn_page2_btn_no).setOnClickListener(v -> askUserToSetApn());
+        view.findViewById(R.id.apn_page_confirmation_btn_yes).setOnClickListener(v -> confirmRestart());
+        view.findViewById(R.id.apn_page_confirmation_btn_no).setOnClickListener(v -> startFromBeginning());
+        
         pager.setAdapter(adapter);
         pager.setTag(id);
     }
 
-    @OnClick(R.id.apn_page1_btn_yes)
     void goToApnDataPage() {
         pager.setCurrentItem(adapter.page(R.id.apn_page2));
     }
 
-    @OnClick(R.id.apn_page1_btn_no)
     void askUserToSetElisaApn() {
         pager.setCurrentItem(adapter.page(R.id.apn_page4));
         reload();
         ApnWaiterReceiver.startApnWaiterReceiver(this);
     }
 
-    @OnClick(R.id.apn_page2_btn_yes)
     void dataApnConfirmed() {
         Toast.makeText(this, "Sms send", Toast.LENGTH_SHORT).show();
     }
 
-    @OnClick(R.id.apn_page2_btn_no)
     void askUserToSetApn() {
         pager.setCurrentItem(adapter.page(R.id.apn_page3));
         reload();
         ApnWaiterReceiver.startApnWaiterReceiver(this);
     }
 
-    @OnClick(R.id.apn_page_confirmation_btn_yes)
     void confirmRestart() {
         pager.setCurrentItem(adapter.page(R.id.apn_page_restart));
         reload();
     }
 
-    @OnClick(R.id.apn_page_confirmation_btn_no)
     void startFromBeginning() {
         pager.setCurrentItem(adapter.page(R.id.apn_page1));
         reload();

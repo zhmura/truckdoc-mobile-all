@@ -10,29 +10,51 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'jsonschema2pojo'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'kotlin-kapt'
 
-sourceCompatibility = '1.8'
-
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 jsonSchema2Pojo {
     source = files("${projectDir}/src/main/jsonschema")
     annotationStyle = 'jackson2'
     targetPackage = 'com.sanda.truckdoc.client.api.v3'
-    useCommonsLang3 = true
     includeJsr303Annotations = false
     useLongIntegers = true
     propertyWordDelimiters = "-_"
     serializable = true
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated-sources/js2p"
+        }
+        kotlin {
+            srcDir "$buildDir/generated-sources/js2p"
+        }
+    }
+}
+
 dependencies {
     implementation project(":truckdoc-util")
-    implementation "com.fasterxml.jackson.core:jackson-annotations:2.14.2"
-    implementation "org.jetbrains:annotations:20.1.0"
-    implementation "org.apache.commons:commons-lang3:3.12.0"
+    implementation libs.jackson.databind
+    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation libs.commons.lang3
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    implementation "com.fasterxml.jackson.core:jackson-databind:2.14.2"
     testImplementation 'junit:junit:4.13.2'
 }
 
-java.targetCompatibility = JavaVersion.VERSION_1_8
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.jvmTarget = "17"
+}
+
+// Ensure JSON schema generation happens before any compilation
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    dependsOn generateJsonSchema2Pojo
+}
+
+tasks.withType(JavaCompile).all {
+    dependsOn generateJsonSchema2Pojo
+}

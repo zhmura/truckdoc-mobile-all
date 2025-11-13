@@ -1,67 +1,49 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    }
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
+}
 
-    dependencies {
-        classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.3'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-
-repositories {
-    google()
-    maven { url "https://jitpack.io" }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    maven { url 'https://github.com/Siu-soon/maven-repo/raw/master/releases' }
-    mavenLocal()
-    mavenCentral()
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.jakewharton.butterknife'
-
 android {
-    setCompileSdk(rootProject.ext.compileSdkVersion)
-    setBuildToolsVersion(rootProject.ext.buildToolsVersion)
+    namespace "com.sanda.truckdoc.client"
+    compileSdk 34
+    buildToolsVersion rootProject.ext.buildToolsVersion
     flavorDimensions "default"
 
     defaultConfig {
         applicationId "com.sanda.truckdoc.client"
-        minSdkVersion rootProject.ext.minSdkVersion
-        compileSdk rootProject.ext.compileSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 40
-        versionName "4.0"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ['resourcePackageName': android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
+        buildConfigField "String", "API_BASE_URL", "\"https://mobile.aps-solver.com/mobile-api/\""
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
     }
 
     lintOptions {
         abortOnError false
     }
-
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
-
-
-    dexOptions {
-        // Prevent OutOfMemory with MultiDex during the build phase
-        javaMaxHeapSize "4g"
-    }
-
 
     signingConfigs {
         truckdoc_sign_config {
@@ -75,39 +57,45 @@ android {
     buildTypes {
         debug {
             buildConfigField 'boolean', 'DEV', "Boolean.parseBoolean(\"$dev\")"
-            ext.alwaysUpdateBuildId = false
             debuggable true
             aaptOptions {
                 cruncherEnabled = false
             }
         }
         release {
-            //minifyEnabled true
-            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.truckdoc_sign_config
             renderscriptDebuggable false
             buildConfigField 'boolean', 'DEV', "Boolean.parseBoolean(\"false\")"
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+
     sourceSets {
         main {
             jni.srcDirs = [] // disable automatic ndk-build call
             jniLibs.srcDirs = ['libs'] // add your jni .so file path
         }
     }
+
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/ASL2.0'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/*.kotlin_module'
+        exclude 'META-INF/services/javax.servlet.ServletContainerInitializer'
+        exclude 'META-INF/services/javax.management.MBeanServerFactory'
+        exclude 'META-INF/services/javax.naming.spi.InitialContextFactory'
+        pickFirst 'META-INF/INDEX.LIST'
+        pickFirst 'META-INF/io.netty.versions.properties'
     }
+
     productFlavors {
         defaultClient {
             applicationId 'com.sanda.truckdoc.client.default'
@@ -120,86 +108,192 @@ android {
             output.outputFileName = "com.sanda.truckdoc.client-${versionCode}.apk"
         }
     }
-    buildToolsVersion "30.0.3"
 }
 
-def AAVersion = "4.7.0" // change this to your desired version, for example the latest stable: 4.6.0
-dependencies {
-    annotationProcessor "org.androidannotations:androidannotations:$AAVersion"
-    implementation "org.androidannotations:androidannotations-api:$AAVersion"
+// Android Annotations configuration for Java 17 compatibility
+// kapt {
+//     arguments {
+//         arg("androidannotations.logLevel", "WARN")
+//         arg("androidannotations.logFile", "build/androidannotations.log")
+//     }
+//     javacOptions {
+//         option("-source", "17")
+//         option("-target", "17")
+//     }
+// }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation "androidx.recyclerview:recyclerview:1.1.0"
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.6.0'
+    // Core Android dependencies
+    implementation libs.android.core.ktx
+    implementation libs.android.appcompat
+    implementation libs.material
+    implementation libs.multidex
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // Hilt
+    implementation "com.google.dagger:hilt-android:2.48"
+    kapt "com.google.dagger:hilt-android-compiler:2.48"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
+
+    // Room
+    implementation "androidx.room:room-runtime:2.6.1"
+    implementation "androidx.room:room-ktx:2.6.1"
+    kapt "androidx.room:room-compiler:2.6.1"
+
+    // OrmLite
+    implementation('com.j256.ormlite:ormlite-android:6.1') {
+        exclude group: 'com.j256.ormlite', module: 'ormlite-core'
+    }
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+
+    // Android Annotations (commented out due to Java 17 compatibility issues)
+    // implementation 'org.androidannotations:androidannotations-api:4.8.0'
+    // kapt 'org.androidannotations:androidannotations:4.8.0'
+    
+    // Project dependencies
     implementation project(':truckdoc-util')
     implementation project(':truckdoc-client-api')
-
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-    implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.21'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.1.7'
-    implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.1.7'
- //   compile project(':to')
     implementation project(':checker')
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-    implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.21'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.1.7'
-    implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.1.7'
-
-    implementation 'com.j256.ormlite:ormlite-android:4.48'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-    implementation 'org.jetbrains:annotations:20.1.0'
-    //dagger 2
-    implementation 'com.google.dagger:dagger:2.35.1'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.29.1'
-
-    //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
-    implementation 'com.google.dagger:dagger-android:2.35.1'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.29.1'
-    implementation 'com.google.dagger:dagger-android-support:2.29.1'
-
-    implementation group: 'androidx.annotation', name: 'annotation', version: '1.7.0'
-    implementation group: 'androidx.viewpager', name: 'viewpager', version: '1.0.0'
-    implementation group: 'androidx.localbroadcastmanager', name: 'localbroadcastmanager', version: '1.1.0'
-
-    //support libraries with dagger 2
-    implementation 'io.reactivex:rxandroid:1.2.1'
-    implementation 'io.reactivex:rxjava:1.3.8'
-    implementation 'com.jakewharton.timber:timber:2.2.2'
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
-    implementation "net.danlew:android.joda:$jodaVersion"
-    //network
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-    //implementation 'com.squareup.retrofit2:converter-jackson:2.1.0' // TODO: Use this after switch to Jackson 2
-    compileOnly 'javax.annotation:jsr250-api:1.0'
-    // Just for Generated annotation
-    implementation 'net.tribe7.seeds:seeds-collect:16.0.1'
-    implementation  files('libs/httpclient-1.1.1.jar')
-
-    //retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.5.1'
-    implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"
-    annotationProcessor "de.devland.esperandro:esperandro-preference-gen:$esperandroVersion"
-    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar')
-    {
-        transitive = true
-    }
-    implementation(project(':camera')) {
-        exclude module: 'support-v4'
-        exclude group: 'com.android.support'
-    }
+    implementation project(':camera')
     implementation project(':standout')
-    implementation(project(':truckdocnetwork')) {
-        exclude module: 'support-v4'
-        exclude group: 'com.android.support'
+    implementation project(':truckdocnetwork')
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.11.0'
+    implementation 'com.squareup.moshi:moshi:1.15.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.15.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.15.0'
+
+    // OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+    // RxJava 3.x
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
+    
+    // Guava for FluentIterable
+    implementation 'com.google.guava:guava:31.1-android'
+
+    // Logback for logging
+    implementation 'ch.qos.logback:logback-classic:1.2.12'
+    implementation 'ch.qos.logback:logback-core:1.2.12'
+
+    // Picasso for image loading (legacy support)
+    implementation 'com.squareup.picasso:picasso:2.8'
+
+    // Coil for image loading
+    implementation libs.coil.core
+    implementation 'io.coil-kt:coil:2.4.0'
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    
+    // Crashlytics
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // Google Maps
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // ViewModels and LiveData
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+
+    // Navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
+
+    // Data Binding
+    implementation 'androidx.databinding:databinding-runtime:8.2.2'
+
+    // Date/Time
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.6'
+
+    // Desugaring
+    coreLibraryDesugaring libs.android.desugar.jdk.libs
+
+    // Local libs
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/httpclient-1.1.1.jar')
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+
+    // Esperandro
+    implementation libs.esperandro.api
+    kapt "de.devland.esperandro:esperandro:${libs.versions.esperandro.get()}"
+
+    // Joda Time
+    implementation('joda-time:joda-time:2.12.7') {
+        exclude group: 'joda-time', module: 'joda-time-no-tzdb'
+        exclude group: 'joda-time', module: 'joda-time-android'
     }
+
+    // Commons
+    implementation libs.commons.lang3
+    implementation libs.commons.io
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    testImplementation 'org.robolectric:robolectric:4.11.1'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test:rules:1.5.0'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    testImplementation 'androidx.test.ext:junit-ktx:1.1.5'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test:1.9.20'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.9.20'
+    
+    // Android Test dependencies
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.ext:junit-ktx:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.fragment:fragment-testing:1.6.2'
+    androidTestImplementation 'androidx.navigation:navigation-testing:2.7.6'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.48'
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.48'
+    androidTestImplementation 'org.mockito:mockito-android:5.7.0'
+    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
 }

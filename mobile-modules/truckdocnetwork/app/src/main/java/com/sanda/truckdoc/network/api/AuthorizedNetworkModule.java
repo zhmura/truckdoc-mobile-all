@@ -10,20 +10,40 @@ import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Module
+@InstallIn(SingletonComponent.class)
 public class AuthorizedNetworkModule {
-    @NotNull
-    private final UserKey userKey;
+    private final String userName;
+    private final String userLogin;
+    private final String userSecret;
 
-    public AuthorizedNetworkModule(@NotNull UserKey userKey) {
-        this.userKey = userKey;
+    public AuthorizedNetworkModule() {
+        this.userName = "";
+        this.userLogin = "";
+        this.userSecret = "";
+    }
+
+    public AuthorizedNetworkModule(String userName, String userLogin, String userSecret) {
+        this.userName = userName;
+        this.userLogin = userLogin;
+        this.userSecret = userSecret;
     }
 
     @Provides
-    @UserScope
+    @Singleton
+    @Named("network")
+    UserKey provideUserKey() {
+        return new UserKey(userName, userLogin, userSecret);
+    }
+
+    @Provides
     @Named("auth")
     OkHttpClient provideOkHttpClient2(OkHttpClient baseClient, AuthorizationInterceptor apiRequestInterceptor) {
         OkHttpClient.Builder builder = baseClient.newBuilder();
@@ -32,24 +52,19 @@ public class AuthorizedNetworkModule {
     }
 
     @Provides
-    @UserScope
-    AuthorizationInterceptor provideAuthInterceptor() {
+    AuthorizationInterceptor provideAuthInterceptor(@Named("network") UserKey userKey) {
         return new AuthorizationInterceptor(userKey);
     }
 
     @Provides
-    @UserScope
     @Named("auth")
     Retrofit provideRetrofit(Retrofit.Builder builder, @Named("auth") OkHttpClient okHttpClient) {
         return builder.client(okHttpClient).build();
     }
 
     @Provides
-    @UserScope
     @NotNull
     AuthorizedBackend provideBackend(@Named("auth") Retrofit retrofit) {
         return retrofit.create(AuthorizedBackend.class);
     }
-
-
 }

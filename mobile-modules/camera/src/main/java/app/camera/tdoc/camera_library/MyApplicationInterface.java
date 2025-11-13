@@ -535,7 +535,8 @@ public class MyApplicationInterface implements ApplicationInterface {
             } finally {
                 try {
                     retriever.release();
-                } catch (RuntimeException ex) {
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
             if (thumbnail != null) {

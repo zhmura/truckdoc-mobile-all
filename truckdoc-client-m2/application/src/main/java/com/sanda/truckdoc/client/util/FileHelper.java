@@ -169,9 +169,9 @@ public class FileHelper {
             for (ServerMessage m : messages) {
                 String sender;
                 if (m.isOutgoing()) {
-                    sender = RoleTypeMapper.convert(RoleTypeMapper.OUT, m.getRecipientId(), context);
+                    sender = RoleTypeMapper.convert(RoleTypeMapper.OUT, m.getRecipientId() != null ? m.getRecipientId().intValue() : null, context);
                 } else {
-                    sender = RoleTypeMapper.convert(RoleTypeMapper.IN, m.getSenderRoleId(), context);
+                    sender = RoleTypeMapper.convert(RoleTypeMapper.IN, m.getSenderRoleId() != null ? m.getSenderRoleId().intValue() : null, context);
                 }
 
                 w.writeNext(sender,

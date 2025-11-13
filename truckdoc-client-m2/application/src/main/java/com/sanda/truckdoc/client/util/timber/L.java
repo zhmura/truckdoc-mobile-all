@@ -129,7 +129,7 @@ public class L {
      * A {@link Tree} for debug builds. Automatically infers the tag from the
      * calling class.
      */
-    public static class DebugTree implements Timber.TaggedTree {
+    public static class DebugTree extends Timber.Tree {
 
         private static final Pattern ANONYMOUS_CLASS = Pattern.compile("\\$\\d+$");
         private static final ThreadLocal<String> NEXT_TAG = new ThreadLocal<>();
@@ -218,6 +218,11 @@ public class L {
         }
 
         @Override
+        protected void log(int priority, String tag, String message, Throwable t) {
+            // This method is required by Timber.Tree but we don't use it in this implementation
+            // All logging goes through the specific methods above
+        }
+
         public void tag(String tag) {
             NEXT_TAG.set(tag);
         }

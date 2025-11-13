@@ -20,44 +20,57 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.TextView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.FragmentPageTextNotesBinding;
 import com.sanda.truckdoc.client.wizard.wizardpager.model.TextNotesPage;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.ViewById;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-@EFragment(R.layout.fragment_page_text_notes)
 public class TextNotesFragment extends Fragment {
 
+    private static final String ARG_KEY = "key";
     private PageFragmentCallbacks mCallbacks;
     private TextNotesPage mPage;
+    private FragmentPageTextNotesBinding binding;
 
-    @FragmentArg
-    String key;
-    @ViewById(android.R.id.title)
-    TextView title;
-    @ViewById(R.id.text_notes)
-    TextView textNotes;
+    public static TextNotesFragment create(String key) {
+        Bundle args = new Bundle();
+        args.putString(ARG_KEY, key);
+        TextNotesFragment fragment = new TextNotesFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String key = getArguments().getString(ARG_KEY);
         mPage = (TextNotesPage) mCallbacks.onGetPage(key);
     }
 
-    @AfterViews
-    void afterViews() {
-        title.setText(mPage.getTitle());
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentPageTextNotesBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-        textNotes.setText(mPage.getData().getString(TextNotesPage.TEXT_NOTES));
-        textNotes.addTextChangedListener(new TextWatcher() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViews();
+    }
 
+    private void setupViews() {
+        binding.getRoot().findViewById(android.R.id.title).setVisibility(View.GONE);
+        binding.textNotes.setText(mPage.getData().getString(TextNotesPage.TEXT_NOTES));
+        binding.textNotes.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -88,6 +101,12 @@ public class TextNotesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mCallbacks = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     void onTextNotesChanged(Editable editable) {

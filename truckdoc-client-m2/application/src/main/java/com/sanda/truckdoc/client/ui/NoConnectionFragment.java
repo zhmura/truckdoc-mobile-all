@@ -12,68 +12,75 @@ import android.view.Window;
 
 import com.sanda.checker.NoConnectionReceiver;
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.DialogFragmentNoConnectionBinding;
 import com.sanda.truckdoc.client.ui.floating.ApnHelpWindow;
 import com.sanda.truckdoc.client.ui.floating.HelpWindow;
 import com.sanda.truckdoc.client.ui.utils.TwoLineTextView;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.ViewById;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import timber.log.Timber;
 
-@EFragment(R.layout.dialog_fragment_no_connection)
 public class NoConnectionFragment extends DialogFragment {
 
-    @FragmentArg
-    NoConnectionReceiver.Result result;
+    private DialogFragmentNoConnectionBinding binding;
+    private NoConnectionReceiver.Result result;
 
-    @ViewById
-    View dataLayout, roamingDataLayout, airplaneLayout, operatorLayout, apnLayout;
-    @ViewById
-    TwoLineTextView mobileDataText, roamingDataText, airplaneText;
+    public static NoConnectionFragment newInstance(NoConnectionReceiver.Result result) {
+        NoConnectionFragment fragment = new NoConnectionFragment();
+        fragment.result = result;
+        return fragment;
+    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-
-        // request a window without the title
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
 
-    @AfterViews
-    void afterViews() {
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViews();
+        setupClickListeners();
+    }
+
+    private void setupViews() {
         if (!result.mobileDataEnabled) {
-            dataLayout.setVisibility(View.VISIBLE);
+            binding.dataLayout.setVisibility(View.VISIBLE);
             if (result.wasMobileDataEnabled) {
-                mobileDataText.setText2Visibility(View.VISIBLE);
+                binding.mobileDataText.setText2Visibility(View.VISIBLE);
             }
         }
         if (!result.roamingDataEnabled) {
-            roamingDataLayout.setVisibility(View.VISIBLE);
+            binding.roamingDataLayout.setVisibility(View.VISIBLE);
             if (result.wasRoamingDataEnabled) {
-                roamingDataText.setText2Visibility(View.VISIBLE);
+                binding.roamingDataText.setText2Visibility(View.VISIBLE);
             }
         }
         if (result.airplaneModeEnabled) {
-            airplaneLayout.setVisibility(View.VISIBLE);
+            binding.airplaneLayout.setVisibility(View.VISIBLE);
             if (!result.wasAirplaneModeEnabled) {
-                airplaneText.setText2Visibility(View.VISIBLE);
+                binding.airplaneText.setText2Visibility(View.VISIBLE);
             }
         }
         if (result.networkOperatorChanged) {
-            operatorLayout.setVisibility(View.VISIBLE);
+            binding.operatorLayout.setVisibility(View.VISIBLE);
         }
 
         if (result.mobileDataEnabled && result.roamingDataEnabled && !result.airplaneModeEnabled) {
-            apnLayout.setVisibility(View.VISIBLE);
+            binding.apnLayout.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void setupClickListeners() {
+        binding.close.setOnClickListener(v -> onCloseBtn());
+        binding.onMobileData.setOnClickListener(v -> onMobileData());
+        binding.onRoamingData.setOnClickListener(v -> onRoamingData());
+        binding.onAirplane.setOnClickListener(v -> onAirplane());
+        binding.onApn.setOnClickListener(v -> onApn());
     }
 
     @Override
@@ -85,13 +92,11 @@ public class NoConnectionFragment extends DialogFragment {
         getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
-    @Click(R.id.close)
-    void onCloseBtn() {
+    private void onCloseBtn() {
         getActivity().finish();
     }
 
-    @Click
-    void onMobileData() {
+    private void onMobileData() {
         HelpWindow.start(getActivity(), getString(R.string.help_enable_mobile_data));
 
         Intent intent = new Intent();
@@ -105,20 +110,17 @@ public class NoConnectionFragment extends DialogFragment {
         }
     }
 
-    @Click
-    void onRoamingData() {
+    private void onRoamingData() {
         HelpWindow.start(getActivity(), getString(R.string.help_enable_roaming_data));
         startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
     }
 
-    @Click
-    void onAirplane() {
+    private void onAirplane() {
         HelpWindow.start(getActivity(), getString(R.string.help_airplane_mode));
         startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS));
     }
 
-    @Click
-    void onApn() {
+    private void onApn() {
         ApnHelpWindow.start(getActivity());
         startActivity(new Intent(Settings.ACTION_APN_SETTINGS));
     }

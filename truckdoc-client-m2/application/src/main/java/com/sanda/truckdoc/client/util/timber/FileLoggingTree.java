@@ -23,7 +23,7 @@ import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
 import timber.log.Timber;
 
-public class FileLoggingTree implements Timber.Tree {
+public class FileLoggingTree extends Timber.Tree {
     public static final String LOG_STORAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TruckDoc/logs/";
     private Logger mLogger = LoggerFactory.getLogger(FileLoggingTree.class);
     private static final String LOG_PREFIX = "truckdoc-log";
@@ -67,7 +67,7 @@ public class FileLoggingTree implements Timber.Tree {
 
         SizeAndTimeBasedFNATP<ILoggingEvent> fileNamingPolicy = new SizeAndTimeBasedFNATP<>();
         fileNamingPolicy.setContext(loggerContext);
-        fileNamingPolicy.setMaxFileSize("1mb");
+        fileNamingPolicy.setMaxFileSize(FileSize.valueOf("1MB"));
 
         TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<>();
         rollingPolicy.setContext(loggerContext);
@@ -108,7 +108,8 @@ public class FileLoggingTree implements Timber.Tree {
         StatusPrinter.print(loggerContext);
     }
 
-    public void log(int priority, String tag, String message, Throwable t) {
+    @Override
+    protected void log(int priority, String tag, String message, Throwable t) {
         if (priority == Log.VERBOSE) {
             return;
         }

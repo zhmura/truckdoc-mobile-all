@@ -8,7 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Created by k.natallie on 07.08.2016.
@@ -25,7 +25,12 @@ public class MntDbService {
     public Observable<MaintenanceFileRecord> getMntFiles() {
         return Observable.fromCallable(() -> {
             return mntFileDao.queryForAll();
-        }).flatMap(Observable::from);
+        }).flatMapIterable(list -> list);
+    }
+
+    // Blocking method for Java compatibility
+    public List<MaintenanceFileRecord> getMntFilesBlocking() {
+        return mntFileDao.queryForAll();
     }
 
     public void createMessageFileRecord(MaintenanceFileRecord record) {

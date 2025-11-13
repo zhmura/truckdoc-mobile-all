@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.sanda.checker.Checker;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.service.MessageCheckService;
@@ -33,7 +34,8 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (haveNetworkConnection(context)) {
             //CustomToast.showToast(context, "Восстановилось соединение. Перезапускаем проверку обновления");
-            Prefs prefs = TruckDocApp.get(context).appComponent().prefs();
+            HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+            Prefs prefs = entryPoint.prefs();
             long currentTimeMillis = System.currentTimeMillis();
             if (prefs.lastNetworkChangeNotificationTs() + MIN_NETWORK_CHANGE_NOTIFICATION_INTERVAL <= currentTimeMillis) {
                 prefs.lastNetworkChangeNotificationTs(currentTimeMillis);

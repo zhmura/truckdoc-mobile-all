@@ -198,6 +198,7 @@
     <string name="wait_for_processing">Подождите. Идет обработка фотографии…</string>
     <string name="prefs_category_phones">Телефоны</string>
     <string name="target_name_out">Кому:</string>
+    <string name="pending_messages_count">Ожидающих сообщений: %d</string>
     <string name="target_name_in">От:</string>
     <string name="prefs_syncInterval_title">Интервал проверки сообщений</string>
     <string name="syncInterval_mins">" мин"</string>
@@ -243,4 +244,5 @@
     <string name="message_check">message-check</string>
     <string name="stop_download">Остановить загрузку</string>
     <string name="options">Опции</string>
+    <string name="message_send_error">Message send error</string>
 </resources>

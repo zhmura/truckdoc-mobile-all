@@ -8,17 +8,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.github.naixx.BaseAdapter;
 import com.github.naixx.BaseViewHolder;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.ViewHolder> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder> {
+
+    public interface InteractionListener<T> {
+        void onClick(T item);
+    }
+
+    private List<DbContactRecord> items = new ArrayList<>();
+    private final InteractionListener<DbContactRecord> listener;
 
     public ButtonAdapter(InteractionListener<DbContactRecord> listener) {
         this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    public void swapItems(List<DbContactRecord> items) {
+        this.items = items;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -27,7 +43,20 @@ public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.Vi
                 .inflate(R.layout.listitem_message_button_send, parent, false));
     }
 
-    private final InteractionListener<DbContactRecord> listener;
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.bind(items.get(position));
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return items.get(position).getRecordId();
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     class ViewHolder extends BaseViewHolder<DbContactRecord> {
 
@@ -39,7 +68,7 @@ public class ButtonAdapter extends BaseAdapter<DbContactRecord, ButtonAdapter.Vi
         }
 
         @Override
-        public void bind(DbContactRecord item, int position) {
+        public void bind(DbContactRecord item) {
             Context context = itemView.getContext();
             Drawable wrap = ResourcesCompat.getDrawable(context.getResources(),
                     R.drawable.service_button_selector,

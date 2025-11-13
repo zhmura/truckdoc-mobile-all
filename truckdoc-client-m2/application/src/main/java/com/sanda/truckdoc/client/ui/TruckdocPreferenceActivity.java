@@ -5,61 +5,90 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.receivers.GetNewMessagesAlarmManager;
 import com.sanda.truckdoc.client.ui.utils.AppCompatPreferenceActivity;
-
-import org.androidannotations.annotations.AfterPreferences;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.PreferenceByKey;
-import org.androidannotations.annotations.PreferenceChange;
-import org.androidannotations.annotations.PreferenceScreen;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@PreferenceScreen(R.xml.prefs)
-@EActivity
 public class TruckdocPreferenceActivity extends AppCompatPreferenceActivity {
 
-    @PreferenceByKey
-    ListPreference syncInterval;
-    @PreferenceByKey
-    Preference techSupportPhone;
-
-    @Inject
-    Prefs prefs;
-    @Inject
-    MessagesDatabaseService db;
+    private ListPreference syncInterval;
+    private Preference techSupportPhone;
+    private Prefs prefs;
+    private MessagesDatabaseService db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.prefs);
         getPreferenceManager().setSharedPreferencesName(Prefs.FILENAME);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
 
-    @AfterPreferences
-    void afterPrefs() {
-        TruckDocApp.get(this).appComponent().inject(this);
+        // Use Hilt entry point pattern for AppCompatPreferenceActivity
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(this);
+        prefs = entryPoint.prefs();
+        db = entryPoint.messagesDatabaseService();
+
+        // Initialize preferences
+        syncInterval = (ListPreference) findPreference("syncInterval");
+        techSupportPhone = findPreference("techSupportPhone");
+
+        // Set up initial values
         techSupportPhone.setSummary(prefs.techSupportPhone());
         if (syncInterval.getValue() == null) {
             syncInterval.setValueIndex(syncInterval.findIndexOfValue(prefs.syncInterval()));
         }
-        syncInterval.setSummary(prefs.syncInterval()
-                + getResources().getString(R.string.syncInterval_mins));
-        db.getContactRecords().map(this::createPhonePreference).toList()
-                .subscribe(this::createPhonesCategory);
+        syncInterval.setSummary(prefs.syncInterval() + getResources().getString(R.string.syncInterval_mins));
+
+        // Set up preference change listeners
+        syncInterval.setOnPreferenceChangeListener((preference, newValue) -> {
+            String syncIntervalTime = (String) newValue;
+            prefs.syncInterval(syncIntervalTime);
+            syncInterval.setValueIndex(syncInterval.findIndexOfValue(prefs.syncInterval()));
+            syncInterval.setSummary(prefs.syncInterval() + getResources().getString(R.string.syncInterval_mins));
+            GetNewMessagesAlarmManager.cancelGetMessagesAlarm(getApplicationContext());
+            GetNewMessagesAlarmManager.setGetMessagesAlarm(getApplicationContext(), false);
+            return true;
+        });
+
+        Preference timerStatus = findPreference(getString(R.string.timerStatus));
+        timerStatus.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean isEnabled = (Boolean) newValue;
+            if (isEnabled) {
+                GetNewMessagesAlarmManager.setGetMessagesAlarm(getApplicationContext(), false);
+            } else {
+                GetNewMessagesAlarmManager.cancelGetMessagesAlarm(getApplicationContext());
+            }
+            return true;
+        });
+
+        // Load contact records using blocking method
+        new Thread(() -> {
+            try {
+                List<DbContactRecord> contacts = MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(db);
+                List<Preference> preferences = contacts.stream()
+                        .map(this::createPhonePreference)
+                        .collect(java.util.stream.Collectors.toList());
+                runOnUiThread(() -> createPhonesCategory(preferences));
+            } catch (Exception e) {
+                // Handle error
+            }
+        }).start();
     }
 
     private Preference createPhonePreference(DbContactRecord record) {
@@ -69,7 +98,7 @@ public class TruckdocPreferenceActivity extends AppCompatPreferenceActivity {
         p.setSummary(record.getPhone());
         p.setOnPreferenceChangeListener((preference, newValue) -> {
             record.setPhone((String) newValue);
-            db.updateContactRecord(record).subscribe();
+            MessagesDatabaseServiceJavaCompat.updateContactRecordBlocking(db, record);
             preference.setSummary(String.valueOf(newValue));
             return true;
         });
@@ -85,38 +114,12 @@ public class TruckdocPreferenceActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    @PreferenceChange(R.string.timerStatus)
-    void onChange(boolean b) {
-        if (b) {
-            GetNewMessagesAlarmManager.setGetMessagesAlarm(getApplicationContext(), false);
-        } else {
-            GetNewMessagesAlarmManager.cancelGetMessagesAlarm(getApplicationContext());
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
-
-    @PreferenceChange
-    void syncInterval(String syncIntervalTime) {
-        prefs.syncInterval(syncIntervalTime);
-        syncInterval.setValueIndex(syncInterval.findIndexOfValue(prefs.syncInterval()));
-        syncInterval.setSummary(prefs.syncInterval() + getResources().getString(R.string.syncInterval_mins));
-        GetNewMessagesAlarmManager.cancelGetMessagesAlarm(getApplicationContext());
-        GetNewMessagesAlarmManager.setGetMessagesAlarm(getApplicationContext(), false);
-    }
-
-    @OptionsItem(android.R.id.home)
-    void onHome() {
-        finish();
-    }
-
-/*    @Receiver(actions = ServiceResultReceiver.NOTIFICATION_MESSAGE,
-            registerAt = OnResumeOnPause)
-    void onNotificationMessage(Intent intent) {
-        String message = intent.getStringExtra(NotificationHelper.PARAM_MSG);
-        Boolean isError = intent.getBooleanExtra(NotificationHelper.PARAM_IS_ERROR, false);
-        if (isError) {
-            NotificationHelper.showErrorMessage(message, this);
-        } else {
-            NotificationHelper.showNotificationMessage(message, this);
-        }
-    }*/
 }

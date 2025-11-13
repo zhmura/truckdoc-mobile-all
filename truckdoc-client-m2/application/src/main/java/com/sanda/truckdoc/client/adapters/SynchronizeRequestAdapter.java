@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.adapters;
 import com.sanda.truckdoc.client.api.SynchronizeRequest;
 import com.sanda.truckdoc.client.api.model.LocationRecord;
 
-import net.tribe7.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
 

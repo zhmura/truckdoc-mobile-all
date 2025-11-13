@@ -25,13 +25,13 @@ package com.sanda.truckdoc.client.util;
  * questions.
  */
 
-import net.tribe7.common.base.Objects;
+import com.google.common.base.Objects;
 
 import java.util.NoSuchElementException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * A container object which may or may not contain a non-null value.

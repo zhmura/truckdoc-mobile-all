@@ -1,5 +1,6 @@
 package com.sanda.truckdoc.client.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,36 +12,38 @@ import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.service.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
 
-import org.androidannotations.annotations.EActivity;
-
 import javax.inject.Inject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import app.camera.tdoc.camera_library.PreferenceKeys;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Created by sergeyz on 4/14/2017.
  */
 
-@EActivity(R.layout.activity_splash)
+@AndroidEntryPoint
 public class SplashActivity extends AppCompatActivity {
 
     private AppSettings settings;
-    UserKey userKey;
+    private UserKey userKey;
+    
     @Inject
     Prefs prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TruckDocApp.get(this).appComponent().inject(this);
+        setContentView(R.layout.activity_splash);
+        
         if (!alreadyRegistered()) {
-            RegisterActivity_.intent(this).start();
+            startActivity(new Intent(this, RegisterActivity.class));
         } else if (isActive()) {
-            DashboardActivity_.intent(this).start();
+            startActivity(new Intent(this, DashboardActivity.class));
         } else {
-            UnauthorizedActivity_.intent(this).start();
+            startActivity(new Intent(this, UnauthorizedActivity.class));
         }
+        finish();
     }
 
     private boolean isActive() {
@@ -49,7 +52,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private boolean alreadyRegistered() {
-        TruckDocApp.get(this).appComponent().inject(this);
         settings = new AppSettings(this);
         userKey = settings.getUserKey();
         return (userKey != null && !TextUtils.isEmpty(userKey.getLogin()));

@@ -20,4 +20,5 @@ public abstract class ServiceResultReceiver extends BroadcastReceiver {
     public static final String ACTION_SENT_MAINTENANCE_ERROR = "com.sanda.truckdoc.client.intent.action.SENT_MAINTENANCE_ERROR";
     public static final String ACTION_SENT_MAINTENANCE_OK = "com.sanda.truckdoc.client.intent.action.SENT_MAINTENANCE_OK";
     public static final String ACTION_UPLOAD_MNT_ATTACHMENT_OK = "com.sanda.truckdoc.client.intent.action.UPLOAD_MNT_ATTACHMENT_OK";
+    public static final String ACTION_SENT_MESSAGE_OK = "com.sanda.truckdoc.client.intent.action.SENT_MESSAGE_OK";
 }

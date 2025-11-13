@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.sanda.checker.Checker;
 import com.sanda.checker.ConnectionRestoredReceiver;
-import com.sanda.truckdoc.client.service.NewMessageService_;
+import com.sanda.truckdoc.client.service.NewMessageService;
 import com.sanda.truckdoc.client.ui.floating.ApnWaiterReceiver;
 
 import androidx.annotation.NonNull;
@@ -30,6 +30,13 @@ public class ConnectionRestoredReceiverForFileUpload extends ConnectionRestoredR
         // TODO: Restrict how often network status change can trigger upload checkIfError
 
         // Note: that really not needed right now
-        NewMessageService_.intent(context).uploadFiles(false).start();
+        startNewMessageService(context);
+    }
+
+    private void startNewMessageService(Context context) {
+        Intent intent = new Intent(context, NewMessageService.class);
+        intent.setAction(NewMessageService.ACTION_UPLOAD_FILES);
+        intent.putExtra("uploadFiles", false);
+        context.startService(intent);
     }
 }

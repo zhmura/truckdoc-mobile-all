@@ -2,7 +2,7 @@ package com.sanda.truckdoc.client.updater.network;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Created by astra on 07.06.2015.

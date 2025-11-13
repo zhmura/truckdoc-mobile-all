@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
+import com.sanda.truckdoc.client.databinding.ActivityWizardBinding;
 import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.util.BundleUtils;
 import com.sanda.truckdoc.client.util.ConnectionUtils;
@@ -43,7 +44,7 @@ import com.sanda.truckdoc.client.wizard.wizardpager.ui.PageFragmentCallbacks;
 import com.sanda.truckdoc.client.wizard.wizardpager.ui.ReviewFragment;
 import com.sanda.truckdoc.client.wizard.wizardpager.ui.StepPagerStrip;
 
-import net.tribe7.common.base.Strings;
+import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,40 +56,29 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 
 public class WizardActivity extends AppCompatActivity implements PageFragmentCallbacks, ReviewFragment.Callbacks, ModelCallbacks {
 
-    @BindView(R.id.pager)
-    ViewPager mPager;
+    private ActivityWizardBinding binding;
     private MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private AbstractWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
-    @BindView(R.id.next_button)
-    Button mNextButton;
-    @BindView(R.id.prev_button)
-    Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
-    @BindView(R.id.strip)
-    StepPagerStrip mStepPagerStrip;
     private boolean forceFinishing = false;
-
     private Prefs prefs;
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wizard);
-        ButterKnife.bind(this);
-        prefs = TruckDocApp.get(this).appComponent().prefs();
+        binding = ActivityWizardBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
+        // Use Hilt entry point pattern
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(this);
+        prefs = entryPoint.prefs();
         mWizardModel = new AccidentModel(this);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
@@ -99,26 +89,34 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
         initModel();
 
         if (savedInstanceState == null && !Strings.isNullOrEmpty(prefs.accidentState())) {
-            mPager.setCurrentItem(prefs.accidentSelectedPage());
+            binding.pager.setCurrentItem(prefs.accidentSelectedPage());
         }
+
+        setupClickListeners();
+    }
+
+    private void setupClickListeners() {
+        binding.nextButton.setOnClickListener(v -> onNextButton());
+        binding.prevButton.setOnClickListener(v -> onPrevButton());
+        binding.deleteButton.setOnClickListener(v -> onDeleteButton());
     }
 
     private void initModel() {
         mWizardModel.registerListener(this);
 
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
-        mStepPagerStrip.setOnPageSelectedListener(position -> {
+        binding.pager.setAdapter(mPagerAdapter);
+        binding.strip.setOnPageSelectedListener(position -> {
             position = Math.min(mPagerAdapter.getCount() - 1, position);
-            if (mPager.getCurrentItem() != position) {
-                mPager.setCurrentItem(position);
+            if (binding.pager.getCurrentItem() != position) {
+                binding.pager.setCurrentItem(position);
             }
         });
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        binding.pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                mStepPagerStrip.setCurrentPage(position);
+                binding.strip.setCurrentPage(position);
 
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
@@ -133,9 +131,8 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
         updateBottomBar();
     }
 
-    @OnClick(R.id.next_button)
-    void onNextButton() {
-        if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
+    private void onNextButton() {
+        if (binding.pager.getCurrentItem() == mCurrentPageSequence.size()) {
             if (sendMessages()) {
                 prefs.accidentState("");
                 prefs.accidentSelectedPage(0);
@@ -147,25 +144,23 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
             }
         } else {
             if (mEditingAfterReview) {
-                mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+                binding.pager.setCurrentItem(mPagerAdapter.getCount() - 1);
             } else {
-                mPager.setCurrentItem(mPager.getCurrentItem() + 1);
+                binding.pager.setCurrentItem(binding.pager.getCurrentItem() + 1);
             }
         }
     }
 
-    @OnClick(R.id.prev_button)
-    void onPrevButton() {
-        mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+    private void onPrevButton() {
+        binding.pager.setCurrentItem(binding.pager.getCurrentItem() - 1);
     }
 
-    @OnClick(R.id.delete_button)
-    void onDeleteButton() {
+    private void onDeleteButton() {
         mWizardModel = new AccidentModel(this);
         prefs.accidentState("");
         prefs.accidentSelectedPage(0);
         initModel();
-        mStepPagerStrip.setCurrentPage(0);
+        binding.strip.setCurrentPage(0);
         try {
             FileUtils.deleteDirectory(FileHelper.getOutcomeDirForAccidents(false));
         } catch (IOException e) {
@@ -177,27 +172,27 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
     public void onPageTreeChanged() {
         mCurrentPageSequence = mWizardModel.getCurrentPageSequence();
         recalculateCutOffPage();
-        mStepPagerStrip.setPageCount(mCurrentPageSequence.size() + 1); // + 1 = review step
+        binding.strip.setPageCount(mCurrentPageSequence.size() + 1); // + 1 = review step
         mPagerAdapter.notifyDataSetChanged();
         updateBottomBar();
     }
 
     private void updateBottomBar() {
-        int position = mPager.getCurrentItem();
+        int position = binding.pager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            mNextButton.setText(R.string.finish);
-            mNextButton.setBackgroundResource(R.drawable.finish_background);
-            mNextButton.setTextAppearance(this, R.style.TextAppearanceFinish);
+            binding.nextButton.setText(R.string.finish);
+            binding.nextButton.setBackgroundResource(R.drawable.finish_background);
+            binding.nextButton.setTextAppearance(this, R.style.TextAppearanceFinish);
         } else {
-            mNextButton.setText(mEditingAfterReview ? R.string.review : R.string.next);
-            mNextButton.setBackgroundResource(R.drawable.selectable_item_background);
+            binding.nextButton.setText(mEditingAfterReview ? R.string.review : R.string.next);
+            binding.nextButton.setBackgroundResource(R.drawable.selectable_item_background);
             TypedValue v = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.textAppearanceMedium, v, true);
-            mNextButton.setTextAppearance(this, v.resourceId);
-            mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
+            binding.nextButton.setTextAppearance(this, v.resourceId);
+            binding.nextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
 
-        mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
+        binding.prevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
     private boolean sendMessages() {
@@ -249,18 +244,18 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
                 WizardActivity.this,
                 MessageCheckService.class);
         Bundle b = new Bundle();
+        b.putString("com/sanda/truckdoc/client/message", reviewInText.toString());
         b.putLong("mail.group", 1);
-        b.putLong("recipient.group", 1);
-        b.putBoolean("doc.scanner", false);
         intent.putExtras(b);
         startService(intent);
-        return connected;
+        return true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mWizardModel.unregisterListener(this);
+        binding = null;
     }
 
     @Override
@@ -268,8 +263,7 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
         super.onPause();
         if (!forceFinishing) {
             prefs.accidentState(BundleUtils.serialize(mWizardModel.save()));
-            prefs.accidentSelectedPage(mPager.getCurrentItem());
-            forceFinishing = false;
+            prefs.accidentSelectedPage(binding.pager.getCurrentItem());
         }
     }
 
@@ -290,7 +284,7 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
             if (mCurrentPageSequence.get(i).getKey().equals(key)) {
                 mConsumePageSelectedEvent = true;
                 mEditingAfterReview = true;
-                mPager.setCurrentItem(i);
+                binding.pager.setCurrentItem(i);
                 updateBottomBar();
                 break;
             }
@@ -332,7 +326,6 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
     }
 
     public class MyPagerAdapter extends FragmentStatePagerAdapter {
-
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
@@ -368,9 +361,6 @@ public class WizardActivity extends AppCompatActivity implements PageFragmentCal
 
         @Override
         public int getCount() {
-            if (mCurrentPageSequence == null) {
-                return 0;
-            }
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 

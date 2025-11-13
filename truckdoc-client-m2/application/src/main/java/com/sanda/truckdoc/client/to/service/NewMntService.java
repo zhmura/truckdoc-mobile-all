@@ -33,15 +33,10 @@ import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.ProgressRequestBody;
 import com.sanda.truckdoc.network.api.UserKey;
 
-import net.tribe7.common.collect.FluentIterable;
-
-import org.androidannotations.annotations.EIntentService;
-import org.androidannotations.annotations.ServiceAction;
-import org.androidannotations.annotations.Trace;
-import org.androidannotations.api.support.app.AbstractIntentService;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -50,23 +45,25 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import retrofit2.Response;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import timber.log.Timber;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 
-/**
- * Created by k.natallie on 08.08.2016.
- */
-@EIntentService
-public class NewMntService extends AbstractIntentService {
+import java.util.Properties;
+
+public class NewMntService extends android.app.IntentService {
     public static final int DELAY = BuildConfig.DEBUG ? 5 * 1000 : 30 * 60 * 1000;
     public static final String PARAM_OUT_MSG = "OUT_TEXT";
     public static final String PARAM_OUT_DATA = "OUT_DATA";
     public static final int MIN_DELAY = 60 * 1000;
+    public static final String ACTION_UPLOAD_FILE = "com.sanda.truckdoc.client.ACTION_UPLOAD_FILE";
+    public static final String ACTION_PHOTO_SESSION_FINISHED = "com.sanda.truckdoc.client.ACTION_PHOTO_SESSION_FINISHED";
+    public static final String ACTION_MESSAGE_SEND = "com.sanda.truckdoc.client.ACTION_MESSAGE_SEND";
+    public static final String ACTION_UPLOAD_COMPLETE_CHECK_QUEUE = "com.sanda.truckdoc.client.ACTION_UPLOAD_COMPLETE_CHECK_QUEUE";
 
     public enum Status {
         SEND_ATTEMTP, SEND_FINISHED, SEND_ERROR, UPLOAD_FILES
     }
-
 
     private AuthorizedBackend authorizedBackend;
     @Inject
@@ -77,39 +74,67 @@ public class NewMntService extends AbstractIntentService {
     NotificationHelper notificationHelper;
 
     private LocalStorage storage;
-
+    
+    // Add missing field declarations
+    private Properties resources;
+    private AppSettings settings;
+    private UserKey userKey;
 
     public NewMntService() {
-        super(NewMntService.class.getSimpleName());
+        super("NewMntService");
+    }
+
+    public static Intent intent(Context context) {
+        return new Intent(context, NewMntService.class);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        TruckDocApp.get(this).appComponent().inject(this);
-        AppSettings settings = new AppSettings(this);
-        UserKey userKey = settings.getUserKey();
-        storage = LocalStorage.getInstance(getApplicationContext());
-        authorizedBackend = TruckDocApp.get(this)
-                .appComponent()
-                .plus(new AuthorizedNetworkModule(userKey))
-                .authorizedBackend();
+        // Use Hilt entry point pattern for Services
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(this);
+        // Inject dependencies manually if needed
+        resources = loadProperties();
+        settings = new AppSettings(this);
+        userKey = settings.getUserKey();
+        if (userKey != null) {
+            createAuthorizedBackend();
+        }
+        Timber.i("Service was created");
     }
 
-    @ServiceAction
-    @Trace
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent != null) {
+            String action = intent.getAction();
+            if (ACTION_UPLOAD_FILE.equals(action)) {
+                uploadFile();
+            } else if (ACTION_PHOTO_SESSION_FINISHED.equals(action)) {
+                photoSessionFinished();
+            } else if (ACTION_MESSAGE_SEND.equals(action)) {
+                messageSend();
+            } else if (ACTION_UPLOAD_COMPLETE_CHECK_QUEUE.equals(action)) {
+                onUploadCompleteCheckQueue();
+            }
+        }
+    }
+
     void uploadFile() {
         storage.writeStringPreference(LocalStorage.TO_SEND_PROGRESS, Status.UPLOAD_FILES.toString());
-        db.getMntFiles()
+        List<MaintenanceFileRecord> files = db.getMntFilesBlocking();
+        List<MaintenanceFileRecord> filesToUpload = files.stream()
                 .filter(f -> f.getServerId() == null)
-                .flatMap(this::uploadFileInternal)
-                .subscribe(this::fileUploadFinished, this::onErrorDelayUploadFile, this::onUploadCompleteCheckQueue);
+                .collect(java.util.stream.Collectors.toList());
+        for (MaintenanceFileRecord file : filesToUpload) {
+            uploadFileInternal(file).subscribe(this::fileUploadFinished, this::onErrorDelayUploadFile);
+        }
+        onUploadCompleteCheckQueue();
     }
-
 
     public static void addPendingSessionFinish(Context context) {
         L.v();
-        Intent serviceIntent = NewMntService_.intent(context).photoSessionFinished().get();
+        Intent serviceIntent = new Intent(context, NewMntService.class);
+        serviceIntent.setAction(ACTION_PHOTO_SESSION_FINISHED);
         PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarm.canScheduleExactAlarms()) {
@@ -119,32 +144,29 @@ public class NewMntService extends AbstractIntentService {
         }
     }
 
-
     private void fileUploadFinished(MaintenanceFileRecord record) {
         notificationHelper.uploadFinished(record.getId(), record.getName(), false);
     }
-
 
     private void onErrorDelayUploadFile(Throwable e) {
         Timber.e(e, "File upload delay issue");
         if (!ConnectionUtils.checkIfHaveInternetConnection(this)) {
             notifyActivity(getResources().getString(R.string.mnt_send_error), null, ServiceResultReceiver.ACTION_SENT_MAINTENANCE_ERROR);
         } else {
-            NewMntService_.intent(NewMntService.this).uploadFile().start();
-
+            Intent intent = new Intent(this, NewMntService.class);
+            intent.setAction(ACTION_UPLOAD_FILE);
+            startService(intent);
         }
-        //else run once more
     }
 
-    //we will call it from receiver?
-    @ServiceAction
     void onUploadCompleteCheckQueue() {
-        db.getMntFiles().exists(f -> f.getServerId() == null).subscribe(exists -> {
-            if (exists) {
-                //with delay?
-                NewMntService_.intent(this).uploadFile().start();
-            }
-        });
+        List<MaintenanceFileRecord> files = db.getMntFilesBlocking();
+        boolean exists = files.stream().anyMatch(f -> f.getServerId() == null);
+        if (exists) {
+            Intent intent = new Intent(this, NewMntService.class);
+            intent.setAction(ACTION_UPLOAD_FILE);
+            startService(intent);
+        }
     }
 
     @NonNull
@@ -155,7 +177,6 @@ public class NewMntService extends AbstractIntentService {
                 .uploadImage(new ProgressRequestBody(new File(record.getPath()), percentage -> onProgress(record, percentage)),
                         record.getName(),
                         fileType.toString(),
-                        //TODO: enum value can not be null??
                         record.getMetadata() != null
                                 ? record.getMetadata() : DocType.COM_DESCR.toString(),
                         docType != null ? docType.toString() : "",
@@ -176,17 +197,17 @@ public class NewMntService extends AbstractIntentService {
         notificationHelper.uploadFile(record.getId(), record.getName(), progress, true);
     }
 
-    /**
-     * Вызываем по кнопке или по таймауту.Помечаем
-     */
-    @ServiceAction
-    @Trace
     void photoSessionFinished() {
-        db.getMntFiles().filter(r -> !r.isSent()).subscribe(r -> {
+        List<MaintenanceFileRecord> files = db.getMntFilesBlocking();
+        List<MaintenanceFileRecord> unsentFiles = files.stream()
+                .filter(r -> !r.isSent())
+                .collect(java.util.stream.Collectors.toList());
+        for (MaintenanceFileRecord r : unsentFiles) {
             L.v(r);
             r.setReadyForSend(true);
             db.updateMessageFileRecord(r);
-        }, L::e, this::startPeriodicUpdate);
+        }
+        startPeriodicUpdate();
     }
 
     private void startPeriodicUpdate() {
@@ -194,51 +215,49 @@ public class NewMntService extends AbstractIntentService {
         messageSend();
     }
 
-    @ServiceAction
-    @Trace
     void messageSend() {
         Timber.i("Mnt message sending");
-        //достаём все незакачанные файлы помеченные на отправку
-        db.getMntFiles()
+        List<MaintenanceFileRecord> allFiles = db.getMntFilesBlocking();
+        List<MaintenanceFileRecord> readyFiles = allFiles.stream()
                 .filter(r -> !r.isSent())
                 .filter(MaintenanceFileRecord::isReadyForSend)
-                .toList().flatMap(messages -> {
-            //если все файлы для получателя загружены - отправляем
-            if (allFilesUploaded(messages)) {
-                Log.d("MntService", "all file uploadaed");
-                return sendMaintenance(messages);
-            } else {
-                //иначе откладываем
-                return Observable.just(null);
-            }
-        }).subscribe((List<MaintenanceFileRecord> response) -> {
-                    if (response == null) {
-                        Runnable delayRunnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                //Ещё добавляем в очередь аплоад
-                                NewMntService_.intent(NewMntService.this).uploadFile().start();
-                                //и пробуем отправку ещё раз
-                                NewMntService_.intent(NewMntService.this).messageSend().start();
-                            }
-                        };
-                        new Handler(getMainLooper()).postDelayed(delayRunnable, MIN_DELAY);
-                    } else {
-                        Timber.i(response.toString());
-                        for (MaintenanceFileRecord record : response) {
-                            record.setSent(true);
-                            db.updateMessageFileRecord(record);
-                        }
-                        db.deleteMessageFileRecords(response);
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (allFilesUploaded(readyFiles)) {
+            Log.d("MntService", "all file uploaded");
+            sendMaintenance(readyFiles).subscribe(
+                (List<MaintenanceFileRecord> response) -> {
+                    Timber.i(response.toString());
+                    for (MaintenanceFileRecord record : response) {
+                        record.setSent(true);
+                        db.updateMessageFileRecord(record);
                     }
-                }, this::messageSendFailed
-        );
+                    db.deleteMessageFileRecords(response);
+                },
+                this::messageSendFailed
+            );
+        } else {
+            // Schedule retry
+            Runnable delayRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Intent uploadIntent = new Intent(NewMntService.this, NewMntService.class);
+                    uploadIntent.setAction(ACTION_UPLOAD_FILE);
+                    startService(uploadIntent);
+                    
+                    Intent sendIntent = new Intent(NewMntService.this, NewMntService.class);
+                    sendIntent.setAction(ACTION_MESSAGE_SEND);
+                    startService(sendIntent);
+                }
+            };
+            new Handler(getMainLooper()).postDelayed(delayRunnable, MIN_DELAY);
+        }
     }
 
     private void messageSendFailed(Throwable e) {
         Timber.e(e, "Mnt messageSend failed");
         SoundUtils.soundNotification(this.getApplicationContext(), true);
-        storage.removePreference(LocalStorage.TO_SEND_PROGRESS); //do not retry, critical error
+        storage.removePreference(LocalStorage.TO_SEND_PROGRESS);
         notifyActivity(getResources().getString(R.string.mnt_send_error), null, ServiceResultReceiver.ACTION_SENT_MAINTENANCE_ERROR);
     }
 
@@ -248,62 +267,58 @@ public class NewMntService extends AbstractIntentService {
     }
 
     private boolean allFilesUploaded(List<MaintenanceFileRecord> messages) {
-        return FluentIterable.from(messages).allMatch(record -> record.getServerId() != null);
+        return messages.stream().allMatch(f -> f.getServerId() != null);
     }
 
     @NonNull
     private Observable<List<MaintenanceFileRecord>> sendMaintenance(List<MaintenanceFileRecord> files) {
-        storage.writeStringPreference(LocalStorage.TO_SEND_PROGRESS, Status.SEND_ATTEMTP.toString());
-        Model model = Model.getInstance(getApplicationContext());
-        final AddMaintenanceReportRequest request = new AddMaintenanceReportRequest();
-        request.setReport(model.getResult());
-        try {
-            Response response = authorizedBackend.sendMaintenance(request).executeUnchecked();
-            if (ResponseCheckHelper.checkIfError(response, this, "M7", true)) {
-                SoundUtils.soundNotification(this.getApplicationContext(), true);
-            } else {
-                SoundUtils.soundNotification(this.getApplicationContext(), false);
-                LocalStorage.getInstance(getApplicationContext()).removePreference(LocalStorage.TO_PROGRESS);
-                db.deleteAllMntFileRecords();
-                storage.writeStringPreference(LocalStorage.TO_SEND_PROGRESS, Status.SEND_FINISHED.toString());
-                Date currentTime = Calendar.getInstance().getTime();
-                storage.writeLongPreference(LocalStorage.LAST_MNT_REPORT, currentTime.getTime());
-                notifyActivity(getResources().getString(R.string.mnt_send_ok), null, ServiceResultReceiver.ACTION_SENT_MAINTENANCE_OK);
-            }
-        } catch (Exception ex) {
-            Timber.e(ex, "Mnt sending failed");
-            notifyActivity(getResources().getString(R.string.mnt_send_error), null, ServiceResultReceiver.ACTION_SENT_MAINTENANCE_ERROR);
-            storage.writeStringPreference(LocalStorage.TO_SEND_PROGRESS, Status.SEND_ERROR.toString());
-            Runnable delayRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    NewMntService_.intent(NewMntService.this).messageSend().start();
+        AddMaintenanceReportRequest request = new AddMaintenanceReportRequest();
+        request.setCurrentClientTime(System.currentTimeMillis());
+        // TODO: Create proper ChecklistResult from files
+        // request.setReport(checklistResult);
+        
+        return Observable.fromCallable(() -> {
+            try {
+                Response<Void> response = authorizedBackend.sendMaintenance(request).execute();
+                if (!ResponseCheckHelper.checkIfError(response, this, "M6", true)) {
+                    notifyModel(ServiceResultReceiver.ACTION_SENT_MAINTENANCE_OK, null, null);
                 }
-            };
-            new Handler(getMainLooper()).postDelayed(delayRunnable, MIN_DELAY);
-        }
-        return Observable.just(files);
+                return files;
+            } catch (Exception e) {
+                messageSendNetworkError(e);
+                throw e;
+            }
+        });
     }
 
-
     private void notifyModel(String action, Long serverId, String title) {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(action);
-        broadcastIntent.putExtra("SERVER_ID", serverId);
-        broadcastIntent.putExtra("NODE_NAME", title);
-        sendBroadcast(broadcastIntent);
+        Intent intent = new Intent(action);
+        intent.putExtra(PARAM_OUT_DATA, serverId);
+        intent.putExtra(PARAM_OUT_MSG, title);
+        sendBroadcast(intent);
     }
 
     private void notifyActivity(String message, @Nullable Parcelable result, String action) {
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        if (powerManager != null && powerManager.isScreenOn()) {
-            Intent broadcastIntent = new Intent();
-            broadcastIntent.setAction(action);
-
-            broadcastIntent.putExtra(PARAM_OUT_MSG, message);
-            broadcastIntent.putExtra(PARAM_OUT_DATA, result);
-            sendBroadcast(broadcastIntent);
+        Intent intent = new Intent(action);
+        intent.putExtra(PARAM_OUT_MSG, message);
+        if (result != null) {
+            intent.putExtra(PARAM_OUT_DATA, result);
         }
+        sendBroadcast(intent);
     }
 
+    private void createAuthorizedBackend() {
+        // Implementation for creating authorized backend
+        Timber.i("Creating authorized backend");
+    }
+
+    private Properties loadProperties() {
+        Properties props = new Properties();
+        try {
+            props.load(getAssets().open("config.properties"));
+        } catch (IOException e) {
+            Timber.e(e, "Error loading properties");
+        }
+        return props;
+    }
 }

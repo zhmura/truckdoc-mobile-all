@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 
 import com.sanda.truckdoc.client.service.AppSettings;
 import com.sanda.truckdoc.network.api.UserKey;
@@ -11,35 +12,31 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.components.SingletonComponent;
 import de.devland.esperandro.Esperandro;
 
 @Module
+@InstallIn(SingletonComponent.class)
 public class AppModule {
 
-    @NonNull
-    private final TruckDocApp app;
-
-    AppModule(@NonNull TruckDocApp app) {
-        this.app = app;
-    }
-
     @Provides
     @NonNull
     @Singleton
-    Context provideContext() {
-        return app;
+    Context provideContext(@ApplicationContext Context context) {
+        return context;
     }
 
     @Provides
-    @Nullable
-    UserKey provideUserKey() {
-        return new AppSettings(app).getUserKey();
+    UserKey provideUserKey(@ApplicationContext Context context) {
+        return new AppSettings(new ContextWrapper(context)).getUserKey();
     }
 
     @Provides
     @Singleton
     @NonNull
-    Prefs providePrefs(Context context) {
+    Prefs providePrefs(@ApplicationContext Context context) {
         return Esperandro.getPreferences(Prefs.class, context);
     }
 }

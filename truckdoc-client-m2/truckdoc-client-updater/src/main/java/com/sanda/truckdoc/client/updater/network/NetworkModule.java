@@ -8,12 +8,15 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
 import retrofit.RestAdapter;
 
 /**
  * Created by astra on 07.06.2015.
  */
 @Module
+@InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
     private static final String TCUS_URI = "http://tcus.truckdoc.ru";

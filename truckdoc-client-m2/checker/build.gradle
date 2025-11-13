@@ -1,52 +1,65 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+}
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
-    publishNonDefault true
+    namespace 'com.sanda.checker'
+    compileSdk 34
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    lintOptions {
+        abortOnError false
+    }
 
     defaultConfig {
-        minSdkVersion 21
-        compileSdkVersion 31
-        targetSdkVersion 31
+        minSdk 26
+        targetSdk 34
         versionCode 1
         versionName "1.0"
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    lintOptions {
-        abortOnError false
-    }
-    buildToolsVersion '30.0.3'
 }
 
 dependencies {
-    implementation "androidx.annotation:annotation:1.0.0"
-    implementation "androidx.appcompat:appcompat:1.4.1"
-    implementation "de.devland.esperandro:esperandro-api:$esperandroVersion"
-    implementation 'com.google.dagger:dagger:2.26'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.26'
-    annotationProcessor "de.devland.esperandro:esperandro-preference-gen:$esperandroVersion"
-    //implementation "de.devland.esperandro:esperandro-jackson-addon:$esperandroVersion"
-    implementation "net.danlew:android.joda:$jodaVersion"
-    implementation group: 'androidx.annotation', name: 'annotation', version: '1.1.0'
-    implementation group: 'androidx.viewpager', name: 'viewpager', version: '1.0.0'
-    implementation group: 'androidx.localbroadcastmanager', name: 'localbroadcastmanager', version: '1.0.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation libs.android.appcompat
+    implementation libs.android.core.ktx
+    implementation libs.material
+    implementation libs.hilt.android
+    implementation('joda-time:joda-time:2.12.7')
+    implementation libs.esperandro.api
+    kapt "de.devland.esperandro:esperandro:${libs.versions.esperandro.get()}"
+    kapt libs.hilt.compiler
+}
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }

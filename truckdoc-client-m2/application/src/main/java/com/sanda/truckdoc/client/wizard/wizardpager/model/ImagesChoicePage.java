@@ -17,9 +17,11 @@
 package com.sanda.truckdoc.client.wizard.wizardpager.model;
 
 import com.sanda.truckdoc.client.wizard.wizardpager.ui.ImagesFragment;
-import com.sanda.truckdoc.client.wizard.wizardpager.ui.ImagesFragment_;
 
 import java.util.ArrayList;
+
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
 
 /**
  * A page offering the user a number of mutually exclusive choices.
@@ -48,8 +50,12 @@ public class ImagesChoicePage extends Page {
     }
 
     @Override
-    public ImagesFragment createFragment() {
-        return ImagesFragment_.builder().key(getKey()).build();
+    public Fragment createFragment() {
+        ImagesFragment fragment = new ImagesFragment();
+        Bundle args = new Bundle();
+        args.putString("key", getKey());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override

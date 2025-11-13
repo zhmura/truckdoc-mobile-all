@@ -2,44 +2,30 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.7.10'
-        buildToolsVersion = "30.0.3"
-        minSdkVersion = 26
+        kotlin_version = '1.9.24'
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 21
         compileSdkVersion = 34
         targetSdkVersion = 34
+        esperandroVersion = '3.0.3'
+        jodaVersion = '2.12.7'
+        nav_version = '2.7.7'
     }
     repositories {
-        mavenCentral()
-        mavenLocal()
         google()
-        maven {
-            url = uri("https://plugins.gradle.org/m2/")
-        }
+        mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.33.0'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:2.0.0'
+        classpath 'com.android.tools.build:gradle:8.4.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
+        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.48'
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
 
 apply plugin: 'com.github.ben-manes.versions'
-
-allprojects {
-    ext {
-        supportVersion = "28.0.0"
-        jodaVersion = "2.8.1"
-        esperandroVersion = "3.0.2"
-        aaVersion = "3.3.2"
-    }
-    repositories {
-        mavenCentral()
-        google()
-        mavenLocal()
-
-    }
-}
 
 Properties props = new Properties()
 def typeFile = file('local.properties')
@@ -53,5 +39,34 @@ if (typeFile.exists()) {
 configurations.configureEach {
     resolutionStrategy {
         failOnVersionConflict()
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24'
+        force 'joda-time:joda-time:2.12.7'
+        exclude group: 'joda-time', module: 'joda-time-no-tzdb'
+        exclude group: 'joda-time', module: 'joda-time-android'
+        force 'com.j256.ormlite:ormlite-android:6.1'
+        exclude group: 'com.j256.ormlite', module: 'ormlite-core'
+    }
+}
+
+// Enable Java 17 compatibility for all projects
+subprojects {
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        options.encoding = 'UTF-8'
+    }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+    
+    // Enable parallel builds
+    tasks.withType(org.gradle.api.tasks.compile.JavaCompile) {
+        options.fork = true
+        options.incremental = true
     }
 }

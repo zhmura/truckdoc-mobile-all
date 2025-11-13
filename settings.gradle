@@ -1,4 +1,27 @@
-include ':standout', ':app', ':checker', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api'
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url 'https://jitpack.io' }
+    }
+    plugins {
+        id 'com.google.dagger.hilt.android' version '2.55'
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+rootProject.name = "truckdoc-mobile"
+
+include ':standout', ':app', ':checker', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api', ':app-updater'
 project(':app').projectDir = new File(settingsDir, 'truckdoc-client-m2/application')
 project(':checker').projectDir = new File(settingsDir, 'truckdoc-client-m2/checker')
 project(':standout').projectDir = new File(settingsDir, 'truckdoc-client-m2/standout')
@@ -6,3 +29,4 @@ project(':truckdocnetwork').projectDir = new File(settingsDir, 'mobile-modules/t
 project(':camera').projectDir = new File(settingsDir, 'mobile-modules/camera')
 project(':truckdoc-util').projectDir = new File(rootDir, 'mobile-modules/truckdoccommon/truckdoc-util')
 project(':truckdoc-client-api').projectDir = new File(rootDir, 'mobile-modules/truckdoccommon/truckdoc-client-api')
+project(':app-updater').projectDir = new File(settingsDir, 'app-updater')

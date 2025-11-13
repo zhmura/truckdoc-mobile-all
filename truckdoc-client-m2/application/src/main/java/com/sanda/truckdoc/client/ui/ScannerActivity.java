@@ -1,14 +1,12 @@
 package com.sanda.truckdoc.client.ui;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.sanda.truckdoc.client.R;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 import java.util.ArrayList;
 
@@ -20,31 +18,60 @@ import app.camera.tdoc.camera_library.PrefixList;
 import static app.camera.tdoc.camera_library.ImageType.HQ_SCAN;
 import static app.camera.tdoc.camera_library.ImageType.MQ_SCAN;
 
-@EActivity(R.layout.activity_scanner)
 public class ScannerActivity extends AppCompatActivity {
 
-    @Extra
-    long recipientId;
+    private long recipientId;
 
-    @SuppressWarnings("ConstantConditions")
-    @AfterViews
-    void afterViews() {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scanner);
+        
+        // Get recipientId from intent
+        recipientId = getIntent().getLongExtra("recipientId", -1);
+        
+        setupViews();
+    }
+
+    private void setupViews() {
         ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setDisplayShowHomeEnabled(true);
+        if (ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setDisplayShowHomeEnabled(true);
+        }
+        
+        // Set up click listeners
+        Button btnCMRScan = findViewById(R.id.btnCMRScan);
+        Button btnScanOthers = findViewById(R.id.btnScanOthers);
+        
+        btnCMRScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCMRScan();
+            }
+        });
+        
+        btnScanOthers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onScanOthers();
+            }
+        });
     }
 
-    @OptionsItem(android.R.id.home)
-    void onHome() {
-        finish();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    @Click(R.id.btnCMRScan)
     void onCMRScan() {
         startCameraActivity(HQ_SCAN, recipientId);
     }
 
-    @Click(R.id.btnScanOthers)
     void onScanOthers() {
         startCameraActivity(MQ_SCAN, recipientId);
     }
@@ -85,16 +112,4 @@ public class ScannerActivity extends AppCompatActivity {
                 .build(this);
         startActivity(i);
     }
-
-/*    @Receiver(actions = ServiceResultReceiver.NOTIFICATION_MESSAGE,
-            registerAt = OnResumeOnPause)
-    void onNotificationMessage(Intent intent) {
-        String message = intent.getStringExtra(NotificationHelper.PARAM_MSG);
-        Boolean isError = intent.getBooleanExtra(NotificationHelper.PARAM_IS_ERROR, false);
-        if (isError) {
-            NotificationHelper.showErrorMessage(message, this);
-        } else {
-            NotificationHelper.showNotificationMessage(message, this);
-        }
-    }*/
 }

@@ -10,23 +10,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.sanda.truckdoc.client.Consts;
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.ActivityCameraWizardBinding;
 import com.sanda.truckdoc.client.ui.dgcam.CameraPreview;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.ImageHelper;
 import com.squareup.picasso.Picasso;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.ViewById;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -40,56 +32,52 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 @SuppressWarnings("ALL")
-@EActivity(R.layout.activity_camera_wizard)
 public class CameraActivity extends Activity {
 
     public static final String IMAGE = "image";
+    public static final String DESCRIPTION = "description";
 
     private Camera camera;
     private CameraPreview cameraView;
     private File destination;
+    private String description;
+    private ActivityCameraWizardBinding binding;
 
-    @Extra
-    String description;
-    @ViewById(R.id.camera_preview)
-    FrameLayout preview;
-    @ViewById(R.id.previewImage)
-    ImageView previewImage;
-    @ViewById(R.id.button_capture)
-    ImageButton captureButton;
-    @ViewById(R.id.button_discard)
-    ImageButton discardButton;
-    @ViewById(R.id.button_save)
-    ImageButton saveButton;
-    @ViewById(android.R.id.title)
-    TextView title;
+    public static void start(Activity activity, String description) {
+        Intent intent = new Intent(activity, CameraActivity.class);
+        intent.putExtra(DESCRIPTION, description);
+        activity.startActivityForResult(intent, ImagesFragment.REQUEST_CODE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        binding = ActivityCameraWizardBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        description = getIntent().getStringExtra(DESCRIPTION);
+        setupViews();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @AfterViews
-    protected void afterViews() {
-        title.setText(description);
+    private void setupViews() {
+        binding.title.setText(description);
         // Create an instance of Camera
         camera = getCameraInstance();
 
         // Create our Preview view and set it as the content of our activity.
         cameraView = new CameraPreview(this, camera);
 
-        preview.addView(cameraView, 0);
+        binding.cameraPreview.addView(cameraView, 0);
+
+        binding.buttonCapture.setOnClickListener(v -> onTakePicture());
+        binding.buttonDiscard.setOnClickListener(v -> onDiscardPicture());
+        binding.buttonSave.setOnClickListener(v -> onSavePicture());
     }
 
-    @Click(R.id.button_capture)
-    void onTakePicture() {
+    private void onTakePicture() {
         if (Build.MANUFACTURER.toLowerCase().contains("genymotion")) {
             camera.takePicture(null, null, pictureCallback);
         } else {
@@ -97,21 +85,18 @@ public class CameraActivity extends Activity {
         }
     }
 
-    @Click(R.id.button_discard)
-    void onDiscardPicture() {
-        captureButton.setVisibility(VISIBLE);
-        previewImage.setVisibility(GONE);
-        saveButton.setVisibility(GONE);
-        discardButton.setVisibility(GONE);
-        preview.setVisibility(VISIBLE);
-        title.setVisibility(VISIBLE);
+    private void onDiscardPicture() {
+        binding.buttonCapture.setVisibility(VISIBLE);
+        binding.previewImage.setVisibility(GONE);
+        binding.buttonSave.setVisibility(GONE);
+        binding.buttonDiscard.setVisibility(GONE);
+        binding.cameraPreview.setVisibility(VISIBLE);
+        binding.title.setVisibility(VISIBLE);
         camera.startPreview();
-        previewImage.setImageBitmap(null);
+        binding.previewImage.setImageBitmap(null);
     }
 
-    @Click(R.id.button_save)
-    void onSavePicture() {
-
+    private void onSavePicture() {
         if (destination != null && destination.exists()) {
             setResult(RESULT_OK, new Intent().putExtra(IMAGE, destination));
         } else {
@@ -136,56 +121,48 @@ public class CameraActivity extends Activity {
         return destination;
     }
 
-    private Camera.PictureCallback pictureCallback = (byte[] data, Camera camera) -> {
-        final BitmapFactory.Options opts = new BitmapFactory.Options();
-        //opts.inBitmap = bitmap; //as a buffer
-        opts.inMutable = true; //to draw watermark
-
-        Bitmap bitmap2 = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-        captureButton.setEnabled(true);
-        captureButton.setVisibility(GONE);
-        previewImage.setVisibility(VISIBLE);
-        saveButton.setVisibility(VISIBLE);
-        discardButton.setVisibility(VISIBLE);
-        preview.setVisibility(View.GONE);
-        title.setVisibility(GONE);
-
-        ImageHelper.drawWaterMark(bitmap2, DateTime.now().toString(Consts.DATE_TIME_FORMAT));
-        destination = saveBitmap(bitmap2);
-        Picasso.with(this).load(destination).fit().centerCrop().into(previewImage);
-        //bitmap = bitmap2;
-    };
-
-    private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight) {
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-    }
-
-    Camera.AutoFocusCallback autofocusCallback = (boolean success, Camera camera) -> {
-        captureButton.setEnabled(false);
-        this.camera.takePicture(null, null, null, pictureCallback);
-    };
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-//        bitmap = null;
-        releaseCamera();              // release the camera immediately on pause event
-    }
-
-    private void releaseCamera() {
-        if (camera != null) {
-            camera.release();        // release the camera for other applications
-            camera = null;
-        }
-    }
-
-    public static Camera getCameraInstance() {
+    private Camera getCameraInstance() {
         Camera c = null;
         try {
             c = Camera.open();
         } catch (Exception e) {
-            Timber.e(e, "Error getting camera instance");
+            Timber.e(e, "Error opening camera");
         }
-        return c; // returns null if camera is unavailable
+        return c;
+    }
+
+    private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if (bitmap != null) {
+                destination = saveBitmap(bitmap);
+                binding.previewImage.setImageBitmap(bitmap);
+                binding.buttonCapture.setVisibility(GONE);
+                binding.previewImage.setVisibility(VISIBLE);
+                binding.buttonSave.setVisibility(VISIBLE);
+                binding.buttonDiscard.setVisibility(VISIBLE);
+                binding.cameraPreview.setVisibility(GONE);
+                binding.title.setVisibility(GONE);
+            }
+        }
+    };
+
+    private Camera.AutoFocusCallback autofocusCallback = new Camera.AutoFocusCallback() {
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            if (success) {
+                camera.takePicture(null, null, pictureCallback);
+            }
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (camera != null) {
+            camera.release();
+            camera = null;
+        }
     }
 }

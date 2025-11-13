@@ -17,7 +17,6 @@ import com.sanda.truckdoc.client.data.migrations.MigrationFrom4To5;
 import com.sanda.truckdoc.client.data.migrations.MigrationFrom5To6;
 import com.sanda.truckdoc.client.data.migrations.MigrationFrom6To7;
 import com.sanda.truckdoc.client.data.model.AttachmentInfo;
-import com.sanda.truckdoc.client.data.model.Contact;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.DbLocation;
 import com.sanda.truckdoc.client.data.model.MessageFileRecord;
@@ -27,7 +26,7 @@ import com.sanda.truckdoc.client.data.model.route.DbRoutePath;
 import com.sanda.truckdoc.client.data.model.route.DbRoutePoint;
 import com.sanda.truckdoc.client.util.timber.L;
 
-import net.tribe7.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final Class<?>[] ENTITIES = //
             {ServerMessage.class,
                     AttachmentInfo.class,
-                    Contact.class,
                     DbLocation.class,
                     DbContactRecord.class,
                     MessageFileRecord.class,
@@ -130,7 +128,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
          * create or update the database. So we have to use the database argument and save a connection to it on the
          * AndroidConnectionSource, otherwise it will go recursive if the subclass calls getConnectionSource().
          */
-        DatabaseConnection conn = cs.getSpecialConnection();
+        DatabaseConnection conn = cs.getSpecialConnection("default");
         boolean clearSpecial = false;
         if (conn == null) {
             conn = new AndroidDatabaseConnection(db, true);
@@ -168,21 +166,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private void createDefaultButtons() {
         ArrayList<DbContactRecord> records = Lists.newArrayList(//
-                new DbContactRecord(1l,
+                new DbContactRecord(1,
                         "Колонный",
-                        null,
-                        context.getResources().getColor(R.color.button_default_green),
-                        null),
-                new DbContactRecord(2l,
+                        "",
+                        "leader"),
+                new DbContactRecord(2,
                         "Экспедитор",
-                        null,
-                        context.getResources().getColor(R.color.button_default_blue),
-                        null),
-                new DbContactRecord(3l,
+                        "",
+                        "expeditor"),
+                new DbContactRecord(3,
                         "Оператор",
-                        null,
-                        context.getResources().getColor(R.color.button_default_red),
-                        null));
+                        "",
+                        "operator"));
         RuntimeExceptionDao<DbContactRecord, Long> contactRecordDao = getRuntimeExceptionDao(DbContactRecord.class);
         for (DbContactRecord record : records) {
             contactRecordDao.createIfNotExists(record);

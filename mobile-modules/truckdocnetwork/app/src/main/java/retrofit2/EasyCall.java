@@ -2,7 +2,7 @@ package retrofit2;
 
 import java.io.IOException;
 
-import retrofit2.adapter.rxjava.HttpException;
+import retrofit2.HttpException;
 
 /**
  * Wraps Retrofit's/HttpOk's Call object to

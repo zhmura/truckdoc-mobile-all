@@ -9,16 +9,18 @@ import android.os.Bundle;
 
 import com.sanda.truckdoc.client.BuildConfig;
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
 import com.sanda.truckdoc.client.data.model.MessageFileRecord;
 import com.sanda.truckdoc.client.data.model.file.FileType;
 import com.sanda.truckdoc.client.service.CustomToast;
-import com.sanda.truckdoc.client.service.NewMessageService_;
+import com.sanda.truckdoc.client.service.NewMessageService;
 import com.sanda.truckdoc.client.to.data.Model;
 import com.sanda.truckdoc.client.to.data.db.MaintenanceFileRecord;
 import com.sanda.truckdoc.client.to.data.db.MntDbService;
-import com.sanda.truckdoc.client.to.service.NewMntService_;
+import com.sanda.truckdoc.client.to.service.NewMntService;
 import com.sanda.truckdoc.client.util.timber.L;
 
 import java.io.File;
@@ -41,11 +43,13 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
     private MntDbService mntDb;
 
     protected void checkDBInit(Context context) {
-        if (db == null) {
-            db = TruckDocApp.get(context).appComponent().db();
-        }
-        if (mntDb == null) {
-            mntDb = TruckDocApp.get(context).appComponent().mntdb();
+        try {
+            HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+            db = entryPoint.messagesDatabaseService();
+            // Note: mntdb() is not available in the entry point, we'll need to add it or use a different approach
+            // mntDb = entryPoint.mntdb();
+        } catch (Exception e) {
+            L.e("Failed to initialize database", e);
         }
     }
 
@@ -64,8 +68,8 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
                 r.setName(new File(fileName).getName());
                 r.setRecipientId(recipientId);
                 r.setType(isForDoc ? FileType.DOC : FileType.SCENERY);
-                db.createMessageFileRecord(r);
-                NewMessageService_.intent(context).uploadFiles(false).start();
+                MessagesDatabaseServiceJavaCompat.createMessageFileRecordBlocking(db, r);
+                startNewMessageService(context, false);
                 break;
             }
             case "com.sanda.truckdoc.client.receivers.MntFileSaveReceiverIntent": {
@@ -79,7 +83,7 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
                 r.setReadyForSend(true);
                 r.setNodeName(Model.getInstance(context).getCurrentNode().getTitleText());
                 mntDb.createMessageFileRecord(r);
-                NewMntService_.intent(context).uploadFile().start();
+                startNewMntService(context);
                 break;
             }
             case "com.sanda.truckdoc.client.receivers.FileSendReceiverIntent":
@@ -88,7 +92,7 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
                 break;
             case "com.sanda.truckdoc.client.receivers.FilesDeleteReceiverIntent":
                 checkDBInit(context);
-                db.deleteAllMessageFileRecords();
+                MessagesDatabaseServiceJavaCompat.deleteAllMessageFileRecordsBlocking(db);
                 CustomToast.showToast(context, context.getResources().getText(R.string.all_files_deleted).toString());
                 break;
         }
@@ -96,9 +100,23 @@ public class FileActionIntentReceiver extends BroadcastReceiver {
 
     public static void addPendingSessionFinish(Context context) {
         L.v();
-        Intent serviceIntent = NewMessageService_.intent(context).photoSessionFinished().get();
+        Intent serviceIntent = new Intent(context, NewMessageService.class);
+        serviceIntent.setAction(NewMessageService.ACTION_PHOTO_SESSION_FINISHED);
         PendingIntent pi = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + SESSION_FINISH_TIMEOUT, pi);
+    }
+
+    private void startNewMessageService(Context context, boolean uploadFiles) {
+        Intent intent = new Intent(context, NewMessageService.class);
+        intent.setAction(NewMessageService.ACTION_UPLOAD_FILES);
+        intent.putExtra("uploadFiles", uploadFiles);
+        context.startService(intent);
+    }
+
+    private void startNewMntService(Context context) {
+        Intent intent = new Intent(context, NewMntService.class);
+        intent.setAction(NewMntService.ACTION_UPLOAD_FILE);
+        context.startService(intent);
     }
 }

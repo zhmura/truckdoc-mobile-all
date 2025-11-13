@@ -12,38 +12,44 @@ import android.view.WindowManager;
 import com.sanda.checker.NoConnectionReceiver;
 import com.sanda.truckdoc.client.util.timber.L;
 
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-@EActivity
 public class DialogActivity extends AppCompatActivity {
 
     public static final String ACTION_FINISH = "com.sanda.truckdoc.client.ui.DialogActivity.ACTION_FINISH";
     public static final String TAG = "noConnection";
+    
+    // Constants for intent extras
+    public static final String EXTRA_CONNECTION_PROBLEM = "connectionProblem";
+    public static final String EXTRA_RESULT = "result";
+    public static final String EXTRA_REMINDER_MESSAGE = "reminderMessage";
+    public static final String EXTRA_SENDER_ROLE_ID = "senderRoleId";
+    public static final String EXTRA_QUICK_REPLY = "quickReply";
+    public static final String EXTRA_REPEAT_REMINDER = "repeatReminder";
 
     private Dialog dialog;
-
     private KeyguardManager.KeyguardLock keyguardLock;
-
-    @Extra
-    boolean connectionProblem;
-    @Extra
-    String reminderMessage;
-    @Extra
-    long senderRoleId;
-    @Extra
-    boolean quickReply;
-    @Extra
-    boolean repeatReminder;
-    @Extra
-    NoConnectionReceiver.Result result;
+    private boolean connectionProblem;
+    private String reminderMessage;
+    private long senderRoleId;
+    private boolean quickReply;
+    private boolean repeatReminder;
+    private NoConnectionReceiver.Result result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         L.v();
+        
+        // Get extras from intent
+        Intent intent = getIntent();
+        connectionProblem = intent.getBooleanExtra("connectionProblem", false);
+        reminderMessage = intent.getStringExtra("reminderMessage");
+        senderRoleId = intent.getLongExtra("senderRoleId", 0);
+        quickReply = intent.getBooleanExtra("quickReply", false);
+        repeatReminder = intent.getBooleanExtra("repeatReminder", false);
+        result = intent.getParcelableExtra("result");
+
         Window window = this.getWindow();
 
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
@@ -71,7 +77,7 @@ public class DialogActivity extends AppCompatActivity {
             NoConnectionFragment noConnectionFragment;
             noConnectionFragment = (NoConnectionFragment) getSupportFragmentManager().findFragmentByTag(TAG);
             if (noConnectionFragment == null) {
-                noConnectionFragment = NoConnectionFragment_.builder().result(result).build();
+                noConnectionFragment = NoConnectionFragment.newInstance(result);
                 noConnectionFragment.setCancelable(false);
                 noConnectionFragment.show(getSupportFragmentManager(), TAG);
             }
@@ -91,6 +97,7 @@ public class DialogActivity extends AppCompatActivity {
         L.v();
     }
 
+    @Override
     protected void onDestroy() {
         L.v();
         if (dialog != null) {

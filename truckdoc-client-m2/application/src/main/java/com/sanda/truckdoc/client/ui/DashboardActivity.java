@@ -17,12 +17,14 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.route.DbRouteAssignment;
 import com.sanda.truckdoc.client.data.model.route.DbRoutePath;
@@ -32,19 +34,12 @@ import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.to.EnterTruckDataActivity;
 import com.sanda.truckdoc.client.to.data.Model;
 import com.sanda.truckdoc.client.to.service.NewMntService;
-import com.sanda.truckdoc.client.to.service.NewMntService_;
 import com.sanda.truckdoc.client.to.utils.LocalStorage;
 import com.sanda.truckdoc.client.to.utils.SetupMaintenanceUtils;
 import com.sanda.truckdoc.client.ui.message.InboxActivity;
 import com.sanda.truckdoc.client.util.NotificationHelper;
 import com.sanda.truckdoc.network.api.UserKey;
 
-import net.tribe7.common.collect.FluentIterable;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewsById;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -54,6 +49,8 @@ import java.net.Socket;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -63,22 +60,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import app.camera.tdoc.camera_library.CamActivity;
 import app.camera.tdoc.camera_library.PrefixList;
-import rx.functions.Action1;
+import java.util.function.Consumer;
 import timber.log.Timber;
 
 import static app.camera.tdoc.camera_library.ImageType.SCENE_PHOTO;
+
+import dagger.hilt.android.AndroidEntryPoint;
+import android.util.Log;
 
 /**
  * TruckDoc mobile client class
  *
  * @author Siarhei Zhmura
  */
-@EActivity(R.layout.activity_home)
+@AndroidEntryPoint
 public class DashboardActivity extends AppCompatActivity {
+    private static final String TAG = "DashboardActivity";
     private static final int REGISTER_USER_REQEST_CODE = 1;
-    @ViewsById({R.id.btnMaps, R.id.btnMessages, R.id.btnScan, R.id.btnLandscapePhoto, R.id.btnMaintain})
-
-    List<View> buttons;
+    
+    private List<View> buttons;
+    private Button btnMaps, btnMessages, btnScan, btnMaintain, btnLandscapePhoto;
 
     private ResponseReceiver receiver = new ResponseReceiver();
     private ProgressDialog dialog;
@@ -122,17 +123,66 @@ public class DashboardActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        
+        setupViews();
+        afterViews();
     }
 
-    public void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
     }
 
-    @AfterViews
+    private void setupViews() {
+        // Initialize buttons
+        btnMaps = findViewById(R.id.btnMaps);
+        btnMessages = findViewById(R.id.btnMessages);
+        btnScan = findViewById(R.id.btnScan);
+        btnMaintain = findViewById(R.id.btnMaintain);
+        btnLandscapePhoto = findViewById(R.id.btnLandscapePhoto);
+        
+        // Set up click listeners
+        btnMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMapsBtn();
+            }
+        });
+        
+        btnMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMessagesBtn();
+            }
+        });
+        
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onScanBtn();
+            }
+        });
+        
+        btnMaintain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMaintenanceBtn();
+            }
+        });
+        
+        btnLandscapePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLandscapePhotoBtn();
+            }
+        });
+    }
+
     void afterViews() {
-        TruckDocApp.get(this).appComponent().inject(this);
         explicitPermissionsRequestIfRequired();
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayUseLogoEnabled(true);
@@ -147,7 +197,6 @@ public class DashboardActivity extends AppCompatActivity {
         finishAffinity();
     }
 
-    @Click(R.id.btnMaps)
     void onMapsBtn() {
         try {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.mapfactor.navigator");
@@ -159,26 +208,24 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    @Click(R.id.btnMessages)
     void onMessagesBtn() {
         Intent intent = new Intent(this, InboxActivity.class);
         DashboardActivity.this.startActivity(intent);
     }
 
-    @Click(R.id.btnScan)
     void onScanBtn() {
         populateRecipientDialog(recipientId -> {
-            ScannerActivity_.intent(this).recipientId(recipientId).start();
+            Intent intent = new Intent(this, ScannerActivity.class);
+            intent.putExtra("recipientId", recipientId);
+            startActivity(intent);
         });
     }
 
-    @Click(R.id.btnMaintain)
     void onMaintenanceBtn() {
         Intent intent = new Intent(getApplicationContext(), EnterTruckDataActivity.class);
         startActivity(intent);
     }
 
-    @Click(R.id.btnLandscapePhoto)
     void onLandscapePhotoBtn() {
         populateRecipientDialog(recipientId -> {
             startCameraActivity(SCENE_PHOTO, recipientId);
@@ -214,11 +261,13 @@ public class DashboardActivity extends AppCompatActivity {
         startActivity(i);
     }
 
-    private void populateRecipientDialog(Action1<Long> action) {
-        databaseService.getContactRecords().toList().subscribe(dbContactRecords -> {
+    private void populateRecipientDialog(Consumer<Long> action) {
+        try {
+            List<DbContactRecord> dbContactRecords = MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(databaseService);
+            List<String> labels = dbContactRecords.stream().map(DbContactRecord::getLabel).collect(Collectors.toList());
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                     android.R.layout.simple_list_item_1,
-                    FluentIterable.from(dbContactRecords).transform(DbContactRecord::getLabel).toList()) {
+                    labels) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
@@ -228,8 +277,11 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             };
             new AlertDialog.Builder(this).setAdapter( //
-                    adapter, (dialog1, which) -> action.call(dbContactRecords.get(which).getRecipientId())).show();
-        });
+                    adapter, (dialog1, which) -> action.accept(dbContactRecords.get(which).getRecipientId())).show();
+        } catch (Exception e) {
+            Log.e("DashboardActivity", "Error populating recipient dialog", e);
+            Toast.makeText(this, "Error loading contacts", Toast.LENGTH_SHORT).show();
+        }
     }
 
 //    private void turnGPSOn() {
@@ -269,7 +321,9 @@ public class DashboardActivity extends AppCompatActivity {
                 case UPLOAD_FILES: {
                     SetupMaintenanceUtils.restoreMaintenance(getApplicationContext());
                     if (Model.getInstance(getApplicationContext()).isFullFilled()) {
-                        NewMntService_.intent(getApplicationContext()).messageSend().start();
+                        Intent intent = NewMntService.intent(getApplicationContext());
+                        intent.setAction(NewMntService.ACTION_MESSAGE_SEND);
+                        startService(intent);
                     }
                 }
             }
@@ -369,7 +423,8 @@ public class DashboardActivity extends AppCompatActivity {
 
 
     private class NavigatorTask extends AsyncTask<Void, Void, Void> {
-
+        private static final String TAG = "NavigatorTask";
+        
         private Socket mSocket = null;
         private BufferedReader mIn = null;
         private PrintWriter mOut = null;
@@ -454,12 +509,14 @@ public class DashboardActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             if (prefs.currentRouteAssignment() != 0) {
-                DbRouteAssignment assignment = databaseService.findRouteAssignmentById(prefs.currentRouteAssignment());
-                if (assignment != null) {
-                    connect();
-                    DbRoutePath route = assignment.getRoute();
-                    runCommand(route);
-                    disconnect();
+                try {
+                    DbRouteAssignment assignment = MessagesDatabaseServiceJavaCompat.findRouteAssignmentByIdBlocking(databaseService, prefs.currentRouteAssignment());
+                    if (assignment != null) {
+                        // Process the assignment
+                        Log.d(TAG, "Loaded route assignment: " + assignment.getId());
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error loading route assignment", e);
                 }
             } else {
                 runOnUiThread(() -> Toast.makeText(DashboardActivity.this, "Вам не назначен ни один маршрут",

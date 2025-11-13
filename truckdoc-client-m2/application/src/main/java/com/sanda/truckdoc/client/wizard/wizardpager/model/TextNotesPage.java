@@ -18,11 +18,12 @@ package com.sanda.truckdoc.client.wizard.wizardpager.model;
 
 import android.text.TextUtils;
 
-import com.sanda.truckdoc.client.wizard.wizardpager.ui.TextNotesFragment_;
+import com.sanda.truckdoc.client.wizard.wizardpager.ui.TextNotesFragment;
 
 import java.util.ArrayList;
 
 import androidx.fragment.app.Fragment;
+import android.os.Bundle;
 
 /**
  * A page asking for a name and an email.
@@ -37,7 +38,11 @@ public class TextNotesPage extends Page {
 
     @Override
     public Fragment createFragment() {
-        return TextNotesFragment_.builder().key(getKey()).build();
+        TextNotesFragment fragment = new TextNotesFragment();
+        Bundle args = new Bundle();
+        args.putString("key", getKey());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override

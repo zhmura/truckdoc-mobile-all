@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     signingConfigs {
@@ -11,6 +13,11 @@ android {
     }
     compileSdkVersion root.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+
+    buildFeatures {
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.sanda.truckdoc.client.updater"
         minSdkVersion root.ext.minSdkVersion
@@ -19,12 +26,6 @@ android {
         versionCode 7
         versionName "2.5"
         signingConfig signingConfigs.config
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
     }
 
     buildTypes {
@@ -38,10 +39,16 @@ android {
             zipAlignEnabled false
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
@@ -49,7 +56,6 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
-    buildToolsVersion '30.0.3'
 }
 
 android.applicationVariants.all { variant ->
@@ -58,34 +64,22 @@ android.applicationVariants.all { variant ->
     }
 }
 
-
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation libs.multidex
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
+    implementation libs.android.appcompat
+    implementation libs.jackson.databind
     implementation 'org.jetbrains:annotations:19.0.0'
-    //dagger 2
-    implementation 'com.google.dagger:dagger:2.27'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
-
-    //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
-    implementation 'com.google.dagger:dagger-android:2.35.1'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.26'
-
-    //support libraries with dagger 2
-    implementation 'com.google.dagger:dagger-android-support:2.27'
-
-    implementation 'commons-io:commons-io:2.4'
-    implementation 'io.reactivex:rxandroid:1.2.1'
-    implementation 'com.jakewharton.timber:timber:2.2.2'
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife:10.2.1'
-    implementation 'com.squareup.retrofit:retrofit:1.9.0'
-    implementation 'de.devland.esperandro:esperandro-api:3.0.3'
-    annotationProcessor 'de.devland.esperandro:esperandro:2.7.0'
-    implementation 'org.apache.commons:commons-lang3:3.8'
-    implementation "org.androidannotations:androidannotations-api:4.6.0"
-    annotationProcessor "org.androidannotations:androidannotations:4.6.0"
+    implementation libs.commons.io
+    implementation libs.rxandroid
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
+    implementation libs.timber
+    implementation libs.retrofit.core
+    implementation libs.retrofit.jackson
+    implementation libs.retrofit.rxjava3
+    implementation libs.esperandro.api
+    kapt "de.devland.esperandro:esperandro:${libs.versions.esperandro.get()}"
+    implementation libs.commons.lang3
 }

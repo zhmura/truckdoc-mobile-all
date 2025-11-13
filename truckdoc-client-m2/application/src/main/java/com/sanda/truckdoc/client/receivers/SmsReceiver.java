@@ -3,75 +3,84 @@ package com.sanda.truckdoc.client.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
+import android.os.Bundle;
 
+import com.google.common.base.Strings;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.ServerMessage;
-import com.sanda.truckdoc.client.service.MessageCheckService;
-import com.sanda.truckdoc.client.service.SyncReason;
-import com.sanda.truckdoc.client.util.Option;
-import com.sanda.truckdoc.client.util.timber.L;
-
-import net.tribe7.common.base.Optional;
-import net.tribe7.common.base.Strings;
-import net.tribe7.common.collect.FluentIterable;
 
 import org.joda.time.DateTime;
 
-import androidx.annotation.NonNull;
-import rx.Observable;
-import timber.log.Timber;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import com.sanda.truckdoc.client.HiltEntryPoint;
+
+/**
+ * Created by astra on 21.10.2015.
+ */
 public class SmsReceiver extends BroadcastReceiver {
+    private static final String TAG = "SmsReceiver";
 
     @Override
-    public void onReceive(@NonNull Context context, @NonNull Intent intent) {
-        //L.v();
-        try {
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
             Bundle bundle = intent.getExtras();
-            Object[] messages = (Object[]) bundle.get("pdus");
-            assert messages != null;
-            SmsMessage[] sms = new SmsMessage[messages.length];
-            // Create messages for each incoming PDU
-            for (int n = 0; n < messages.length; n++) {
-                sms[n] = SmsMessage.createFromPdu((byte[]) messages[n]);
-            }
-            MessagesDatabaseService db = TruckDocApp.get(context).appComponent().db();
-            Observable<DbContactRecord> contacts = db.getContactRecords().cache();
-            FluentIterable<DbContactRecord> contactRecords = FluentIterable.from(contacts.toList().toBlocking().single());
+            if (bundle != null) {
+                Object[] pdus = (Object[]) bundle.get("pdus");
+                if (pdus != null) {
+                    for (Object pdu : pdus) {
+                        SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
+                        String smsPhone = smsMessage.getDisplayOriginatingAddress();
+                        String smsBody = smsMessage.getMessageBody();
 
-            boolean needSync = false;
-            for (SmsMessage msg : sms) {
-                String smsPhone = msg.getDisplayOriginatingAddress();
-                L.v(sms);
-                if (!Strings.isNullOrEmpty(smsPhone)) {
-
-                    Option<Integer> role = Option.empty();
-                    Optional<DbContactRecord> record = contactRecords.firstMatch(r -> r.getPhone().equals(smsPhone));
-
-                    L.v(role);
-                    if (record.isPresent()) {
-                        ServerMessage sm = new ServerMessage();
-                        sm.setDownloaded(true);
-                        sm.setSavedDate(new DateTime(msg.getTimestampMillis()));
-                        sm.setText(msg.getMessageBody());
-                        sm.setRecipientId(record.get().getRecipientId().intValue());
-                        sm.setOutgoing(false);
-                        sm.setHidden(true);
-                        db.addSmsMessage(sm);
-                        needSync = true;
+                        if (!Strings.isNullOrEmpty(smsPhone) && !Strings.isNullOrEmpty(smsBody)) {
+                            try {
+                                HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+                                MessagesDatabaseService db = entryPoint.messagesDatabaseService();
+                                List<DbContactRecord> contacts = MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(db);
+                                List<DbContactRecord> contactRecords = contacts;
+                                
+                                Optional<DbContactRecord> record = contactRecords.stream().filter(r -> r.getPhone().equals(smsPhone)).findFirst();
+                                if (record.isPresent()) {
+                                    ServerMessage sm = new ServerMessage(
+                                        0, // id will be auto-generated
+                                        0, // serverMessageId
+                                        smsBody, // message
+                                        "", // sender
+                                        "", // recipient
+                                        DateTime.now(), // savedDate
+                                        null, // sentDate
+                                        false, // outgoing
+                                        false, // sent
+                                        false, // downloaded
+                                        false, // hidden
+                                        "SMS", // type
+                                        0, // priority
+                                        false, // read
+                                        null, // tags
+                                        null, // senderUserId
+                                        null, // senderVirtualGroupId
+                                        record.get().getRecipientId(), // recipientId
+                                        new ArrayList<>() // attachments
+                                    );
+                                    MessagesDatabaseServiceJavaCompat.addSmsMessageBlocking(db, sm);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error processing SMS", e);
+                            }
+                        }
                     }
                 }
             }
-            if (needSync) {
-                // TODO: Think if we really need to do sync on SMS and why
-                MessageCheckService.executeGetNewMessagesAction(context, false, false, SyncReason.GOT_SMS);
-            }
-        } catch (Exception e) {
-            Timber.e(e, "Sms receiving failed.");
         }
     }
 }

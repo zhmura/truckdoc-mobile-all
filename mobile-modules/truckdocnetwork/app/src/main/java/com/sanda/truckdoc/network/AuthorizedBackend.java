@@ -8,6 +8,10 @@ import com.sanda.truckdoc.client.api.v3.sync.maintenance.api.AddMaintenanceRepor
 import com.sanda.truckdoc.client.api.v3.sync.routing.model.RoutePath;
 import com.sanda.truckdoc.network.api.ProgressRequestBody;
 import com.sanda.truckdoc.network.api.SynchronizeCheckResponse;
+import com.sanda.truckdoc.network.api.UserKey;
+import com.sanda.truckdoc.client.api.v2.ServerToClientMessagePojoNew;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -21,7 +25,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Url;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Created by k.natallie on 31.10.2016.
@@ -78,4 +82,51 @@ public interface AuthorizedBackend {
     EasyCall<Void> sendLog(@Body ProgressRequestBody file,
                            @Query("fileName") String fileName,
                            @Query("formatVersion") Integer formatVersion);
+
+    @POST("upload")
+    Observable<Response<Long>> uploadImage(@Body ProgressRequestBody file,
+                                         @Query("fileName") String fileName,
+                                         @Query("userId") long userId);
+
+    @POST("upload")
+    Observable<Response<Long>> uploadImage(@Body ProgressRequestBody file,
+                                         @Query("fileName") String fileName,
+                                         @Query("userId") long userId,
+                                         @Query("userKey") @NotNull UserKey userKey);
+
+    @POST("upload")
+    Observable<Response<Long>> uploadImage(@Body ProgressRequestBody file,
+                                         @Query("fileName") String fileName,
+                                         @Query("userId") long userId,
+                                         @Query("userKey") @NotNull UserKey userKey,
+                                         @Query("metadata") String metadata);
+
+    @POST("upload")
+    Observable<Response<Long>> uploadImage(@Body ProgressRequestBody file,
+                                         @Query("fileName") String fileName,
+                                         @Query("userId") long userId,
+                                         @Query("userKey") @NotNull UserKey userKey,
+                                         @Query("metadata") String metadata,
+                                         @Query("contentType") String contentType);
+
+    @POST("upload")
+    Observable<Response<Long>> uploadImage(@Body ProgressRequestBody file,
+                                         @Query("fileName") String fileName,
+                                         @Query("userId") long userId,
+                                         @Query("userKey") @NotNull UserKey userKey,
+                                         @Query("metadata") String metadata,
+                                         @Query("contentType") String contentType,
+                                         @Query("tags") List<String> tags);
+
+    @POST("message")
+    @FormUrlEncoded
+    Observable<Response<Void>> sendMessage(@Field("recipientId") long recipientId,
+                                         @Field("recipientIdType") String recipientIdType,
+                                         @Field("protocolVersion") int protocolVersion,
+                                         @Field("message") String message);
+
+    @GET("messages")
+    Observable<Response<List<ServerToClientMessagePojoNew>>> getMessages(@Query("userId") long userId,
+                                                  @Query("lastMessageId") long lastMessageId,
+                                                  @Query("limit") int limit);
 }

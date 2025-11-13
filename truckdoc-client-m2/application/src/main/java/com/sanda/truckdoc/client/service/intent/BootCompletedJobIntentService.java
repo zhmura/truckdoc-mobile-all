@@ -5,7 +5,10 @@ import android.content.Intent;
 
 import com.sanda.checker.Checker;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
-import com.sanda.truckdoc.client.ui.DashboardActivity_;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
+import com.sanda.truckdoc.client.HiltEntryPoint;
+import com.sanda.truckdoc.client.TruckDocApp;
+import com.sanda.truckdoc.client.ui.DashboardActivity;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
@@ -25,8 +28,19 @@ public class BootCompletedJobIntentService extends JobIntentService {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        MessagesDatabaseService.deleteOldMessages(getApplicationContext());
-        DashboardActivity_.intent(getApplicationContext()).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
+        
+        // Get database service through Hilt
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(getApplicationContext());
+        MessagesDatabaseService databaseService = entryPoint.messagesDatabaseService();
+        MessagesDatabaseServiceJavaCompat.deleteOldMessagesBlocking(databaseService);
+        
+        startDashboardActivity();
+    }
+
+    private void startDashboardActivity() {
+        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplicationContext().startActivity(intent);
     }
 
 }

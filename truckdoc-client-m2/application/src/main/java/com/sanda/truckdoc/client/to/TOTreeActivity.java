@@ -12,8 +12,8 @@ import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResult;
 import com.sanda.truckdoc.client.api.v3.sync.checklist.model.ChecklistResultNode;
 import com.sanda.truckdoc.client.to.data.Model;
 import com.sanda.truckdoc.client.to.data.ToNode;
-import com.sanda.truckdoc.client.to.service.NewMntService_;
-import com.sanda.truckdoc.client.ui.DashboardActivity_;
+import com.sanda.truckdoc.client.to.service.NewMntService;
+import com.sanda.truckdoc.client.ui.DashboardActivity;
 import com.sanda.truckdoc.client.util.NotificationHelper;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class TOTreeActivity extends BaseActivity {
                 if (model.isFullFilled()) {
                     NotificationHelper.showNotificationMessage(getResources().getString(R.string.mnt_sending_start), getApplicationContext());
                     sendTO();
-                    startActivity(new Intent(getApplicationContext(), DashboardActivity_.class));
+                    startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
                     finish();
                 } else {
                     startActivity(new Intent(getApplicationContext(), UntrackedToItemsActivity.class));
@@ -69,7 +69,9 @@ public class TOTreeActivity extends BaseActivity {
                 model.getResult().setCompletionDate(Calendar.getInstance().getTimeInMillis());
                 model.updateTOProgress();
             }
-            NewMntService_.intent(getApplicationContext()).messageSend().start();
+            Intent intent = NewMntService.intent(getApplicationContext());
+            intent.setAction(NewMntService.ACTION_MESSAGE_SEND);
+            startService(intent);
         } else {
             Log.e("error", "no result");
         }

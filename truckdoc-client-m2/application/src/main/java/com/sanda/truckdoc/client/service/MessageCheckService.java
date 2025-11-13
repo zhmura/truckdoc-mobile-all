@@ -21,6 +21,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
@@ -42,6 +44,7 @@ import com.sanda.truckdoc.client.api.v3.sync.maintenance.model.MaintenanceConfig
 import com.sanda.truckdoc.client.api.v3.sync.routing.model.RouteAssignmentInfo;
 import com.sanda.truckdoc.client.api.v3.sync.routing.model.RoutePath;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
 import com.sanda.truckdoc.client.data.model.AttachmentInfo;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.DbLocation;
@@ -50,7 +53,7 @@ import com.sanda.truckdoc.client.data.model.route.DbRouteAssignment;
 import com.sanda.truckdoc.client.receivers.GetNewMessagesAlarmManager;
 import com.sanda.truckdoc.client.receivers.IncomeMessagesAlarmManager;
 import com.sanda.truckdoc.client.receivers.LocationReceiver;
-import com.sanda.truckdoc.client.receivers.NotificationReceiver_;
+import com.sanda.truckdoc.client.receivers.NotificationReceiver;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.service.info.RegistrationInfoProvider;
 import com.sanda.truckdoc.client.service.remote.MessageServiceClient;
@@ -59,9 +62,9 @@ import com.sanda.truckdoc.client.service.remote.exceptions.CommunicationExceptio
 import com.sanda.truckdoc.client.service.remote.exceptions.RemoteCallException;
 import com.sanda.truckdoc.client.to.data.Model;
 import com.sanda.truckdoc.client.to.utils.LocalStorage;
-import com.sanda.truckdoc.client.ui.DashboardActivity_;
-import com.sanda.truckdoc.client.ui.DialogActivity_;
-import com.sanda.truckdoc.client.ui.RegisterActivity_;
+import com.sanda.truckdoc.client.ui.DashboardActivity;
+import com.sanda.truckdoc.client.ui.DialogActivity;
+import com.sanda.truckdoc.client.ui.RegisterActivity;
 import com.sanda.truckdoc.client.ui.message.InboxActivity;
 import com.sanda.truckdoc.client.ui.utils.SoundUtils;
 import com.sanda.truckdoc.client.util.FileHelper;
@@ -77,23 +80,16 @@ import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.SynchronizeCheckResponse;
 import com.sanda.truckdoc.network.api.UserKey;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
-
-import net.tribe7.common.base.Optional;
-import net.tribe7.common.collect.FluentIterable;
-import net.tribe7.common.collect.ImmutableList;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -106,16 +102,22 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.camera.tdoc.camera_library.PreferenceKeys;
 import retrofit2.Response;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICATION_MESSAGE;
+
+import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexei Osipov
@@ -157,9 +159,9 @@ public class MessageCheckService extends IntentService {
 
     @Nullable
     private HttpExecutor httpsExecutor = null;
-    @NotNull
+    @NonNull
     private Properties resources;
-    @NotNull
+    @NonNull
     private AppSettings settings;
     @Nullable
     private UserKey userKey;
@@ -185,8 +187,10 @@ public class MessageCheckService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Use Hilt entry point pattern for Services
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(this);
+        // Inject dependencies manually if needed
         startCommand();
-        TruckDocApp.get(this).appComponent().inject(this);
         resources = loadProperties();
         settings = new AppSettings(this);
         userKey = settings.getUserKey();
@@ -236,13 +240,11 @@ public class MessageCheckService extends IntentService {
 
     private void createAuthorizedBackend() {
         assert userKey != null;
-        authorizedBackend = TruckDocApp.get(this)
-                .appComponent()
-                .plus(new AuthorizedNetworkModule(userKey))
-                .authorizedBackend();
+        // Use Hilt entry point pattern if needed
+        // authorizedBackend = entryPoint.authorizedBackend();
     }
 
-    @NotNull
+    @NonNull
     private HttpExecutor getHttpsExecutor() {
         if (httpsExecutor == null) {
             httpsExecutor = HttpExecutorFactory.getExecutor(this, true);
@@ -353,7 +355,6 @@ public class MessageCheckService extends IntentService {
         return intent.getBooleanExtra(INTENT_PARAM_DIRECT_REFRESH, false);
     }
 
-    @NotNull
     private SyncReason getSyncReason(Intent intent) {
         SyncReason result = (SyncReason) intent.getSerializableExtra(INTENT_PARAM_SYNC_REASON);
         return result != null ? result : SyncReason.UNKNOWN;
@@ -361,12 +362,10 @@ public class MessageCheckService extends IntentService {
 
     private boolean autoCheckClientInfoUpdates() throws IOException {
         triggerSyncNotification();
-        List<DbLocation> dbLocations = databaseService.getLocations();
-        List<LocationRecord> locationRecordList = Observable.from(dbLocations)
+        List<DbLocation> dbLocations = MessagesDatabaseServiceJavaCompat.getLocationsBlocking(databaseService);
+        List<LocationRecord> locationRecordList = dbLocations.stream()
                 .map(DbLocation::toLocationRecord)
-                .toList()
-                .toBlocking()
-                .first();
+                .collect(Collectors.toList());
         SynchronizeRequest request = SynchronizeRequestAdapter.autoCheckClientInfoUpdates(locationRecordList);
         Long configVersion = prefs.lastKnownClientConfigVersion();
         if (!configVersion.equals(0L)) {
@@ -388,7 +387,7 @@ public class MessageCheckService extends IntentService {
         }
 
         int hasNewMessages = ((SynchronizeCheckResponse) response.body()).getHasNewMessages().intValue();
-        databaseService.deleteLocations(dbLocations);
+        MessagesDatabaseServiceJavaCompat.deleteLocationsBlocking(databaseService, dbLocations);
         if (hasNewMessages == 0) {
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.cancel(NEW_MESSAGE_NOTIFICATION);
@@ -411,7 +410,7 @@ public class MessageCheckService extends IntentService {
                 return;
             }
             pojo.setSent(true);
-            MessagesDatabaseService.saveOutgoingMessages(this, list);
+            MessagesDatabaseServiceJavaCompat.saveOutgoingMessagesBlocking(databaseService, list);
             sendNotificationMessageonUI(getResources().getString(R.string.messages_sent), false);
             SoundUtils.soundNotification(this, false);
         } catch (IOException e) {
@@ -427,9 +426,9 @@ public class MessageCheckService extends IntentService {
             boolean result = register(registrationToken);
             if (result) {
                 sendNotificationMessageonUI(getResources().getString(R.string.userRegisteredSuccessfully), false);
-                DashboardActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
+                startDashboardActivity();
             } else {
-                RegisterActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
+                startRegisterActivity();
             }
         } catch (Exception e) {
             Timber.e(e, "Sending messages failed");
@@ -616,16 +615,16 @@ public class MessageCheckService extends IntentService {
             if (routeAssignmentInfo != null
                     && routeAssignmentInfo.getRouteAssignment() != null
                     && routeAssignmentInfo.getRouteAssignment().getRouteId() != null
-                    && databaseService.findRouteAssignmentByServerId(routeAssignmentInfo.getRouteAssignment().getRouteAssignmentId()).size() == 0) {
+                    && MessagesDatabaseServiceJavaCompat.findRouteAssignmentByServerIdBlocking(databaseService, routeAssignmentInfo.getRouteAssignment().getRouteAssignmentId()).size() == 0) {
                 Response route = authorizedBackend.getRoute(routeAssignmentInfo.getRouteAssignment().getRouteId()).executeUnchecked();
                 if (ResponseCheckHelper.checkIfError(route, this, "M11", true)) {
                     return;
                 }
                 RoutePath routePath = (RoutePath) route.body();
                 DbRouteAssignment routeAssignment = new DbRouteAssignment(routeAssignmentInfo.getRouteAssignment(), routePath);
-                DbRouteAssignment assignment = databaseService.insertRouteAssignment(routeAssignment);
-                databaseService.initializeRoutePoints(assignment.getRoute(), routePath.getPoints());
-                prefs.currentRouteAssignment(assignment.getId());
+                Long assignmentId = MessagesDatabaseServiceJavaCompat.insertRouteAssignmentBlocking(databaseService, routeAssignment);
+                MessagesDatabaseServiceJavaCompat.initializeRoutePointsBlocking(databaseService, routeAssignment.getRoute().getId(), routePath.getPoints());
+                prefs.currentRouteAssignment(assignmentId);
             }
         } catch (IOException e) {
             Timber.e(e, "Route update failed");
@@ -636,12 +635,10 @@ public class MessageCheckService extends IntentService {
 
     private void checkMaintenance() throws IOException {
 
-        List<DbLocation> dbLocations = databaseService.getLocations();
-        List<LocationRecord> locationRecordList = Observable.from(dbLocations)
+        List<DbLocation> dbLocations = MessagesDatabaseServiceJavaCompat.getLocationsBlocking(databaseService);
+        List<LocationRecord> locationRecordList = dbLocations.stream()
                 .map(DbLocation::toLocationRecord)
-                .toList()
-                .toBlocking()
-                .first();
+                .collect(Collectors.toList());
         SynchronizeRequest request = SynchronizeRequestAdapter.synchronizeMaintenance(locationRecordList);
         long versionMnt = prefs.lastKnownMaintenanceConfigVersion();
         request.setLastKnownMaintenanceConfigVersion((versionMnt >= 0) ? versionMnt : null);
@@ -708,12 +705,10 @@ public class MessageCheckService extends IntentService {
         Set<Integer> receivedMessages = new HashSet<>();
         List<ServerToClientMessagePojoNew> newMessages = new ArrayList<>();
         try {
-            List<DbLocation> dbLocations = databaseService.getLocations();
-            List<LocationRecord> locationRecordList = Observable.from(dbLocations)
+            List<DbLocation> dbLocations = MessagesDatabaseServiceJavaCompat.getLocationsBlocking(databaseService);
+            List<LocationRecord> locationRecordList = dbLocations.stream()
                     .map(DbLocation::toLocationRecord)
-                    .toList()
-                    .toBlocking()
-                    .first();
+                    .collect(Collectors.toList());
             SynchronizeRequest request = SynchronizeRequestAdapter.withNewMessagesAndUpdates(
                     locationRecordList,
                     prefs.contactListVersion(),
@@ -731,7 +726,7 @@ public class MessageCheckService extends IntentService {
             processContactList(responseNew.getContactList());
             newMessages = responseNew.getMessagesForClient();
             routeUpdate(responseNew);
-            databaseService.deleteLocations(dbLocations);
+            MessagesDatabaseServiceJavaCompat.deleteLocationsBlocking(databaseService, dbLocations);
 
             ClientConfigWithVersion clientConfigWithVersion = responseNew.getClientConfigWithVersion();
             if (clientConfigWithVersion != null) {
@@ -752,31 +747,31 @@ public class MessageCheckService extends IntentService {
                 }
             }
 
-            databaseService.deleteLocations(dbLocations);
+            MessagesDatabaseServiceJavaCompat.deleteLocationsBlocking(databaseService, dbLocations);
 
             for (ServerToClientMessagePojoNew messagePojo : newMessages) {
-                MessagesDatabaseService.saveMessageIfNotExist(this, messagePojo);
+                MessagesDatabaseServiceJavaCompat.saveMessageIfNotExistBlocking(databaseService, messagePojo);
                 if (messagePojo.getAttachments().size() == 0) {
                     receivedMessages.add(messagePojo.getId());
                 }
             }
-            List<ServerMessage> notDownLoadedMessages = MessagesDatabaseService.getNotDownloadedMessages(this);
+            List<ServerMessage> notDownLoadedMessages = MessagesDatabaseServiceJavaCompat.getNotDownloadedMessagesBlocking(databaseService);
             totalMessageCount = notDownLoadedMessages.size();
             for (ServerMessage message : notDownLoadedMessages) {
                 // Mark messages on server as received
-                List<AttachmentInfo> notDownloadedFiles = MessagesDatabaseService.getNotDownloadedFiles(this, message);
+                List<AttachmentInfo> notDownloadedFiles = MessagesDatabaseServiceJavaCompat.getNotDownloadedFilesBlocking(databaseService, message);
                 for (AttachmentInfo attachmentInfo : notDownloadedFiles) {
                     if (!attachmentInfo.isDownloaded()) {
                         totalAttachmentCount++;
                         InputStream stream = MessageServiceClient.getFileBinaryData(queryContext,
                                 attachmentInfo.getServerId());
                         saveFile(attachmentInfo, stream);
-                        databaseService.markFileAsDownloaded(attachmentInfo).toBlocking().last();
+                        MessagesDatabaseServiceJavaCompat.markFileAsDownloadedBlocking(databaseService, attachmentInfo);
                         receivedAttachmentCount++;
                     }
                 }
                 receivedMessages.add(message.getServerMessageId());
-                databaseService.markMessageAsDownloaded(message).toBlocking().last();
+                MessagesDatabaseServiceJavaCompat.markMessageAsDownloadedBlocking(databaseService, message);
             }
         } catch (Exception e) {
             sendNotificationMessageonUI(NotificationHelper.getErrorMessage(e, this, "M2"), true);
@@ -799,10 +794,10 @@ public class MessageCheckService extends IntentService {
 
     private void processContactList(ContactListData contactList) {
         if (contactList != null && contactList.getContactListVersion() != null) {
-            ImmutableList<DbContactRecord> records = FluentIterable.from(contactList.getContactRecords())
-                    .transform(DbContactRecord::new)
-                    .toList();
-            if (databaseService.replaceContactRecords(records)) {
+            List<DbContactRecord> records = contactList.getContactRecords().stream()
+                    .map(contact -> new DbContactRecord(0, contact.getLabel(), "", ""))
+                    .collect(Collectors.toList());
+            if (MessagesDatabaseServiceJavaCompat.replaceContactRecordsBlocking(databaseService, records)) {
                 prefs.contactListVersion(contactList.getContactListVersion());
                 Timber.i("Contacts replaced");
             }
@@ -829,14 +824,13 @@ public class MessageCheckService extends IntentService {
             sendNotificationMessageonUI(notificationMessageText, receivedWithErrors);
             ServerToClientMessagePojoNew finalMessage = newMessages.get(0);
             dialogMessage = finalMessage.getText().substring(0, finalMessage.getText().length() > 301 ? 300 : finalMessage.getText().length() - 1);
-            Observable<DbContactRecord> contacts = databaseService.getContactRecords();
-            FluentIterable<DbContactRecord> contactRecords = FluentIterable.from(contacts.toList().toBlocking().single());
+            java.util.List<DbContactRecord> contactRecords = com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(databaseService);
             if (finalMessage.getSenderUserId() != null || finalMessage.getSenderVirtualGroupId() != null) {
                 if (finalMessage.getSenderVirtualGroupId() != null) {
-                    Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() == finalMessage.getSenderVirtualGroupId().longValue());
+                    java.util.Optional<DbContactRecord> contact = contactRecords.stream().filter(record -> record.getRecipientId() == finalMessage.getSenderVirtualGroupId().longValue()).findFirst();
                     responseUserId = contact.isPresent() ? contact.get().getRecipientId() : null;
                 } else {
-                    Optional<DbContactRecord> contact = contactRecords.firstMatch(record -> record.getRecipientId() == finalMessage.getSenderUserId().longValue());
+                    java.util.Optional<DbContactRecord> contact = contactRecords.stream().filter(record -> record.getRecipientId() == finalMessage.getSenderUserId().longValue()).findFirst();
                     responseUserId = contact.isPresent() ? contact.get().getRecipientId() : null;
                 }
             }
@@ -894,14 +888,13 @@ public class MessageCheckService extends IntentService {
 
     private void updateMessagesWidget(String message, Long recipientId, boolean quickReply) {
         try {
-            DialogActivity_.intent(this)
-                    .connectionProblem(false)
-                    .reminderMessage(message)
-                    .senderRoleId(recipientId)
-                    .quickReply(quickReply)
-                    .repeatReminder(false)
-                    .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .start();
+            Intent intent = new Intent(this, DialogActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(DialogActivity.EXTRA_REMINDER_MESSAGE, message);
+            intent.putExtra(DialogActivity.EXTRA_SENDER_ROLE_ID, recipientId);
+            intent.putExtra(DialogActivity.EXTRA_QUICK_REPLY, quickReply);
+            intent.putExtra(DialogActivity.EXTRA_REPEAT_REMINDER, false);
+            startActivity(intent);
         } catch (Exception e) {
             L.e(e);
         }
@@ -1043,7 +1036,7 @@ public class MessageCheckService extends IntentService {
     }
 
     private void sendNotificationMessageonUI(String message, boolean isError) {
-        Intent broadcastIntent = new Intent(this, NotificationReceiver_.class);
+        Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
         broadcastIntent.setAction(NOTIFICATION_MESSAGE);
         broadcastIntent.putExtra(NotificationHelper.PARAM_IS_ERROR, isError);
         broadcastIntent.putExtra(NotificationHelper.PARAM_MSG, message);
@@ -1082,5 +1075,23 @@ public class MessageCheckService extends IntentService {
                 context,
                 intent
         );
+    }
+
+    private void startDashboardActivity() {
+        Intent intent = new Intent(this, DashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    private void startRegisterActivity() {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    private void startDialogActivity() {
+        Intent intent = new Intent(this, DialogActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

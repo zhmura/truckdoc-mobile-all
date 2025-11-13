@@ -7,29 +7,26 @@ import javax.inject.Singleton;
 import androidx.annotation.NonNull;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.components.SingletonComponent;
 import de.devland.esperandro.Esperandro;
 
 @Module
+@InstallIn(SingletonComponent.class)
 public class UpdaterAppModule {
 
+    @Provides
     @NonNull
-    private final UpdaterApp app;
-
-    UpdaterAppModule(@NonNull UpdaterApp app) {
-        this.app = app;
+    @Singleton
+    Context provideContext(@ApplicationContext Context context) {
+        return context;
     }
 
     @Provides
     @NonNull
     @Singleton
-    Context provideContext() {
-        return app;
-    }
-
-    @Provides
-    @NonNull
-    @Singleton
-    Prefs providePrefs(Context context) {
+    Prefs providePrefs(@ApplicationContext Context context) {
         return Esperandro.getPreferences(Prefs.class, context);
     }
 }

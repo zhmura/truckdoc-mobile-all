@@ -9,19 +9,12 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.RegisterBinding;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.service.NotificationHelper;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,16 +24,9 @@ import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
-@EActivity(R.layout.register)
 public class RegisterActivity extends AppCompatActivity {
 
-    @ViewById(R.id.registerToken)
-    EditText registerToken;
-    @ViewById(R.id.btnRegister)
-    Button button;
-    @ViewById(R.id.register_state)
-    TextView textView;
-
+    private RegisterBinding binding;
     private ResponseReceiver receiver;
 
     public final static int SUCCESS_RETURN_CODE = 1;
@@ -48,22 +34,29 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = RegisterBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setupViews();
+        setupClickListeners();
     }
 
-    @AfterViews
-    protected void afterViews() {
+    private void setupViews() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int isUserDeactivated = sharedPreferences.getInt(PreferenceKeys.getUserDeactivatedPreferenceKey(), 0);
         if (isUserDeactivated > 1) {
-            textView.setText(R.string.you_was_deactivated);
+            binding.registerState.setText(R.string.you_was_deactivated);
         } else {
-            textView.setText(R.string.you_need_to_register);
+            binding.registerState.setText(R.string.you_need_to_register);
         }
         explicitPermissionsRequestIfRequired();
     }
 
-    @Click(R.id.btnRegister)
-    void onRegister() {
+    private void setupClickListeners() {
+        binding.btnRegister.setOnClickListener(v -> onRegister());
+    }
+
+    private void onRegister() {
         triggerRegister();
     }
 
@@ -96,7 +89,6 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //explicitPermissionsRequestIfRequired();
         IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_PROCESS_FINISHED);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         receiver = new ResponseReceiver();
@@ -110,14 +102,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void triggerRegister() {
-        button.setEnabled(false);
+        binding.btnRegister.setEnabled(false);
         final Intent intent = new Intent(MessageCheckService.ACTION_REGISTER, null, getApplicationContext(), MessageCheckService.class);
-        if (registerToken.getText() == null
-                || registerToken.getText().toString().trim().isEmpty()) {
+        if (binding.registerToken.getText() == null
+                || binding.registerToken.getText().toString().trim().isEmpty()) {
             NotificationHelper.showNotificationMessage(getResources().getString(R.string.enter_registration_token), this);
-            button.setEnabled(true);
+            binding.btnRegister.setEnabled(true);
         } else {
-            intent.putExtra("registrationToken", registerToken.getText().toString());
+            intent.putExtra("registrationToken", binding.registerToken.getText().toString());
             startService(intent);
         }
     }
@@ -131,9 +123,11 @@ public class RegisterActivity extends AppCompatActivity {
         if (success) {
             this.setResult(SUCCESS_RETURN_CODE);
             this.finish();
-            DashboardActivity_.intent(this).flags(FLAG_ACTIVITY_NEW_TASK).start();
+            Intent intent = new Intent(this, DashboardActivity.class);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         } else {
-            button.setEnabled(true);
+            binding.btnRegister.setEnabled(true);
             NotificationHelper.showErrorMessage(getResources().getString(R.string.registration_failed) + errorMsg, this);
         }
     }
@@ -143,7 +137,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ServiceResultReceiver.ACTION_PROCESS_FINISHED.equals(intent.getAction())) {
-                button.setEnabled(true);
+                binding.btnRegister.setEnabled(true);
 
                 Bundle bundle = intent.getBundleExtra(MessageCheckService.PARAM_OUT_DATA);
 

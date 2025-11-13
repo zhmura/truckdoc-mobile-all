@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.concurrent.Executor;
-
-import retrofit2.adapter.rxjava.HttpException;
+import java.lang.reflect.ParameterizedType;
+import retrofit2.Utils;
 
 /**
  * Converts Retrofit's response to EasyCall object.
@@ -19,23 +19,28 @@ public class EasyCallAdapterFactory extends CallAdapter.Factory {
     }
 
     EasyCallAdapterFactory() {
-        this.callbackExecutor = Platform.get().defaultCallbackExecutor();
+        this.callbackExecutor = new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
+        };
     }
 
     @Override
-    public CallAdapter<EasyCall<?>> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+    public CallAdapter<?, EasyCall<?>> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
         if (Utils.getRawType(returnType) != EasyCall.class) {
             return null;
         }
-        final Type responseType = Utils.getCallResponseType(returnType);
-        return new CallAdapter<EasyCall<?>>() {
+        final Type responseType = Utils.getParameterUpperBound(0, (ParameterizedType) returnType);
+        return new CallAdapter<Object, EasyCall<?>>() {
             @Override
             public Type responseType() {
                 return responseType;
             }
 
             @Override
-            public <R> EasyCall<R> adapt(Call<R> call) {
+            public EasyCall<Object> adapt(Call<Object> call) {
                 return new ExecutorCallbackCall<>(callbackExecutor, call);
             }
         };

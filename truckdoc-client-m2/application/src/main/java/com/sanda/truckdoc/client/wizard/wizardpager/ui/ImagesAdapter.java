@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.ListitemImageBinding;
+import com.sanda.truckdoc.client.databinding.ListitemImageButtonBinding;
 import com.sanda.truckdoc.client.ui.utils.BaseViewHolder;
 import com.squareup.picasso.Picasso;
 
@@ -16,51 +18,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
 
 public class ImagesAdapter extends RecyclerView.Adapter<BaseViewHolder<File>> {
 
     interface AddImageClickListener {
-
         void onAddImageClicked();
     }
 
     class ImageViewHolder extends BaseViewHolder<File> {
-
-        @BindView(R.id.image)
-        ImageView image;
-        @BindView(R.id.text)
-        TextView text;
+        private final ListitemImageBinding binding;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
+            binding = ListitemImageBinding.bind(itemView);
         }
 
         @Override
         public void bind(File item) {
-            Picasso.with(itemView.getContext()).load(item).fit().into(image);
-            text.setText(item.getName());
+            Picasso.get().load(item).fit().into(binding.image);
+            binding.text.setText(item.getName());
         }
     }
 
     class ButtonViewHolder extends BaseViewHolder<File> {
-
-        @BindView(R.id.text)
-        Button text;
+        private final ListitemImageButtonBinding binding;
 
         public ButtonViewHolder(View itemView) {
             super(itemView);
+            binding = ListitemImageButtonBinding.bind(itemView);
         }
 
         @Override
         public void bind(File item) {
             if (items.isEmpty()) {
-                text.setText(R.string.wizard_photo_start);
+                binding.text.setText(R.string.wizard_photo_start);
             } else {
-                text.setText(R.string.wizard_photo_continue);
+                binding.text.setText(R.string.wizard_photo_continue);
             }
 
-            text.setOnClickListener(v -> listener.onAddImageClicked());
+            binding.text.setOnClickListener(v -> listener.onAddImageClicked());
         }
     }
 
@@ -89,12 +85,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<BaseViewHolder<File>> {
 
     @Override
     public BaseViewHolder<File> onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case 0:
-                return new ImageViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_image, parent, false));
+                return new ImageViewHolder(inflater.inflate(R.layout.listitem_image, parent, false));
             case 1:
-                return new ButtonViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.listitem_image_button, parent, false));
+                return new ButtonViewHolder(inflater.inflate(R.layout.listitem_image_button, parent, false));
             default:
                 throw new IllegalArgumentException("Should never happen");
         }

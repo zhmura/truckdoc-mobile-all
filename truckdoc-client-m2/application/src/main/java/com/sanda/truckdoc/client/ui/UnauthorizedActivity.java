@@ -6,57 +6,61 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Button;
 
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.data.MessagesDatabaseService;
+import com.sanda.truckdoc.client.data.MessagesDatabaseServiceJavaCompat;
+import com.sanda.truckdoc.client.databinding.UnauthorizedBinding;
 import com.sanda.truckdoc.client.service.AppSettings;
-
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
+import com.sanda.truckdoc.client.HiltEntryPoint;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import app.camera.tdoc.camera_library.PreferenceKeys;
 
-@EActivity(R.layout.unauthorized)
 public class UnauthorizedActivity extends AppCompatActivity {
 
-    @ViewById(R.id.btnLogout)
-    Button logoutButton;
-    @ViewById(R.id.btnContinue)
-    Button continueButton;
+    private UnauthorizedBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = UnauthorizedBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setupClickListeners();
     }
 
+    private void setupClickListeners() {
+        binding.btnLogout.setOnClickListener(v -> onLogout());
+        binding.btnContinue.setOnClickListener(v -> onContinue());
+    }
 
-    @Click(R.id.btnLogout)
-    void onLogout() {
+    private void onLogout() {
         triggerLogout();
     }
 
     private void triggerLogout() {
         turnSync(this, false);
         clearAppData(this);
-        RegisterActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK).start();
+        Intent intent = new Intent(this, RegisterActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         finishAffinity();
     }
 
-    @Click(R.id.btnContinue)
-    void onContinue() {
+    private void onContinue() {
         turnSync(this, true);
         triggerContinue();
     }
 
     private void triggerContinue() {
-        DashboardActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK).start();
+        Intent intent = new Intent(this, DashboardActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         finishAffinity();
     }
 
@@ -69,8 +73,9 @@ public class UnauthorizedActivity extends AppCompatActivity {
     private static void clearAppData(ContextWrapper context) {
         AppSettings settings = new AppSettings(context);
         settings.clearUserKey();
-        MessagesDatabaseService db = TruckDocApp.get(context).appComponent().db();
-        db.deleteAllData();
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+        MessagesDatabaseService db = entryPoint.messagesDatabaseService();
+        MessagesDatabaseServiceJavaCompat.deleteAllDataBlocking(db);
     }
 
     @Override

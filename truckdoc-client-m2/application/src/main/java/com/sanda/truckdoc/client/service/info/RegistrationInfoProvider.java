@@ -20,7 +20,7 @@ import com.sanda.truckdoc.client.api.v3.configuration.model.device.DeviceInfo;
 import com.sanda.truckdoc.client.api.v3.configuration.model.device.Dimensions;
 import com.sanda.truckdoc.client.api.v3.configuration.model.sim.SimInfo;
 
-import net.tribe7.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

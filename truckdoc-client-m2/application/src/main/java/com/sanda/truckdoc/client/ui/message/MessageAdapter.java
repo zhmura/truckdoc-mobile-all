@@ -6,30 +6,28 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.sanda.truckdoc.client.Consts;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.data.model.DbContactRecord;
 import com.sanda.truckdoc.client.data.model.ServerMessage;
+import com.sanda.truckdoc.client.databinding.ListitemMessageInBinding;
+import com.sanda.truckdoc.client.databinding.ListitemMessageOutBinding;
 import com.sanda.truckdoc.client.ui.utils.BaseViewHolder;
 import com.sanda.truckdoc.client.util.RoleTypeMapper;
-
-import net.tribe7.common.base.Optional;
-import net.tribe7.common.collect.FluentIterable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -48,22 +46,11 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
     }
 
     class InViewHolder extends BaseViewHolder<ServerMessage> {
-
-        @BindView(R.id.target)
-        TextView target;
-        @BindView(R.id.subject)
-        TextView subject;
-        @BindView(R.id.date)
-        TextView date;
-        @BindView(R.id.hidden)
-        TextView hidden;
-        @BindView(R.id.attachment)
-        ImageView attachment;
-        @BindView(R.id.avatar)
-        ImageView avatar;
+        private final ListitemMessageInBinding binding;
 
         public InViewHolder(View itemView) {
             super(itemView);
+            binding = ListitemMessageInBinding.bind(itemView);
         }
 
         @Override
@@ -71,45 +58,34 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
             Context context = itemView.getContext();
             Pair<String, Integer> params = getParams(context, item, RoleTypeMapper.IN);
 
-            target.setText(params.first);
-            avatar.setImageDrawable(getColoredAvatar(context, params.second));
-            subject.setText(item.getText());
-            date.setText(item.getSavedDate().toString(Consts.DATE_TIME_FORMAT));
-            attachment.setVisibility(item.getAttachments().size() > 0 ? VISIBLE : GONE);
+            binding.target.setText(params.first);
+            binding.avatar.setImageDrawable(getColoredAvatar(context, params.second));
+            binding.subject.setText(item.getText());
+            binding.date.setText(item.getSavedDate().toString(Consts.DATE_TIME_FORMAT));
+            binding.attachment.setVisibility(item.getAttachments().size() > 0 ? VISIBLE : GONE);
             itemView.setOnClickListener(v -> listener.onServiceMessageClicked(item));
-            hidden.setVisibility(item.isHidden() ? VISIBLE : GONE);
+            binding.hidden.setVisibility(item.isHidden() ? VISIBLE : GONE);
         }
     }
 
     class OutViewHolder extends BaseViewHolder<ServerMessage> {
-
-        @BindView(R.id.target)
-        TextView target;
-        @BindView(R.id.subject)
-        TextView subject;
-        @BindView(R.id.date)
-        TextView date;
-        @BindView(R.id.status)
-        TextView status;
-        @BindView(R.id.hidden)
-        TextView hidden;
-        @BindView(R.id.avatar)
-        ImageView avatar;
+        private final ListitemMessageOutBinding binding;
 
         public OutViewHolder(View itemView) {
             super(itemView);
+            binding = ListitemMessageOutBinding.bind(itemView);
         }
 
         @Override
         public void bind(ServerMessage item) {
             Context context = itemView.getContext();
             Pair<String, Integer> params = getParams(context, item, RoleTypeMapper.OUT);
-            target.setText(params.first);
-            avatar.setImageDrawable(getColoredAvatar(context, params.second));
-            subject.setText(item.getText());
-            date.setText(item.getSavedDate().toString(Consts.DATE_TIME_FORMAT));
-            status.setText(item.isSent() ? R.string.status_sent : R.string.status_wait);
-            hidden.setVisibility(item.isHidden() ? VISIBLE : GONE);
+            binding.target.setText(params.first);
+            binding.avatar.setImageDrawable(getColoredAvatar(context, params.second));
+            binding.subject.setText(item.getText());
+            binding.date.setText(item.getSavedDate().toString(Consts.DATE_TIME_FORMAT));
+            binding.status.setText(item.isSent() ? R.string.status_sent : R.string.status_wait);
+            binding.hidden.setVisibility(item.isHidden() ? VISIBLE : GONE);
         }
     }
 
@@ -119,20 +95,17 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
             long senderVirtualGroupId = message.getSenderVirtualGroupId() == null ? -1L : message.getSenderVirtualGroupId();
             long senderUserId = message.getSenderUserId() == null ? -1L : message.getSenderUserId();
 
-            Optional<DbContactRecord> match = contacts.firstMatch(record -> record.getRecipientId() == senderUserId)
-                    .or(contacts.firstMatch(record -> record.getRecipientId() == senderVirtualGroupId));
-            label = match.transform(DbContactRecord::getLabel)
-                    .or((message.getSenderName() != null && !message.getSenderName().equals(""))
-                            ? message.getSenderName()
-                            : RoleTypeMapper.convert(direction, message.getSenderRoleId(), context));
+            Optional<DbContactRecord> match = contacts.stream().filter(record -> record.getRecipientId() == senderUserId).findFirst()
+                    .or(() -> contacts.stream().filter(record -> record.getRecipientId() == senderVirtualGroupId).findFirst());
+            label = match.map(DbContactRecord::getLabel).orElse(RoleTypeMapper.convert(direction, message.getSenderRoleId() != null ? message.getSenderRoleId().intValue() : null, context));
 
-            int color = match.transform(DbContactRecord::getColor).or(getColorRef(context, R.color.message_primary_text));
+            int color = match.map(DbContactRecord::getColor).orElse(getColorRef(context, R.color.message_primary_text));
             return Pair.create(label, color);
         } else {
             long recipientId = message.getRecipientId() == null ? -1L : message.getRecipientId();
-            Optional<DbContactRecord> match = contacts.firstMatch(record -> record.getRecipientId() == recipientId);
-            label = match.transform(DbContactRecord::getLabel).or(RoleTypeMapper.convert(direction, message.getSenderRoleId(), context));
-            int color = match.transform(DbContactRecord::getColor).or(getColorRef(context, R.color.message_primary_text));
+            Optional<DbContactRecord> match = contacts.stream().filter(record -> record.getRecipientId() == recipientId).findFirst();
+            label = match.map(DbContactRecord::getLabel).orElse(RoleTypeMapper.convert(direction, message.getSenderRoleId() != null ? message.getSenderRoleId().intValue() : null, context));
+            int color = match.map(DbContactRecord::getColor).orElse(getColorRef(context, R.color.message_primary_text));
             return Pair.create(label, color);
         }
     }
@@ -147,7 +120,7 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
     }
 
     private List<ServerMessage> items = new ArrayList<>();
-    private FluentIterable<DbContactRecord> contacts = FluentIterable.from(Collections.emptyList());
+    private List<DbContactRecord> contacts = new ArrayList<>();
     private final ServiceMessageClickListener listener;
 
     public MessageAdapter(ServiceMessageClickListener listener) {
@@ -196,7 +169,7 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
 
     public void swapItems(Pair<List<ServerMessage>, List<DbContactRecord>> data) {
         this.items = data.first;
-        this.contacts = FluentIterable.from(data.second);
+        this.contacts = data.second;
         notifyDataSetChanged();
     }
 
@@ -207,13 +180,12 @@ public class MessageAdapter extends RecyclerView.Adapter<BaseViewHolder<ServerMe
 
     @Override
     public BaseViewHolder<ServerMessage> onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case 0:
-                return new InViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.listitem_message_in, parent, false));
+                return new InViewHolder(inflater.inflate(R.layout.listitem_message_in, parent, false));
             case 1:
-                return new OutViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.listitem_message_out, parent, false));
+                return new OutViewHolder(inflater.inflate(R.layout.listitem_message_out, parent, false));
             default:
                 throw new IllegalArgumentException("Should never happen");
         }

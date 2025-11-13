@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
 
+import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
@@ -41,7 +42,8 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
 
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
-        prefs = TruckDocApp.get(context).appComponent().prefs();
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+        prefs = entryPoint.prefs();
         if (intent.getBooleanExtra(GET_NEW_MESSAGES_ALARM_INTENT_EXTRA_KEY, false)) {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TRUCKDOC_TAG:");
@@ -65,7 +67,8 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
      * @param triggerSyncAttempt trigger immediate update
      */
     public static void setGetMessagesAlarm(Context context, boolean triggerSyncAttempt) {
-        Prefs prefs = TruckDocApp.get(context).appComponent().prefs();
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+        Prefs prefs = entryPoint.prefs();
         long syncIntervalMs = PrefUtil.getSyncIntervalMs(prefs);
         if (triggerSyncAttempt) {
             // Schedule an attempt after full interval
@@ -82,7 +85,8 @@ public class GetNewMessagesAlarmManager extends BroadcastReceiver {
      * @param nextAlarmActivation timestamp when the first activation of alarm is supposed to happen
      */
     public static void setMessageAlarmStartingAtTime(Context context, long nextAlarmActivation) {
-        Prefs prefs = TruckDocApp.get(context).appComponent().prefs();
+        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(context);
+        Prefs prefs = entryPoint.prefs();
         long syncIntervalMs = PrefUtil.getSyncIntervalMs(prefs);
         setMessageAlarmStartingAt(context, syncIntervalMs, nextAlarmActivation);
     }

@@ -16,6 +16,9 @@
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#c8e8ff</color>
 
+    <color name="primary_text_default_material_dark">#FFFFFF</color>
+    <color name="secondary_text_default_material_dark">#B3FFFFFF</color>
+
     <color name="mnt_title_selected">#ffffff</color>
     <color name="mnt_node_title">#3e4148</color>
     <color name="mnt_group_title">#adb2bf</color>

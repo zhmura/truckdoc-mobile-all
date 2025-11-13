@@ -17,72 +17,79 @@
 package com.sanda.truckdoc.client.wizard.wizardpager.ui;
 
 import android.app.Activity;
-import android.widget.TextView;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.sanda.truckdoc.client.R;
+import com.sanda.truckdoc.client.databinding.FragmentPagePhotosBinding;
 import com.sanda.truckdoc.client.wizard.wizardpager.model.ImagesChoicePage;
 import com.sanda.truckdoc.client.wizard.wizardpager.model.Page;
 
-import net.tribe7.common.collect.Lists;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.OnActivityResult;
-import org.androidannotations.annotations.OnActivityResult.Extra;
-import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.res.IntegerRes;
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static net.tribe7.common.collect.FluentIterable.from;
+import static com.google.common.collect.FluentIterable.from;
 
-@EFragment(R.layout.fragment_page_photos)
 public class ImagesFragment extends Fragment implements ImagesAdapter.AddImageClickListener {
 
+    private static final String ARG_KEY = "key";
     public static final int REQUEST_CODE = 17;
     private PageFragmentCallbacks mCallbacks;
     private List<String> mChoices;
     private ImagesChoicePage mPage;
     private ImagesAdapter adapter;
+    private FragmentPagePhotosBinding binding;
 
-    @FragmentArg
-    String key;
-    @ViewById(android.R.id.title)
-    TextView title;
-    @ViewById(android.R.id.list)
-    RecyclerView recyclerView;
-    @IntegerRes
-    int wizard_grid_cells_count;
+    public static ImagesFragment create(String key) {
+        Bundle args = new Bundle();
+        args.putString(ARG_KEY, key);
+        ImagesFragment fragment = new ImagesFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
-    @AfterInject
-    void afterInject() {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String key = getArguments().getString(ARG_KEY);
         mPage = (ImagesChoicePage) mCallbacks.onGetPage(key);
         if (mPage.isFixed()) {
             adapter = new FixedImagesAdapter(this);
         } else {
             adapter = new ImagesAdapter(this);
         }
-
-//        mChoices = new ArrayList<>();
-//        for (int i = 0; i < fixedChoicePage.getOptionCount(); i++) {
-//            mChoices.add(fixedChoicePage.getOptionAt(i));
-//        }
     }
 
-    @AfterViews
-    void afterViews() {
-        title.setText(mPage.getTitle());
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentPagePhotosBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), wizard_grid_cells_count);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViews();
+    }
+
+    private void setupViews() {
+        binding.getRoot().findViewById(android.R.id.title).setVisibility(View.GONE);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), getResources().getInteger(R.integer.wizard_grid_cells_count));
+        binding.list.setLayoutManager(layoutManager);
+        binding.list.setAdapter(adapter);
 
         String[] files = mPage.getData().getStringArray(Page.SIMPLE_DATA_KEY);
         for (File file : from(Lists.newArrayList(files != null ? files : new String[0])).transform(File::new)) {
@@ -108,17 +115,28 @@ public class ImagesFragment extends Fragment implements ImagesAdapter.AddImageCl
     }
 
     @Override
-    public void onAddImageClicked() {
-        CameraActivity_.intent(this).description(mPage.getTitle()).startForResult(REQUEST_CODE);
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
-    @OnActivityResult(REQUEST_CODE)
-    void onResult(int resultCode, @Extra(CameraActivity.IMAGE) File imagePath) {
-        if (resultCode == Activity.RESULT_OK) {
-            adapter.add(imagePath);
-            String[] list = from(adapter.getItems()).transform(File::getAbsolutePath).toArray(String.class);
-            mPage.getData().putStringArray(Page.SIMPLE_DATA_KEY, list);
-            mPage.notifyDataChanged();
+    @Override
+    public void onAddImageClicked() {
+        Intent intent = new Intent(getActivity(), CameraActivity.class);
+        intent.putExtra(CameraActivity.DESCRIPTION, mPage.getTitle());
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            File imagePath = (File) data.getSerializableExtra(CameraActivity.IMAGE);
+            if (imagePath != null) {
+                adapter.add(imagePath);
+                String[] list = from(adapter.getItems()).transform(File::getAbsolutePath).toArray(String.class);
+                mPage.getData().putStringArray(Page.SIMPLE_DATA_KEY, list);
+                mPage.notifyDataChanged();
+            }
         }
     }
 }

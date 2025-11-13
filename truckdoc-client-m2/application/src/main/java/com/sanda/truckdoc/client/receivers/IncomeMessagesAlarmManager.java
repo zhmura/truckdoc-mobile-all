@@ -11,7 +11,7 @@ import android.os.Build;
 
 import com.sanda.truckdoc.client.BuildConfig;
 import com.sanda.truckdoc.client.R;
-import com.sanda.truckdoc.client.ui.DialogActivity_;
+import com.sanda.truckdoc.client.ui.DialogActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,14 +27,7 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         Integer senderRoleId = intent.getIntExtra("senderRoleId", 1);
         boolean skippedRead = intent.getBooleanExtra("skippedRead", true);
         if (skippedRead) {
-            DialogActivity_.intent(context)
-                    .connectionProblem(false)
-                    .reminderMessage("Есть непрочитанные сообщения! Нажмите желтую кнопку для просмотра.")
-                    .senderRoleId(senderRoleId)
-                    .quickReply(false)
-                    .repeatReminder(true)
-                    .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .start();
+            startDialogActivity(context);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setAlarm(context, receiveAll, IncomeMessagesAlarmManager.NOTIFY_INTERVAL);
@@ -93,5 +86,11 @@ public class IncomeMessagesAlarmManager extends BroadcastReceiver {
         MediaPlayer mediaPlayer = MediaPlayer.create(context, !receiveAll ? R.raw.error_tone : R.raw.new_message_tone);
         mediaPlayer.setLooping(false);
         mediaPlayer.start();
+    }
+
+    private void startDialogActivity(Context context) {
+        Intent intent = new Intent(context, DialogActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }
