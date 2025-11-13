@@ -1,0 +1,112 @@
+pipeline {
+  agent any
+
+  options {
+    ansiColor('xterm')
+    timestamps()
+    buildDiscarder(logRotator(numToKeepStr: '15'))
+  }
+
+  parameters {
+    booleanParam(name: 'PUBLISH_GITHUB_RELEASE', defaultValue: false,
+      description: 'Set to true to publish the release APK to GitHub using the gh CLI.')
+    string(name: 'RELEASE_TAG', defaultValue: '', description: 'Git tag to create or update (e.g. v1.0.0). Required when publishing.')
+    string(name: 'RELEASE_TITLE', defaultValue: 'TruckDoc Android Release', description: 'Title shown on the GitHub Release page.')
+    text(name: 'RELEASE_NOTES', defaultValue: 'Automated release from Jenkins.', description: 'Body/notes for the GitHub Release.')
+  }
+
+  environment {
+    JAVA_HOME = "/opt/android/jdk-17"
+    ANDROID_SDK_ROOT = "/opt/android/sdk"
+    ANDROID_HOME = "/opt/android/sdk"
+    GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+    // Name of the credential that stores a GitHub Personal Access Token with repo permissions.
+    GITHUB_TOKEN_CREDENTIAL_ID = 'gh-cli-token'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Environment Diagnostics') {
+      steps {
+        sh '''
+          set -e
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "PATH=$PATH"
+          java -version
+          if command -v sdkmanager >/dev/null 2>&1; then sdkmanager --version; fi
+          ./gradlew --version
+        '''
+      }
+    }
+
+    stage('Prepare Gradle Dependencies') {
+      steps {
+        sh './gradlew --no-daemon --stacktrace help'
+      }
+    }
+
+    stage('Assemble Release APKs') {
+      steps {
+        sh './gradlew --no-daemon --stacktrace clean :app:assembleRelease :app-updater:assembleRelease'
+      }
+    }
+
+    stage('Archive Artifacts') {
+      steps {
+        archiveArtifacts artifacts: 'truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk', fingerprint: true
+        stash name: 'release-apks', includes: 'truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk'
+      }
+    }
+
+    stage('Publish GitHub Release') {
+      when {
+        allOf {
+          expression { return params.PUBLISH_GITHUB_RELEASE }
+          expression { return params.RELEASE_TAG?.trim() }
+        }
+      }
+      steps {
+        withCredentials([string(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, variable: 'GH_TOKEN')]) {
+          sh '''
+            set -e
+            if ! command -v gh >/dev/null 2>&1; then
+              echo "GitHub CLI (gh) is required to publish releases" >&2
+              exit 1
+            fi
+
+            RELEASE_DIR="truckdoc-client-m2/application/build/outputs/apk/defaultClient/release"
+            APK_PATH=$(ls -t "$RELEASE_DIR"/*.apk | head -n 1)
+            if [ ! -f "$APK_PATH" ]; then
+              echo "No APK found to publish" >&2
+              exit 1
+            fi
+
+            export GH_TOKEN
+            gh auth status || gh auth login --with-token <(printf "%s" "$GH_TOKEN")
+
+            # Recreate release to ensure the asset is up to date
+            gh release delete "$RELEASE_TAG" --yes 2>/dev/null || true
+            gh release create "$RELEASE_TAG" "$APK_PATH" \
+              --title "$RELEASE_TITLE" \
+              --notes "$RELEASE_NOTES"
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'Release build completed successfully. APKs are archived and ready for consumption by the app-updater.'
+    }
+    cleanup {
+      sh 'rm -rf $WORKSPACE/.gradle'
+    }
+  }
+}

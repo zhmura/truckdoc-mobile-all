@@ -1,0 +1,332 @@
+pipeline {
+    agent any
+    
+    environment {
+        ANDROID_HOME = '/opt/android-sdk'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk'
+        GRADLE_HOME = '/opt/gradle'
+        PATH = "${JAVA_HOME}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${GRADLE_HOME}/bin:${PATH}"
+        BUILD_VERSION = "${env.BUILD_NUMBER}"
+        GIT_COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+    }
+    
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    
+    triggers {
+        pollSCM('H/15 * * * *')  // Poll every 15 minutes
+        cron('0 2 * * *')        // Daily at 2 AM
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    echo "Building commit: ${GIT_COMMIT_SHORT}"
+                    echo "Build number: ${BUILD_VERSION}"
+                }
+            }
+        }
+        
+        stage('Setup Environment') {
+            steps {
+                script {
+                    // Verify environment
+                    sh '''
+                        echo "=== Environment Setup ==="
+                        echo "Java version:"
+                        java -version
+                        echo "Gradle version:"
+                        ./gradlew --version
+                        echo "Android SDK location: ${ANDROID_HOME}"
+                        echo "Java home: ${JAVA_HOME}"
+                    '''
+                }
+            }
+        }
+        
+        stage('Validate Project') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Project Validation ==="
+                        ./gradlew projects
+                        ./gradlew dependencies
+                    '''
+                }
+            }
+        }
+        
+        stage('Clean Build') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Cleaning Previous Builds ==="
+                        ./gradlew clean
+                    '''
+                }
+            }
+        }
+        
+        stage('Build Main App') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Building Main TruckDoc App ==="
+                        ./gradlew :app:assembleRelease --stacktrace
+                        
+                        echo "=== Verifying APK ==="
+                        ls -la truckdoc-client-m2/application/build/outputs/apk/release/
+                        
+                        echo "=== APK Info ==="
+                        aapt dump badging truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk | grep -E "(package|versionCode|versionName)"
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'truckdoc-client-m2/application/build/outputs/apk/release/*.apk', fingerprint: true
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'truckdoc-client-m2/application/build/reports',
+                        reportFiles: 'index.html',
+                        reportName: 'Main App Build Report'
+                    ])
+                }
+                success {
+                    echo "Main app build successful!"
+                }
+                failure {
+                    echo "Main app build failed!"
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
+        
+        stage('Build App Updater') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Building App Updater ==="
+                        ./gradlew :app-updater:assembleRelease --stacktrace
+                        
+                        echo "=== Verifying Updater APK ==="
+                        ls -la app-updater/build/outputs/apk/release/
+                        
+                        echo "=== Updater APK Info ==="
+                        aapt dump badging app-updater/build/outputs/apk/release/app-updater-release.apk | grep -E "(package|versionCode|versionName)"
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'app-updater/build/outputs/apk/release/*.apk', fingerprint: true
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'app-updater/build/reports',
+                        reportFiles: 'index.html',
+                        reportName: 'Updater Build Report'
+                    ])
+                }
+                success {
+                    echo "App updater build successful!"
+                }
+                failure {
+                    echo "App updater build failed!"
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
+        
+        stage('Generate Build Metadata') {
+            steps {
+                script {
+                    def buildInfo = [
+                        buildNumber: env.BUILD_NUMBER,
+                        buildUrl: env.BUILD_URL,
+                        buildTimestamp: new Date().format("yyyy-MM-dd HH:mm:ss"),
+                        gitCommit: sh(script: 'git rev-parse HEAD', returnStdout: true).trim(),
+                        gitCommitShort: GIT_COMMIT_SHORT,
+                        gitBranch: sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim(),
+                        gitAuthor: sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim(),
+                        gitMessage: sh(script: 'git log -1 --pretty=format:"%s"', returnStdout: true).trim(),
+                        mainAppVersion: sh(script: 'aapt dump badging truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk | grep versionName | cut -d"\'" -f2', returnStdout: true).trim(),
+                        mainAppVersionCode: sh(script: 'aapt dump badging truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk | grep versionCode | cut -d"\'" -f2', returnStdout: true).trim(),
+                        updaterVersion: sh(script: 'aapt dump badging app-updater/build/outputs/apk/release/app-updater-release.apk | grep versionName | cut -d"\'" -f2', returnStdout: true).trim(),
+                        updaterVersionCode: sh(script: 'aapt dump badging app-updater/build/outputs/apk/release/app-updater-release.apk | grep versionCode | cut -d"\'" -f2', returnStdout: true).trim()
+                    ]
+                    
+                    writeJSON file: 'build-metadata.json', json: buildInfo
+                    
+                    // Create human-readable build info
+                    def buildSummary = """
+                    ========================================
+                    TRUCKDOC MOBILE BUILD SUMMARY
+                    ========================================
+                    Build Number: ${buildInfo.buildNumber}
+                    Build URL: ${buildInfo.buildUrl}
+                    Build Time: ${buildInfo.buildTimestamp}
+                    
+                    Git Information:
+                    - Commit: ${buildInfo.gitCommitShort}
+                    - Branch: ${buildInfo.gitBranch}
+                    - Author: ${buildInfo.gitAuthor}
+                    - Message: ${buildInfo.gitMessage}
+                    
+                    Application Versions:
+                    - Main App: ${buildInfo.mainAppVersion} (${buildInfo.mainAppVersionCode})
+                    - Updater: ${buildInfo.updaterVersion} (${buildInfo.updaterVersionCode})
+                    
+                    Artifacts:
+                    - Main APK: application-release.apk
+                    - Updater APK: app-updater-release.apk
+                    ========================================
+                    """
+                    
+                    writeFile file: 'build-summary.txt', text: buildSummary
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'build-metadata.json,build-summary.txt', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Quality Checks') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Running Quality Checks ==="
+                        
+                        # Check APK sizes
+                        echo "APK Sizes:"
+                        ls -lh truckdoc-client-m2/application/build/outputs/apk/release/*.apk
+                        ls -lh app-updater/build/outputs/apk/release/*.apk
+                        
+                        # Verify APK signatures
+                        echo "Verifying APK signatures..."
+                        jarsigner -verify -verbose -certs truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk
+                        jarsigner -verify -verbose -certs app-updater/build/outputs/apk/release/app-updater-release.apk
+                        
+                        # Run lint checks
+                        echo "Running lint checks..."
+                        ./gradlew :app:lintRelease
+                        ./gradlew :app-updater:lintRelease
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'truckdoc-client-m2/application/build/outputs/lint-results-release.xml,app-updater/build/outputs/lint-results-release.xml', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Deploy to Repository') {
+            when {
+                branch 'main'  // Only deploy from main branch
+            }
+            steps {
+                script {
+                    sh '''
+                        echo "=== Deploying to Repository ==="
+                        
+                        # Create deployment directory
+                        mkdir -p deployment/${BUILD_VERSION}
+                        
+                        # Copy APKs with version info
+                        cp truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk \
+                           deployment/${BUILD_VERSION}/truckdoc-main-${BUILD_VERSION}.apk
+                        cp app-updater/build/outputs/apk/release/app-updater-release.apk \
+                           deployment/${BUILD_VERSION}/truckdoc-updater-${BUILD_VERSION}.apk
+                        cp build-metadata.json deployment/${BUILD_VERSION}/
+                        cp build-summary.txt deployment/${BUILD_VERSION}/
+                        
+                        # Upload to artifact repository (example)
+                        echo "Uploading to artifact repository..."
+                        # curl -X POST -F "file=@deployment/${BUILD_VERSION}/truckdoc-main-${BUILD_VERSION}.apk" \
+                        #      http://your-repo-server/upload
+                        # curl -X POST -F "file=@deployment/${BUILD_VERSION}/truckdoc-updater-${BUILD_VERSION}.apk" \
+                        #      http://your-repo-server/upload
+                        
+                        echo "Deployment completed!"
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'deployment/**/*', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Notify Team') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
+            }
+            steps {
+                script {
+                    echo "=== Sending Notifications ==="
+                    
+                    def notificationMessage = """
+                    🚀 TruckDoc Mobile Build Complete!
+                    
+                    Build: #${BUILD_VERSION}
+                    Status: ${currentBuild.result ?: 'SUCCESS'}
+                    Branch: ${env.GIT_BRANCH}
+                    Commit: ${GIT_COMMIT_SHORT}
+                    
+                    Main App: ${sh(script: 'aapt dump badging truckdoc-client-m2/application/build/outputs/apk/release/application-release.apk | grep versionName | cut -d"\'" -f2', returnStdout: true).trim()}
+                    Updater: ${sh(script: 'aapt dump badging app-updater/build/outputs/apk/release/app-updater-release.apk | grep versionName | cut -d"\'" -f2', returnStdout: true).trim()}
+                    
+                    Build URL: ${env.BUILD_URL}
+                    """
+                    
+                    // Send notification (example)
+                    echo notificationMessage
+                    # emailext (
+                    #     subject: "TruckDoc Mobile Build #${BUILD_VERSION} - ${currentBuild.result ?: 'SUCCESS'}",
+                    #     body: notificationMessage,
+                    #     to: 'team@company.com'
+                    # )
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                echo "=== Build Summary ==="
+                echo "Build Number: ${BUILD_VERSION}"
+                echo "Result: ${currentBuild.result ?: 'SUCCESS'}"
+                echo "Duration: ${currentBuild.durationString}"
+                
+                // Clean workspace
+                cleanWs()
+            }
+        }
+        success {
+            echo "🎉 Build completed successfully!"
+        }
+        failure {
+            echo "❌ Build failed!"
+        }
+        unstable {
+            echo "⚠️ Build unstable!"
+        }
+    }
+} 
+ 

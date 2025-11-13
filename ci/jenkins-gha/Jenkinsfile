@@ -1,0 +1,121 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'GH_RELEASE_TAG', defaultValue: '', description: 'Release tag to publish with GitHub CLI (leave blank to skip publishing).')
+        string(name: 'GH_RELEASE_TITLE', defaultValue: 'TruckDoc App Updater Release', description: 'Title used when creating the GitHub Release.')
+        text(name: 'GH_RELEASE_NOTES', defaultValue: 'Automated release from Jenkins.', description: 'Release notes body for the GitHub Release.')
+    }
+
+    options {
+        timestamps()
+        ansiColor('xterm')
+        timeout(time: 40, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        JAVA_HOME = '/opt/android/jdk-17'
+        ANDROID_HOME = '/opt/android/sdk'
+        ANDROID_NDK_HOME = '/opt/android/ndk'
+        GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+        PATH = "${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools:${PATH}"
+        APK_OUTPUT = 'app-updater/build/outputs/apk/release/app-updater-release.apk'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh 'git submodule update --init --recursive || true'
+            }
+        }
+
+        stage('Environment Diagnostics') {
+            steps {
+                sh '''
+                    echo "Java version:" && java -version
+                    echo "Gradle wrapper:" && ./gradlew --version
+                    echo "Android SDK dir: ${ANDROID_HOME}"
+                    chmod +x gradlew
+                '''
+            }
+        }
+
+        stage('Resolve Dependencies') {
+            steps {
+                sh './gradlew :app-updater:dependencies'
+            }
+        }
+
+        stage('Assemble App Updater Release') {
+            steps {
+                sh './gradlew :app-updater:clean :app-updater:assembleRelease --stacktrace'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'app-updater/build/outputs/apk/release/*.apk', fingerprint: true
+                    sh 'ls -lh app-updater/build/outputs/apk/release/'
+                }
+            }
+        }
+
+        stage('Verify APK') {
+            steps {
+                sh '''
+                    if [ ! -f "${APK_OUTPUT}" ]; then
+                        echo "Release APK not found at ${APK_OUTPUT}" >&2
+                        exit 1
+                    fi
+
+                    echo "APK information:"
+                    if command -v aapt >/dev/null 2>&1; then
+                        aapt dump badging "${APK_OUTPUT}" | grep -E "(package|versionName|versionCode)"
+                    else
+                        echo "Warning: aapt not available, skipping metadata dump."
+                    fi
+                '''
+            }
+        }
+
+        stage('Publish to GitHub Release') {
+            when {
+                expression { return params.GH_RELEASE_TAG?.trim() }
+            }
+            environment {
+                GH_TOKEN = credentials('gh-cli-token')
+            }
+            steps {
+                sh '''
+                    if ! command -v gh >/dev/null 2>&1; then
+                        echo "GitHub CLI (gh) is not installed on this agent." >&2
+                        exit 1
+                    fi
+
+                    RELEASE_TAG="${GH_RELEASE_TAG}"
+                    RELEASE_TITLE="${GH_RELEASE_TITLE}"
+                    RELEASE_NOTES_FILE="$WORKSPACE/.jenkins-gh-release-notes.txt"
+
+                    printf "%s\n" "${GH_RELEASE_NOTES}" > "${RELEASE_NOTES_FILE}"
+
+                    echo "Creating/updating GitHub release ${RELEASE_TAG}"
+
+                    gh release view "${RELEASE_TAG}" >/dev/null 2>&1 && \
+                        gh release delete "${RELEASE_TAG}" --yes || true
+
+                    gh release create "${RELEASE_TAG}" "${APK_OUTPUT}" \
+                        --title "${RELEASE_TITLE}" \
+                        --notes-file "${RELEASE_NOTES_FILE}" \
+                        --repo "$GIT_URL" --target "$GIT_COMMIT"
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/build/test-results/**/*.xml'
+            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+        }
+    }
+}

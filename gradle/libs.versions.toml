@@ -1,0 +1,58 @@
+[versions]
+agp = "8.4.0"
+kotlin = "1.9.24"
+core-ktx = "1.12.0"
+appcompat = "1.6.1"
+material = "1.11.0"
+hilt = "2.55"
+room = "2.7.1"
+retrofit = "2.11.0"
+moshi = "1.15.0"
+coil = "2.4.0"
+timber = "5.0.1"
+slf4j = "2.0.9"
+android-threetenabp = "1.4.6"
+desugar = "2.0.4"
+rxjava = "3.1.8"
+rxandroid = "3.0.2"
+jackson = "2.15.2"
+multidex = "2.0.1"
+commons-lang3 = "3.12.0"
+commons-io = "2.4"
+esperandro = "2.7.0"
+dagger = "2.55"
+
+[libraries]
+android-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+android-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+android-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+retrofit-jackson = { group = "com.squareup.retrofit2", name = "converter-jackson", version.ref = "retrofit" }
+retrofit-rxjava3 = { group = "com.squareup.retrofit2", name = "adapter-rxjava3", version.ref = "retrofit" }
+moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
+coil-core = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+android-threetenabp = { group = "com.jakewharton.threetenabp", name = "threetenabp", version.ref = "android-threetenabp" }
+rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava" }
+rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxandroid" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+esperandro-api = { group = "de.devland.esperandro", name = "esperandro-api", version.ref = "esperandro" }
+dagger-android = { group = "com.google.dagger", name = "dagger-android", version.ref = "dagger" }
+dagger-compiler = { group = "com.google.dagger", name = "dagger-android-compiler", version.ref = "dagger" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" } 
