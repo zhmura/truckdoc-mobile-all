@@ -156,7 +156,10 @@ pipeline {
             fi
 
             export GH_TOKEN
-            $GH_CLI auth status || $GH_CLI auth login --with-token <(printf "%s" "$GH_TOKEN")
+            
+            # Authenticate with GitHub CLI
+            echo "$GH_TOKEN" | $GH_CLI auth login --with-token || true
+            $GH_CLI auth status
 
             # Recreate release to ensure the asset is up to date
             $GH_CLI release delete "$RELEASE_TAG" --yes 2>/dev/null || true
