@@ -61,6 +61,59 @@ pipeline {
       }
     }
 
+    stage('Extract APK Versions') {
+      steps {
+        script {
+          // Extract main app version
+          def mainAppApk = sh(
+            script: 'find truckdoc-client-m2/application/build/outputs/apk -name "*.apk" -type f | head -n 1',
+            returnStdout: true
+          ).trim()
+          
+          if (mainAppApk) {
+            def mainAppVersionName = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionName | sed -E \"s/.*versionName='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            def mainAppVersionCode = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionCode | sed -E \"s/.*versionCode='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            env.MAIN_APP_VERSION_NAME = mainAppVersionName
+            env.MAIN_APP_VERSION_CODE = mainAppVersionCode
+            echo "Main App Version: ${mainAppVersionName} (${mainAppVersionCode})"
+          }
+          
+          // Extract app-updater version
+          def updaterApk = sh(
+            script: 'find app-updater/build/outputs/apk -name "*.apk" -type f | head -n 1',
+            returnStdout: true
+          ).trim()
+          
+          if (updaterApk) {
+            def updaterVersionName = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${updaterApk}' | grep versionName | sed -E \"s/.*versionName='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            def updaterVersionCode = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${updaterApk}' | grep versionCode | sed -E \"s/.*versionCode='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            env.UPDATER_VERSION_NAME = updaterVersionName
+            env.UPDATER_VERSION_CODE = updaterVersionCode
+            echo "App Updater Version: ${updaterVersionName} (${updaterVersionCode})"
+          }
+          
+          // Set build description
+          currentBuild.description = "Main: ${env.MAIN_APP_VERSION_NAME ?: 'N/A'} | Updater: ${env.UPDATER_VERSION_NAME ?: 'N/A'}"
+        }
+      }
+    }
+
     stage('Archive Artifacts') {
       steps {
         archiveArtifacts artifacts: 'truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk', fingerprint: true
@@ -107,7 +160,12 @@ pipeline {
 
   post {
     success {
-      echo 'Release build completed successfully. APKs are archived and ready for consumption by the app-updater.'
+      script {
+        echo '✅ Release build completed successfully!'
+        echo "📱 Main App: v${env.MAIN_APP_VERSION_NAME} (${env.MAIN_APP_VERSION_CODE})"
+        echo "🔄 App Updater: v${env.UPDATER_VERSION_NAME} (${env.UPDATER_VERSION_CODE})"
+        echo '📦 APKs are archived and ready for distribution.'
+      }
     }
     cleanup {
       sh 'rm -rf $WORKSPACE/.gradle'
