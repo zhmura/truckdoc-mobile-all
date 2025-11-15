@@ -19,6 +19,7 @@ pipeline {
     ANDROID_SDK_ROOT = "/Users/sanda/Library/Android/sdk"
     ANDROID_HOME = "/Users/sanda/Library/Android/sdk"
     GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+    PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     // Name of the credential that stores a GitHub Personal Access Token with repo permissions.
     GITHUB_TOKEN_CREDENTIAL_ID = 'gh-cli-token'
   }
