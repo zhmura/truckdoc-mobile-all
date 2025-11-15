@@ -52,7 +52,12 @@ pipeline {
 
     stage('Assemble Release APKs') {
       steps {
-        sh './gradlew --no-daemon --stacktrace clean :app:assembleRelease :app-updater:assembleRelease'
+        sh '''
+          # Clean build directories
+          rm -rf app-updater/build truckdoc-client-m2/application/build
+          ./gradlew --no-daemon --stacktrace clean
+          ./gradlew --no-daemon --stacktrace :app:assembleRelease :app-updater:assembleRelease
+        '''
       }
     }
 
