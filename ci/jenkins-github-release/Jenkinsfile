@@ -134,22 +134,19 @@ pipeline {
           sh '''
             set -e
             
-            # Find gh CLI - try common locations
-            GH_CMD=""
-            for gh_path in /opt/homebrew/bin/gh /usr/local/bin/gh $(which gh 2>/dev/null); do
-              if [ -x "$gh_path" ]; then
-                GH_CMD="$gh_path"
-                break
-              fi
-            done
+            # Use full path to gh CLI
+            GH_CLI="/opt/homebrew/bin/gh"
+            if [ ! -x "$GH_CLI" ]; then
+              GH_CLI="/usr/local/bin/gh"
+            fi
             
-            if [ -z "$GH_CMD" ]; then
+            if [ ! -x "$GH_CLI" ]; then
               echo "GitHub CLI (gh) is required to publish releases" >&2
-              echo "Attempted paths: /opt/homebrew/bin/gh, /usr/local/bin/gh" >&2
+              echo "Tried: /opt/homebrew/bin/gh, /usr/local/bin/gh" >&2
               exit 1
             fi
             
-            echo "Using GitHub CLI at: $GH_CMD"
+            echo "Using GitHub CLI at: $GH_CLI"
 
             RELEASE_DIR="truckdoc-client-m2/application/build/outputs/apk/defaultClient/release"
             APK_PATH=$(ls -t "$RELEASE_DIR"/*.apk | head -n 1)
@@ -159,11 +156,11 @@ pipeline {
             fi
 
             export GH_TOKEN
-            $GH_CMD auth status || $GH_CMD auth login --with-token <(printf "%s" "$GH_TOKEN")
+            $GH_CLI auth status || $GH_CLI auth login --with-token <(printf "%s" "$GH_TOKEN")
 
             # Recreate release to ensure the asset is up to date
-            $GH_CMD release delete "$RELEASE_TAG" --yes 2>/dev/null || true
-            $GH_CMD release create "$RELEASE_TAG" "$APK_PATH" \
+            $GH_CLI release delete "$RELEASE_TAG" --yes 2>/dev/null || true
+            $GH_CLI release create "$RELEASE_TAG" "$APK_PATH" \
               --title "$RELEASE_TITLE" \
               --notes "$RELEASE_NOTES"
           '''
