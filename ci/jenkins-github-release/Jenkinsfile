@@ -15,9 +15,9 @@ pipeline {
   }
 
   environment {
-    JAVA_HOME = "/opt/android/jdk-17"
-    ANDROID_SDK_ROOT = "/opt/android/sdk"
-    ANDROID_HOME = "/opt/android/sdk"
+    JAVA_HOME = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+    ANDROID_SDK_ROOT = "/Users/sanda/Library/Android/sdk"
+    ANDROID_HOME = "/Users/sanda/Library/Android/sdk"
     GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
     // Name of the credential that stores a GitHub Personal Access Token with repo permissions.
     GITHUB_TOKEN_CREDENTIAL_ID = 'gh-cli-token'
