@@ -105,7 +105,7 @@ android {
 
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
-            output.outputFileName = "com.sanda.truckdoc.client-${versionCode}.apk"
+            output.outputFileName = "com.sanda.truckdoc.client-${variant.versionName}-${versionCode}-${variant.buildType.name}.apk"
         }
     }
 }

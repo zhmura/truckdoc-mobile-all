@@ -52,6 +52,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            output.outputFileName = "app-updater-${variant.versionName}-${variant.versionCode}-${variant.buildType.name}.apk"
+        }
+    }
 }
 
 dependencies {
