@@ -129,7 +129,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([string(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, variable: 'GH_TOKEN')]) {
+        withCredentials([usernamePassword(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
           sh '''
             set -e
             if ! command -v gh >/dev/null 2>&1; then
