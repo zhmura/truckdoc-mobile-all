@@ -130,7 +130,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([usernamePassword(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+        withCredentials([string(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, variable: 'GH_TOKEN')]) {
           sh '''
             set -e
             
