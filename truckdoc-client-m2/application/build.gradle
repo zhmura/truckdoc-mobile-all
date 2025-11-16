@@ -105,7 +105,12 @@ android {
 
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
-            output.outputFileName = "com.sanda.truckdoc.client-${variant.versionName}-${versionCode}-${variant.buildType.name}.apk"
+            def flavorName = variant.flavorName ? "-${variant.flavorName}" : ""
+            if (variant.buildType.name == 'release') {
+                output.outputFileName = "truckdoc-client-v${variant.versionName}${flavorName}.apk"
+            } else {
+                output.outputFileName = "truckdoc-client-v${variant.versionName}${flavorName}-${variant.buildType.name}.apk"
+            }
         }
     }
 }

@@ -55,7 +55,11 @@ android {
 
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
-            output.outputFileName = "app-updater-${variant.versionName}-${variant.versionCode}-${variant.buildType.name}.apk"
+            if (variant.buildType.name == 'release') {
+                output.outputFileName = "truckdoc-updater-v${variant.versionName}.apk"
+            } else {
+                output.outputFileName = "truckdoc-updater-v${variant.versionName}-${variant.buildType.name}.apk"
+            }
         }
     }
 }

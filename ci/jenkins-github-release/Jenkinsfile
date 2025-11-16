@@ -148,12 +148,25 @@ pipeline {
             
             echo "Using GitHub CLI at: $GH_CLI"
 
-            RELEASE_DIR="truckdoc-client-m2/application/build/outputs/apk/defaultClient/release"
-            APK_PATH=$(ls -t "$RELEASE_DIR"/*.apk | head -n 1)
-            if [ ! -f "$APK_PATH" ]; then
-              echo "No APK found to publish" >&2
+            # Find APKs
+            MAIN_APP_DIR="truckdoc-client-m2/application/build/outputs/apk/defaultClient/release"
+            UPDATER_DIR="app-updater/build/outputs/apk/release"
+            
+            MAIN_APK=$(ls -t "$MAIN_APP_DIR"/*.apk | head -n 1)
+            UPDATER_APK=$(ls -t "$UPDATER_DIR"/*.apk | head -n 1)
+            
+            if [ ! -f "$MAIN_APK" ]; then
+              echo "Main app APK not found" >&2
               exit 1
             fi
+            
+            if [ ! -f "$UPDATER_APK" ]; then
+              echo "Updater APK not found" >&2
+              exit 1
+            fi
+            
+            echo "Main APK: $MAIN_APK"
+            echo "Updater APK: $UPDATER_APK"
 
             export GH_TOKEN
             
@@ -161,9 +174,11 @@ pipeline {
             echo "$GH_TOKEN" | $GH_CLI auth login --with-token || true
             $GH_CLI auth status
 
-            # Recreate release to ensure the asset is up to date
+            # Recreate release to ensure the assets are up to date
             $GH_CLI release delete "$RELEASE_TAG" --yes 2>/dev/null || true
-            $GH_CLI release create "$RELEASE_TAG" "$APK_PATH" \
+            $GH_CLI release create "$RELEASE_TAG" \
+              "$MAIN_APK" \
+              "$UPDATER_APK" \
               --title "$RELEASE_TITLE" \
               --notes "$RELEASE_NOTES"
           '''
