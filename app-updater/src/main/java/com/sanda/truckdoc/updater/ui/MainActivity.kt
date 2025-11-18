@@ -47,16 +47,29 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupClickListeners() {
+        // Manual check for updates button
         binding.checkButton.setOnClickListener {
             viewModel.checkForUpdates()
         }
         
-        binding.installButton.setOnClickListener {
-            // Handle install button click
+        // Download client app update
+        binding.downloadClientButton.setOnClickListener {
+            viewModel.downloadUpdate(DownloadTarget.CLIENT_APP)
         }
         
+        // Download updater update
+        binding.downloadUpdaterButton.setOnClickListener {
+            viewModel.downloadUpdate(DownloadTarget.UPDATER_APP)
+        }
+        
+        // Legacy install button (for backward compatibility)
+        binding.installButton.setOnClickListener {
+            // Auto-download client app by default
+            viewModel.downloadUpdate(DownloadTarget.CLIENT_APP)
+        }
+        
+        // Settings
         binding.settingsFab.setOnClickListener {
-            // Open settings
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
@@ -68,30 +81,73 @@ class MainActivity : AppCompatActivity() {
                 binding.statusText.setText(R.string.checking_for_updates)
                 binding.progressCard.visibility = View.VISIBLE
                 binding.progressBar.isIndeterminate = true
+                binding.checkButton.isEnabled = false
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
+                binding.installButton.visibility = View.GONE
             }
             
             is UiState.NoUpdateAvailable -> {
                 binding.statusText.setText(R.string.no_updates_available)
                 binding.progressCard.visibility = View.GONE
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
                 binding.installButton.visibility = View.GONE
+                binding.checkButton.isEnabled = true
             }
             
             is UiState.UpdateAvailable -> {
-                binding.statusText.setText(R.string.update_available)
+                val systemUpdate = state.systemUpdate
+                
+                // Show appropriate status message
+                val updateCount = listOf(
+                    systemUpdate.clientAppUpdate.updateAvailable,
+                    systemUpdate.updaterAppUpdate.updateAvailable
+                ).count { it }
+                
+                binding.statusText.text = when {
+                    updateCount == 2 -> "Updates available for both apps"
+                    systemUpdate.clientAppUpdate.updateAvailable -> "Client app update available"
+                    systemUpdate.updaterAppUpdate.updateAvailable -> "Updater update available"
+                    else -> "No updates available"
+                }
+                
                 binding.progressCard.visibility = View.GONE
-                binding.installButton.visibility = View.VISIBLE
+                
+                // Show download buttons based on what needs updating
+                binding.downloadClientButton.visibility = if (systemUpdate.clientAppUpdate.updateAvailable) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                
+                binding.downloadUpdaterButton.visibility = if (systemUpdate.updaterAppUpdate.updateAvailable) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                
+                binding.installButton.visibility = View.GONE
+                binding.checkButton.isEnabled = true
             }
             
             is UiState.Downloading -> {
                 binding.statusText.text = "Downloading ${state.target.displayName}..."
                 binding.progressCard.visibility = View.VISIBLE
                 binding.progressBar.isIndeterminate = false
+                binding.checkButton.isEnabled = false
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
+                binding.installButton.visibility = View.GONE
             }
             
             is UiState.DownloadComplete -> {
-                binding.statusText.text = "${state.target.displayName} download complete"
+                binding.statusText.text = "${state.target.displayName} download complete - Installing..."
                 binding.progressCard.visibility = View.GONE
-                binding.installButton.visibility = View.VISIBLE
+                binding.checkButton.isEnabled = true
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
+                binding.installButton.visibility = View.GONE
                 
                 // Auto-install the APK
                 installApk(state.file)
@@ -101,11 +157,18 @@ class MainActivity : AppCompatActivity() {
                 binding.statusText.text = "Installing update..."
                 binding.progressCard.visibility = View.VISIBLE
                 binding.progressBar.isIndeterminate = true
+                binding.checkButton.isEnabled = false
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
+                binding.installButton.visibility = View.GONE
             }
             
             is UiState.Error -> {
                 binding.statusText.text = state.message
                 binding.progressCard.visibility = View.GONE
+                binding.checkButton.isEnabled = true
+                binding.downloadClientButton.visibility = View.GONE
+                binding.downloadUpdaterButton.visibility = View.GONE
                 binding.installButton.visibility = View.GONE
                 
                 Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()

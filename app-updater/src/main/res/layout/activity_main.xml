@@ -151,22 +151,44 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:gravity="center">
 
+                <!-- Manual Check Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/checkButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/check_now"
+                    style="@style/Widget.Material3.Button.TonalButton"
                     app:icon="@android:drawable/ic_menu_search" />
 
+                <!-- Download Client App Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/downloadClientButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Download Client App Update"
+                    android:visibility="gone"
+                    app:icon="@android:drawable/stat_sys_download" />
+
+                <!-- Download Updater Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/downloadUpdaterButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Download Updater Update"
+                    android:visibility="gone"
+                    app:icon="@android:drawable/stat_sys_download" />
+
+                <!-- Legacy Install Button (kept for compatibility) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/installButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="@string/install_update"
                     android:visibility="gone"
                     app:icon="@android:drawable/ic_menu_upload" />
