@@ -7,11 +7,23 @@ pipeline {
   }
 
   parameters {
+    // Version parameters for client app
+    string(name: 'CLIENT_VERSION', defaultValue: '', 
+      description: 'Client app version (e.g. 1.2.3). Leave empty to use git tag.')
+    
+    // Version parameters for updater app
+    string(name: 'UPDATER_VERSION', defaultValue: '', 
+      description: 'Updater app version (e.g. 1.0.5). Leave empty to match client version.')
+    
+    // GitHub release parameters
     booleanParam(name: 'PUBLISH_GITHUB_RELEASE', defaultValue: false,
-      description: 'Set to true to publish the release APK to GitHub using the gh CLI.')
-    string(name: 'RELEASE_TAG', defaultValue: '', description: 'Git tag to create or update (e.g. v1.0.0). Required when publishing.')
-    string(name: 'RELEASE_TITLE', defaultValue: 'TruckDoc Android Release', description: 'Title shown on the GitHub Release page.')
-    text(name: 'RELEASE_NOTES', defaultValue: 'Automated release from Jenkins.', description: 'Body/notes for the GitHub Release.')
+      description: 'Set to true to publish the release APKs to GitHub using the gh CLI.')
+    string(name: 'RELEASE_TAG', defaultValue: '', 
+      description: 'Git tag to create or update (e.g. v1.0.0). Leave empty to use CLIENT_VERSION.')
+    string(name: 'RELEASE_TITLE', defaultValue: 'TruckDoc Android Release', 
+      description: 'Title shown on the GitHub Release page.')
+    text(name: 'RELEASE_NOTES', defaultValue: 'Automated release from Jenkins.', 
+      description: 'Body/notes for the GitHub Release.')
   }
 
   environment {
@@ -31,36 +43,44 @@ pipeline {
       }
     }
 
-    stage('Extract Version from Tag') {
+    stage('Extract Versions') {
       steps {
         script {
-          // Get current Git tag or use RELEASE_TAG parameter
-          def gitTag = sh(
-            script: 'git describe --tags --exact-match 2>/dev/null || echo ""',
-            returnStdout: true
-          ).trim()
-          
-          // Use RELEASE_TAG parameter if provided, otherwise use git tag
-          def releaseTag = params.RELEASE_TAG ?: gitTag
-          
-          if (releaseTag) {
-            // Extract version from tag (e.g., v1.2.3 -> 1.2.3)
-            env.VERSION_NAME = releaseTag.replaceFirst(/^v/, '')
-            
-            // Calculate version code from version name (1.2.3 -> 10203)
-            def parts = env.VERSION_NAME.split('\\.')
+          // Helper function to calculate version code
+          def calculateVersionCode = { versionName ->
+            def parts = versionName.split('\\.')
             def major = parts.length > 0 ? parts[0].toInteger() : 0
             def minor = parts.length > 1 ? parts[1].toInteger() : 0
             def patch = parts.length > 2 ? parts[2].toInteger() : 0
-            env.VERSION_CODE = String.valueOf(major * 10000 + minor * 100 + patch)
-            
-            echo "Building version ${env.VERSION_NAME} (code: ${env.VERSION_CODE}) from tag ${releaseTag}"
-          } else {
-            // Fallback to default version if no tag
-            env.VERSION_NAME = "1.0.0"
-            env.VERSION_CODE = "10000"
-            echo "No git tag found, using default version ${env.VERSION_NAME}"
+            return major * 10000 + minor * 100 + patch
           }
+          
+          // Determine client app version
+          def clientVersion = params.CLIENT_VERSION
+          if (!clientVersion) {
+            // Try git tag
+            def gitTag = sh(
+              script: 'git describe --tags --exact-match 2>/dev/null || echo ""',
+              returnStdout: true
+            ).trim()
+            clientVersion = gitTag ? gitTag.replaceFirst(/^v/, '') : "1.0.0"
+          }
+          
+          env.CLIENT_VERSION_NAME = clientVersion
+          env.CLIENT_VERSION_CODE = String.valueOf(calculateVersionCode(clientVersion))
+          
+          // Determine updater app version
+          def updaterVersion = params.UPDATER_VERSION ?: clientVersion
+          env.UPDATER_VERSION_NAME = updaterVersion
+          env.UPDATER_VERSION_CODE = String.valueOf(calculateVersionCode(updaterVersion))
+          
+          // Determine release tag for GitHub
+          def releaseTag = params.RELEASE_TAG ?: "v${clientVersion}"
+          env.RELEASE_TAG_NAME = releaseTag
+          
+          echo "Client App Version: ${env.CLIENT_VERSION_NAME} (code: ${env.CLIENT_VERSION_CODE})"
+          echo "Updater App Version: ${env.UPDATER_VERSION_NAME} (code: ${env.UPDATER_VERSION_CODE})"
+          echo "Release Tag: ${env.RELEASE_TAG_NAME}"
         }
       }
     }
@@ -72,8 +92,9 @@ pipeline {
           echo "JAVA_HOME=$JAVA_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "PATH=$PATH"
-          echo "VERSION_NAME=$VERSION_NAME"
-          echo "VERSION_CODE=$VERSION_CODE"
+          echo "Client Version: $CLIENT_VERSION_NAME (code: $CLIENT_VERSION_CODE)"
+          echo "Updater Version: $UPDATER_VERSION_NAME (code: $UPDATER_VERSION_CODE)"
+          echo "Release Tag: $RELEASE_TAG_NAME"
           java -version
           if command -v sdkmanager >/dev/null 2>&1; then sdkmanager --version; fi
           ./gradlew --version
@@ -94,64 +115,75 @@ pipeline {
           rm -rf app-updater/build truckdoc-client-m2/application/build
           ./gradlew --no-daemon --stacktrace clean
           
-          # Build with version from tag
+          # Build client app with its version
+          echo "Building client app v$CLIENT_VERSION_NAME (code: $CLIENT_VERSION_CODE)"
           ./gradlew --no-daemon --stacktrace \
-            -PversionName=$VERSION_NAME \
-            -PversionCode=$VERSION_CODE \
-            :app:assembleRelease :app-updater:assembleRelease
+            -PversionName=$CLIENT_VERSION_NAME \
+            -PversionCode=$CLIENT_VERSION_CODE \
+            :app:assembleRelease
+          
+          # Build updater app with its version
+          echo "Building updater app v$UPDATER_VERSION_NAME (code: $UPDATER_VERSION_CODE)"
+          ./gradlew --no-daemon --stacktrace \
+            -PversionName=$UPDATER_VERSION_NAME \
+            -PversionCode=$UPDATER_VERSION_CODE \
+            :app-updater:assembleRelease
         '''
       }
     }
 
-    stage('Extract APK Versions') {
+    stage('Verify APK Versions') {
       steps {
         script {
-          // Extract main app version
+          // Verify APK versions match what we built
           def mainAppApk = sh(
             script: 'find truckdoc-client-m2/application/build/outputs/apk -name "*.apk" -type f | head -n 1',
             returnStdout: true
           ).trim()
           
-          if (mainAppApk) {
-            def mainAppVersionName = sh(
-              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionName | sed -E \"s/.*versionName='([^']+)'.*/\\1/\"",
-              returnStdout: true
-            ).trim()
-            
-            def mainAppVersionCode = sh(
-              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionCode | sed -E \"s/.*versionCode='([^']+)'.*/\\1/\"",
-              returnStdout: true
-            ).trim()
-            
-            env.MAIN_APP_VERSION_NAME = mainAppVersionName
-            env.MAIN_APP_VERSION_CODE = mainAppVersionCode
-            echo "Main App Version: ${mainAppVersionName} (${mainAppVersionCode})"
-          }
-          
-          // Extract app-updater version
           def updaterApk = sh(
             script: 'find app-updater/build/outputs/apk -name "*.apk" -type f | head -n 1',
             returnStdout: true
           ).trim()
           
+          if (mainAppApk) {
+            def actualVersion = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionName | sed -E \"s/.*versionName='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            def actualCode = sh(
+              script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${mainAppApk}' | grep versionCode | sed -E \"s/.*versionCode='([^']+)'.*/\\1/\"",
+              returnStdout: true
+            ).trim()
+            
+            echo "✅ Client APK verified: v${actualVersion} (code: ${actualCode})"
+            
+            if (actualVersion != env.CLIENT_VERSION_NAME) {
+              error("Client APK version mismatch! Expected: ${env.CLIENT_VERSION_NAME}, Got: ${actualVersion}")
+            }
+          }
+          
           if (updaterApk) {
-            def updaterVersionName = sh(
+            def actualVersion = sh(
               script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${updaterApk}' | grep versionName | sed -E \"s/.*versionName='([^']+)'.*/\\1/\"",
               returnStdout: true
             ).trim()
             
-            def updaterVersionCode = sh(
+            def actualCode = sh(
               script: "\$ANDROID_HOME/build-tools/34.0.0/aapt dump badging '${updaterApk}' | grep versionCode | sed -E \"s/.*versionCode='([^']+)'.*/\\1/\"",
               returnStdout: true
             ).trim()
             
-            env.UPDATER_VERSION_NAME = updaterVersionName
-            env.UPDATER_VERSION_CODE = updaterVersionCode
-            echo "App Updater Version: ${updaterVersionName} (${updaterVersionCode})"
+            echo "✅ Updater APK verified: v${actualVersion} (code: ${actualCode})"
+            
+            if (actualVersion != env.UPDATER_VERSION_NAME) {
+              error("Updater APK version mismatch! Expected: ${env.UPDATER_VERSION_NAME}, Got: ${actualVersion}")
+            }
           }
           
-          // Set build description
-          currentBuild.description = "Main: ${env.MAIN_APP_VERSION_NAME ?: 'N/A'} | Updater: ${env.UPDATER_VERSION_NAME ?: 'N/A'}"
+          // Set build description with both versions
+          currentBuild.description = "Client: v${env.CLIENT_VERSION_NAME} | Updater: v${env.UPDATER_VERSION_NAME}"
         }
       }
     }
@@ -216,12 +248,19 @@ pipeline {
             $GH_CLI auth status
 
             # Recreate release to ensure the assets are up to date
-            $GH_CLI release delete "$RELEASE_TAG" --yes 2>/dev/null || true
-            $GH_CLI release create "$RELEASE_TAG" \
+            echo "Creating GitHub release: $RELEASE_TAG_NAME"
+            echo "Client version: $CLIENT_VERSION_NAME"
+            echo "Updater version: $UPDATER_VERSION_NAME"
+            
+            $GH_CLI release delete "$RELEASE_TAG_NAME" --yes 2>/dev/null || true
+            $GH_CLI release create "$RELEASE_TAG_NAME" \
               "$MAIN_APK" \
               "$UPDATER_APK" \
               --title "$RELEASE_TITLE" \
-              --notes "$RELEASE_NOTES"
+              --notes "$RELEASE_NOTES
+              
+Client App: v$CLIENT_VERSION_NAME (versionCode: $CLIENT_VERSION_CODE)
+Updater App: v$UPDATER_VERSION_NAME (versionCode: $UPDATER_VERSION_CODE)"
           '''
         }
       }
@@ -232,8 +271,11 @@ pipeline {
     success {
       script {
         echo '✅ Release build completed successfully!'
-        echo "📱 Main App: v${env.MAIN_APP_VERSION_NAME} (${env.MAIN_APP_VERSION_CODE})"
-        echo "🔄 App Updater: v${env.UPDATER_VERSION_NAME} (${env.UPDATER_VERSION_CODE})"
+        echo "📱 Client App: v${env.CLIENT_VERSION_NAME} (code: ${env.CLIENT_VERSION_CODE})"
+        echo "🔄 Updater App: v${env.UPDATER_VERSION_NAME} (code: ${env.UPDATER_VERSION_CODE})"
+        if (env.RELEASE_TAG_NAME) {
+          echo "🏷️  Release Tag: ${env.RELEASE_TAG_NAME}"
+        }
         echo '📦 APKs are archived and ready for distribution.'
       }
     }
