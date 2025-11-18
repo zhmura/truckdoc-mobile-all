@@ -119,12 +119,14 @@ class GitHubUpdateRepository @Inject constructor(
             it.name.startsWith(apkPattern) && it.name.endsWith(".apk")
         } ?: return null
         
-        // Extract version from filename: truckdoc-client-v1.0-defaultClient.apk -> 1.0
+        // Extract version from filename: truckdoc-client-v1.0.3.apk -> 1.0.3
         val versionMatch = Regex("$apkPattern([\\d.]+)").find(asset.name)
         val versionName = versionMatch?.groupValues?.getOrNull(1) ?: release.tagName.removePrefix("v")
         
-        // Convert version name to version code (1.0 -> 10, 1.2.3 -> 123)
-        val versionCode = versionName.split(".").joinToString("").toIntOrNull() ?: 0
+        // Convert version name to version code using same formula as Jenkins
+        // Formula: (major * 10000) + (minor * 100) + patch
+        // Examples: 1.0.0 -> 10000, 1.0.3 -> 10003, 1.2.3 -> 10203
+        val versionCode = calculateVersionCode(versionName)
         
         return AppVersion(
             versionName = versionName,
@@ -181,6 +183,25 @@ class GitHubUpdateRepository @Inject constructor(
         }
         
         return 0
+    }
+    
+    /**
+     * Calculate version code from version name using Jenkins formula
+     * Formula: (major * 10000) + (minor * 100) + patch
+     * 
+     * Examples:
+     * - "1.0.0" -> 10000
+     * - "1.0.3" -> 10003
+     * - "1.2.3" -> 10203
+     * - "2.5.7" -> 20507
+     */
+    private fun calculateVersionCode(versionName: String): Int {
+        val parts = versionName.split(".")
+        val major = parts.getOrNull(0)?.toIntOrNull() ?: 0
+        val minor = parts.getOrNull(1)?.toIntOrNull() ?: 0
+        val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
+        
+        return (major * 10000) + (minor * 100) + patch
     }
     
     /**
