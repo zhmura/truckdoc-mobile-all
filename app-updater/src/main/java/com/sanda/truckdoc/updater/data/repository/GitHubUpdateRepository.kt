@@ -198,3 +198,4 @@ class GitHubUpdateRepository @Inject constructor(
 
 class UpdateException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+

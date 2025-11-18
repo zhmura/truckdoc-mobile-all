@@ -68,3 +68,4 @@ data class SystemUpdateInfo(
         clientAppUpdate.updateAvailable || updaterAppUpdate.updateAvailable
 }
 
+

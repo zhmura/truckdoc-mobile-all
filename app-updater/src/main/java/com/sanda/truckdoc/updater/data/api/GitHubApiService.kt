@@ -36,3 +36,4 @@ interface GitHubApiService {
     ): List<GitHubRelease>
 }
 
+

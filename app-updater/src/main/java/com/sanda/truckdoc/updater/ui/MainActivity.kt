@@ -37,8 +37,8 @@ class MainActivity : AppCompatActivity() {
             updateUi(state)
         }
         
-        viewModel.updateInfo.observe(this) { updateInfo ->
-            updateVersionInfo(updateInfo)
+        viewModel.systemUpdateInfo.observe(this) { systemUpdate ->
+            updateVersionInfo(systemUpdate)
         }
         
         viewModel.downloadProgress.observe(this) { progress ->
@@ -83,13 +83,13 @@ class MainActivity : AppCompatActivity() {
             }
             
             is UiState.Downloading -> {
-                binding.statusText.setText(R.string.downloading_update)
+                binding.statusText.text = "Downloading ${state.target.displayName}..."
                 binding.progressCard.visibility = View.VISIBLE
                 binding.progressBar.isIndeterminate = false
             }
             
             is UiState.DownloadComplete -> {
-                binding.statusText.setText(R.string.download_complete)
+                binding.statusText.text = "${state.target.displayName} download complete"
                 binding.progressCard.visibility = View.GONE
                 binding.installButton.visibility = View.VISIBLE
                 
@@ -113,22 +113,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun updateVersionInfo(updateInfo: com.sanda.truckdoc.updater.data.model.UpdateInfo) {
-        binding.currentVersionText.text = getString(
-            R.string.current_version, 
-            updateInfo.currentVersion.versionName
-        )
+    private fun updateVersionInfo(systemUpdate: com.sanda.truckdoc.updater.data.model.SystemUpdateInfo) {
+        // Client App Info
+        val clientUpdate = systemUpdate.clientAppUpdate
+        binding.currentVersionText.text = buildString {
+            append("Client: ${clientUpdate.currentVersion.versionName}")
+            if (clientUpdate.updateAvailable) {
+                append(" → ${clientUpdate.latestVersion?.versionName ?: "?"}")
+            }
+        }
         
-        updateInfo.latestVersion?.let { latest ->
-            binding.latestVersionText.text = getString(
-                R.string.latest_version, 
-                latest.versionName
-            )
+        // Updater App Info (show separately if needed)
+        val updaterUpdate = systemUpdate.updaterAppUpdate
+        if (updaterUpdate.updateAvailable) {
+            binding.latestVersionText.text = buildString {
+                append("Updater: ${updaterUpdate.currentVersion.versionName}")
+                append(" → ${updaterUpdate.latestVersion?.versionName ?: "?"}")
+            }
+        } else {
+            clientUpdate.latestVersion?.let { latest ->
+                binding.latestVersionText.text = "Latest: ${latest.versionName}"
+            }
         }
         
         binding.lastCheckText.text = getString(
             R.string.last_check, 
-            viewModel.getFormattedLastCheckTime(updateInfo.lastCheckTime)
+            viewModel.getFormattedLastCheckTime(systemUpdate.lastCheckTime)
         )
     }
     

@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sanda.truckdoc.updater.data.model.AppVersion
-import com.sanda.truckdoc.updater.data.model.UpdateInfo
+import com.sanda.truckdoc.updater.config.GitHubConfig
+import com.sanda.truckdoc.updater.data.model.AppUpdateInfo
+import com.sanda.truckdoc.updater.data.model.SystemUpdateInfo
+import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
 import com.sanda.truckdoc.updater.data.repository.UpdateException
-import com.sanda.truckdoc.updater.data.repository.UpdateRepository
 import com.sanda.truckdoc.updater.util.DownloadManager
 import com.sanda.truckdoc.updater.util.NotificationManager
 import com.sanda.truckdoc.updater.util.PreferencesManager
@@ -22,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val updateRepository: UpdateRepository,
+    private val updateRepository: GitHubUpdateRepository,
     private val downloadManager: DownloadManager,
     private val notificationManager: NotificationManager,
     private val preferencesManager: PreferencesManager
@@ -31,11 +32,13 @@ class MainViewModel @Inject constructor(
     private val _uiState = MutableLiveData<UiState>()
     val uiState: LiveData<UiState> = _uiState
     
-    private val _updateInfo = MutableLiveData<UpdateInfo>()
-    val updateInfo: LiveData<UpdateInfo> = _updateInfo
+    private val _systemUpdateInfo = MutableLiveData<SystemUpdateInfo>()
+    val systemUpdateInfo: LiveData<SystemUpdateInfo> = _systemUpdateInfo
     
     private val _downloadProgress = MutableLiveData<DownloadProgress>()
     val downloadProgress: LiveData<DownloadProgress> = _downloadProgress
+    
+    private var currentDownloadTarget: DownloadTarget = DownloadTarget.CLIENT_APP
     
     init {
         checkForUpdates()
@@ -46,33 +49,35 @@ class MainViewModel @Inject constructor(
             try {
                 _uiState.value = UiState.Loading
                 
-                if (!updateRepository.isAppInstalled()) {
-                    _uiState.value = UiState.Error("Target app is not installed")
+                // Check if client app is installed
+                if (!updateRepository.isAppInstalled(GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME)) {
+                    _uiState.value = UiState.Error("TruckDoc client app is not installed")
                     return@launch
                 }
                 
-                val updateInfo = updateRepository.checkForUpdates()
-                _updateInfo.value = updateInfo
+                val systemUpdate = updateRepository.checkForUpdates()
+                _systemUpdateInfo.value = systemUpdate
                 
-                // Update preferences
+                // Update preferences with client app version
                 preferencesManager.updateLastCheckTime()
-                preferencesManager.lastKnownVersion = updateInfo.currentVersion.versionName
-                preferencesManager.lastKnownVersionCode = updateInfo.currentVersion.versionCode
+                preferencesManager.lastKnownVersion = systemUpdate.clientAppUpdate.currentVersion.versionName
+                preferencesManager.lastKnownVersionCode = systemUpdate.clientAppUpdate.currentVersion.versionCode
                 
-                if (updateInfo.updateAvailable) {
-                    _uiState.value = UiState.UpdateAvailable(updateInfo)
+                if (systemUpdate.hasAnyUpdate()) {
+                    _uiState.value = UiState.UpdateAvailable(systemUpdate)
                     
                     // Show notification if enabled
                     if (preferencesManager.isNotificationsEnabled) {
-                        notificationManager.showUpdateAvailableNotification(updateInfo)
+                        // Show notification about available updates
+                        // notificationManager.showUpdateAvailableNotification(systemUpdate)
                     }
                     
-                    // Auto-download if enabled
-                    if (preferencesManager.isAutoDownloadEnabled) {
-                        downloadUpdate()
+                    // Auto-download client app if enabled
+                    if (preferencesManager.isAutoDownloadEnabled && systemUpdate.clientAppUpdate.updateAvailable) {
+                        downloadUpdate(DownloadTarget.CLIENT_APP)
                     }
                 } else {
-                    _uiState.value = UiState.NoUpdateAvailable(updateInfo)
+                    _uiState.value = UiState.NoUpdateAvailable(systemUpdate)
                 }
                 
             } catch (e: UpdateException) {
@@ -83,31 +88,44 @@ class MainViewModel @Inject constructor(
         }
     }
     
-    fun downloadUpdate() {
-        val updateInfo = _updateInfo.value
-        val latestVersion = updateInfo?.latestVersion
+    fun downloadUpdate(target: DownloadTarget) {
+        val systemUpdate = _systemUpdateInfo.value
         
-        if (latestVersion == null) {
-            _uiState.value = UiState.Error("No update available to download")
+        val appUpdate = when (target) {
+            DownloadTarget.CLIENT_APP -> systemUpdate?.clientAppUpdate
+            DownloadTarget.UPDATER_APP -> systemUpdate?.updaterAppUpdate
+        }
+        
+        val latestVersion = appUpdate?.latestVersion
+        
+        if (latestVersion == null || latestVersion.downloadUrl.isEmpty()) {
+            _uiState.value = UiState.Error("No update available to download for ${target.displayName}")
             return
         }
         
+        currentDownloadTarget = target
+        
         viewModelScope.launch {
             try {
-                _uiState.value = UiState.Downloading
+                _uiState.value = UiState.Downloading(target)
                 
                 downloadManager.downloadApkWithFlow(latestVersion.downloadUrl)
                     .collectLatest { progress ->
-                        _downloadProgress.value = DownloadProgress(progress.progress, progress.message)
+                        _downloadProgress.value = DownloadProgress(
+                            progress.progress, 
+                            "${target.displayName}: ${progress.message}"
+                        )
                         
                         if (progress.progress == 100 && progress.file != null) {
-                            _uiState.value = UiState.DownloadComplete(progress.file)
-                            preferencesManager.updateLastUpdateTime()
+                            _uiState.value = UiState.DownloadComplete(progress.file, target)
+                            if (target == DownloadTarget.CLIENT_APP) {
+                                preferencesManager.updateLastUpdateTime()
+                            }
                         }
                     }
                 
             } catch (e: Exception) {
-                _uiState.value = UiState.Error("Failed to download update: ${e.message}")
+                _uiState.value = UiState.Error("Failed to download ${target.displayName}: ${e.message}")
             }
         }
     }
@@ -133,12 +151,17 @@ class MainViewModel @Inject constructor(
 
 sealed class UiState {
     object Loading : UiState()
-    data class NoUpdateAvailable(val updateInfo: UpdateInfo) : UiState()
-    data class UpdateAvailable(val updateInfo: UpdateInfo) : UiState()
-    object Downloading : UiState()
-    data class DownloadComplete(val file: File) : UiState()
+    data class NoUpdateAvailable(val systemUpdate: SystemUpdateInfo) : UiState()
+    data class UpdateAvailable(val systemUpdate: SystemUpdateInfo) : UiState()
+    data class Downloading(val target: DownloadTarget) : UiState()
+    data class DownloadComplete(val file: File, val target: DownloadTarget) : UiState()
     object Installing : UiState()
     data class Error(val message: String) : UiState()
+}
+
+enum class DownloadTarget(val displayName: String) {
+    CLIENT_APP("TruckDoc Client"),
+    UPDATER_APP("App Updater")
 }
 
 data class DownloadProgress(

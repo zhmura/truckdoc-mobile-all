@@ -3,7 +3,8 @@ package com.sanda.truckdoc.updater.worker
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.sanda.truckdoc.updater.data.repository.UpdateRepository
+import com.sanda.truckdoc.updater.config.GitHubConfig
+import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
 import com.sanda.truckdoc.updater.service.UpdateCheckService
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -18,7 +19,7 @@ class UpdateCheckWorker(
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface UpdateCheckWorkerEntryPoint {
-        fun updateRepository(): UpdateRepository
+        fun updateRepository(): GitHubUpdateRepository
     }
 
     override suspend fun doWork(): Result {
@@ -30,16 +31,16 @@ class UpdateCheckWorker(
             
             val updateRepository = entryPoint.updateRepository()
             
-            // Check if target app is installed
-            if (!updateRepository.isAppInstalled()) {
+            // Check if client app is installed
+            if (!updateRepository.isAppInstalled(GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME)) {
                 return Result.success()
             }
             
             // Check for updates
-            val updateInfo = updateRepository.checkForUpdates()
+            val systemUpdate = updateRepository.checkForUpdates()
             
-            // If update is available, start the service to handle it
-            if (updateInfo.updateAvailable) {
+            // If any update is available, start the service to handle it
+            if (systemUpdate.hasAnyUpdate()) {
                 UpdateCheckService.startService(applicationContext)
             }
             

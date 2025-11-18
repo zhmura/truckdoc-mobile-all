@@ -156,3 +156,4 @@ The old Jenkins-based update checking is still available via `UpdateRepository` 
 - Consider adding APK checksum verification against release assets
 - GitHub API communication is over HTTPS
 
+
