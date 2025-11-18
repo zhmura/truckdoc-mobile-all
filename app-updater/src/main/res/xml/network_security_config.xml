@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration for all domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust system CAs for HTTPS -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Domain-specific configurations -->
+    <domain-config>
+        <!-- GitHub API and CDN -->
+        <domain includeSubdomains="true">github.com</domain>
+        <domain includeSubdomains="true">api.github.com</domain>
+        <domain includeSubdomains="true">githubusercontent.com</domain>
+        <domain includeSubdomains="true">github-releases.githubusercontent.com</domain>
+        
+        <!-- Certificate pinning (optional - uncomment if needed) -->
+        <!--
+        <pin-set expiration="2026-12-31">
+            <pin digest="SHA-256">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==</pin>
+        </pin-set>
+        -->
+    </domain-config>
+    
+    <!-- Debug override (for local testing) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
+
