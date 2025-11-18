@@ -106,10 +106,11 @@ android {
 
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
-            def flavorName = variant.flavorName ? "-${variant.flavorName}" : ""
+            // Don't include flavor name in release builds for cleaner naming
             if (variant.buildType.name == 'release') {
-                output.outputFileName = "truckdoc-client-v${variant.versionName}${flavorName}.apk"
+                output.outputFileName = "truckdoc-client-v${variant.versionName}.apk"
             } else {
+                def flavorName = variant.flavorName ? "-${variant.flavorName}" : ""
                 output.outputFileName = "truckdoc-client-v${variant.versionName}${flavorName}-${variant.buildType.name}.apk"
             }
         }
