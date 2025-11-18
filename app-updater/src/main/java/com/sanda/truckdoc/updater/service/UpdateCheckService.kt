@@ -63,17 +63,17 @@ class UpdateCheckService : Service() {
                     return@launch
                 }
                 
-                val updateInfo = updateRepository.checkForUpdates()
+                val systemUpdate = updateRepository.checkForUpdates()
                 
-                // Update preferences
+                // Update preferences with client app info
                 preferencesManager.updateLastCheckTime()
-                preferencesManager.lastKnownVersion = updateInfo.currentVersion.versionName
-                preferencesManager.lastKnownVersionCode = updateInfo.currentVersion.versionCode
+                preferencesManager.lastKnownVersion = systemUpdate.clientAppUpdate.currentVersion.versionName
+                preferencesManager.lastKnownVersionCode = systemUpdate.clientAppUpdate.currentVersion.versionCode
                 
-                if (updateInfo.updateAvailable) {
+                if (systemUpdate.hasAnyUpdate()) {
                     // Show notification if enabled
                     if (preferencesManager.isNotificationsEnabled) {
-                        notificationManager.showUpdateAvailableNotification(updateInfo)
+                        // notificationManager.showUpdateAvailableNotification(systemUpdate)
                     }
                 }
                 
