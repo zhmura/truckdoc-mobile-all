@@ -55,14 +55,14 @@ The Jenkins pipeline automatically:
 2. Extracts version from tag: `v1.2.3` → `1.2.3`
 3. Calculates version code: `1.2.3` → `10203`
 4. Builds APKs with these versions
-5. Names APKs: `truckdoc-client-v1.2.3-defaultClient.apk`
+5. Names APKs: `truckdoc-client-v1.2.3.apk`
 
 ### 3. GitHub Release
 
 When `PUBLISH_GITHUB_RELEASE=true`:
 1. Creates GitHub release with tag `v1.2.3`
 2. Uploads both APKs:
-   - `truckdoc-client-v1.2.3-defaultClient.apk`
+   - `truckdoc-client-v1.2.3.apk`
    - `truckdoc-updater-v1.2.3.apk`
 
 ### 4. App Updater Detection
@@ -79,12 +79,12 @@ The updater app:
 ### Production Release APKs
 
 ```
-truckdoc-client-v{version}-{flavor}.apk
+truckdoc-client-v{version}.apk
 truckdoc-updater-v{version}.apk
 ```
 
 Examples:
-- `truckdoc-client-v1.2.3-defaultClient.apk`
+- `truckdoc-client-v1.2.3.apk`
 - `truckdoc-updater-v1.2.3.apk`
 
 ### Debug APKs
@@ -93,6 +93,8 @@ Examples:
 truckdoc-client-v{version}-{flavor}-debug.apk
 truckdoc-updater-v{version}-debug.apk
 ```
+
+Note: Debug builds include the flavor name for debugging purposes, but release builds omit it for cleaner naming.
 
 ## Version Verification
 
@@ -131,7 +133,7 @@ If building without a Git tag:
 ./gradlew assembleRelease -PversionName=1.2.3 -PversionCode=10203
 
 # Output:
-# truckdoc-client-v1.2.3-defaultClient.apk (versionCode=10203)
+# truckdoc-client-v1.2.3.apk (versionCode=10203)
 ```
 
 ## Version Comparison Logic
@@ -263,7 +265,7 @@ git push origin v1.3.0
 # 3. Trigger Jenkins build
 # - Jenkins extracts v1.3.0 → version 1.3.0, code 10300
 # - Builds APKs with correct versions
-# - Names: truckdoc-client-v1.3.0-defaultClient.apk
+# - Names: truckdoc-client-v1.3.0.apk
 
 # 4. Publish to GitHub (if PUBLISH_GITHUB_RELEASE=true)
 # - Creates release v1.3.0
