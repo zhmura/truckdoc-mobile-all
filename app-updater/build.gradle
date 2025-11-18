@@ -17,8 +17,9 @@ android {
         applicationId "com.sanda.truckdoc.updater"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        // Use version from command line if provided, otherwise use defaults
+        versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 1
+        versionName project.hasProperty('versionName') ? project.property('versionName') : "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -31,6 +31,40 @@ pipeline {
       }
     }
 
+    stage('Extract Version from Tag') {
+      steps {
+        script {
+          // Get current Git tag or use RELEASE_TAG parameter
+          def gitTag = sh(
+            script: 'git describe --tags --exact-match 2>/dev/null || echo ""',
+            returnStdout: true
+          ).trim()
+          
+          // Use RELEASE_TAG parameter if provided, otherwise use git tag
+          def releaseTag = params.RELEASE_TAG ?: gitTag
+          
+          if (releaseTag) {
+            // Extract version from tag (e.g., v1.2.3 -> 1.2.3)
+            env.VERSION_NAME = releaseTag.replaceFirst(/^v/, '')
+            
+            // Calculate version code from version name (1.2.3 -> 10203)
+            def parts = env.VERSION_NAME.split('\\.')
+            def major = parts.length > 0 ? parts[0].toInteger() : 0
+            def minor = parts.length > 1 ? parts[1].toInteger() : 0
+            def patch = parts.length > 2 ? parts[2].toInteger() : 0
+            env.VERSION_CODE = String.valueOf(major * 10000 + minor * 100 + patch)
+            
+            echo "Building version ${env.VERSION_NAME} (code: ${env.VERSION_CODE}) from tag ${releaseTag}"
+          } else {
+            // Fallback to default version if no tag
+            env.VERSION_NAME = "1.0.0"
+            env.VERSION_CODE = "10000"
+            echo "No git tag found, using default version ${env.VERSION_NAME}"
+          }
+        }
+      }
+    }
+
     stage('Environment Diagnostics') {
       steps {
         sh '''
@@ -38,6 +72,8 @@ pipeline {
           echo "JAVA_HOME=$JAVA_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "PATH=$PATH"
+          echo "VERSION_NAME=$VERSION_NAME"
+          echo "VERSION_CODE=$VERSION_CODE"
           java -version
           if command -v sdkmanager >/dev/null 2>&1; then sdkmanager --version; fi
           ./gradlew --version
@@ -57,7 +93,12 @@ pipeline {
           # Clean build directories
           rm -rf app-updater/build truckdoc-client-m2/application/build
           ./gradlew --no-daemon --stacktrace clean
-          ./gradlew --no-daemon --stacktrace :app:assembleRelease :app-updater:assembleRelease
+          
+          # Build with version from tag
+          ./gradlew --no-daemon --stacktrace \
+            -PversionName=$VERSION_NAME \
+            -PversionCode=$VERSION_CODE \
+            :app:assembleRelease :app-updater:assembleRelease
         '''
       }
     }
