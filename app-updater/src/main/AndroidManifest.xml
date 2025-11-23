@@ -41,6 +41,12 @@
             android:label="@string/settings"
             android:theme="@style/Theme.AppUpdater" />
 
+        <activity
+            android:name=".ui.AdminSettingsActivity"
+            android:exported="false"
+            android:label="Admin Settings"
+            android:theme="@style/Theme.AppUpdater" />
+
         <service
             android:name=".service.UpdateCheckService"
             android:exported="false"

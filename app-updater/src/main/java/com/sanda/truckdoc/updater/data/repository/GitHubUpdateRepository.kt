@@ -10,6 +10,7 @@ import com.sanda.truckdoc.updater.data.model.AppVersion
 import com.sanda.truckdoc.updater.data.model.GitHubAsset
 import com.sanda.truckdoc.updater.data.model.GitHubRelease
 import com.sanda.truckdoc.updater.data.model.SystemUpdateInfo
+import com.sanda.truckdoc.updater.util.PreferencesManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,7 +19,8 @@ import javax.inject.Singleton
 @Singleton
 class GitHubUpdateRepository @Inject constructor(
     private val context: Context,
-    private val gitHubApiService: GitHubApiService
+    private val gitHubApiService: GitHubApiService,
+    private val preferencesManager: PreferencesManager
 ) {
     
     /**
@@ -26,9 +28,12 @@ class GitHubUpdateRepository @Inject constructor(
      */
     suspend fun checkForUpdates(): SystemUpdateInfo = withContext(Dispatchers.IO) {
         try {
+            // Get repo configuration (custom or default)
+            val (repoOwner, repoName) = preferencesManager.getGitHubRepoConfig()
+            
             val latestRelease = gitHubApiService.getLatestRelease(
-                GitHubConfig.REPO_OWNER,
-                GitHubConfig.REPO_NAME
+                repoOwner,
+                repoName
             )
             
             val clientUpdate = checkAppUpdate(

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +32,39 @@ class MainActivity : AppCompatActivity() {
         
         setupObservers()
         setupClickListeners()
+    }
+    
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+    
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_admin -> {
+                startActivity(Intent(this, AdminSettingsActivity::class.java))
+                true
+            }
+            R.id.action_about -> {
+                showAboutDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    
+    private fun showAboutDialog() {
+        val appVersion = try {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        } catch (e: Exception) {
+            "Unknown"
+        }
+        
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("TruckDoc Updater")
+            .setMessage("Version: $appVersion\n\nManages updates for TruckDoc mobile applications.")
+            .setPositiveButton("OK", null)
+            .show()
     }
     
     private fun setupObservers() {

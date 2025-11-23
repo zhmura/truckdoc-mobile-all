@@ -22,6 +22,14 @@ class PreferencesManager @Inject constructor(
         private const val KEY_WIFI_ONLY = "wifi_only"
         private const val KEY_LAST_KNOWN_VERSION = "last_known_version"
         private const val KEY_LAST_KNOWN_VERSION_CODE = "last_known_version_code"
+        
+        // Admin settings
+        private const val KEY_CUSTOM_REPO_OWNER = "custom_repo_owner"
+        private const val KEY_CUSTOM_REPO_NAME = "custom_repo_name"
+        private const val KEY_ADMIN_PASSWORD_HASH = "admin_password_hash"
+        
+        // Default admin password (should be changed)
+        private const val DEFAULT_ADMIN_PASSWORD = "admin123"
     }
     
     private val prefs: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -67,7 +75,76 @@ class PreferencesManager @Inject constructor(
         get() = prefs.getInt(KEY_LAST_KNOWN_VERSION_CODE, 0)
         set(value) = prefs.edit().putInt(KEY_LAST_KNOWN_VERSION_CODE, value).apply()
     
+    // Admin settings for custom GitHub repo
+    var customRepoOwner: String
+        get() = prefs.getString(KEY_CUSTOM_REPO_OWNER, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_CUSTOM_REPO_OWNER, value).apply()
+    
+    var customRepoName: String
+        get() = prefs.getString(KEY_CUSTOM_REPO_NAME, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_CUSTOM_REPO_NAME, value).apply()
+    
+    private var adminPasswordHash: String
+        get() = prefs.getString(KEY_ADMIN_PASSWORD_HASH, hashPassword(DEFAULT_ADMIN_PASSWORD)) ?: hashPassword(DEFAULT_ADMIN_PASSWORD)
+        set(value) = prefs.edit().putString(KEY_ADMIN_PASSWORD_HASH, value).apply()
+    
     // Utility methods
+    
+    /**
+     * Verify admin password
+     */
+    fun verifyAdminPassword(password: String): Boolean {
+        return hashPassword(password) == adminPasswordHash
+    }
+    
+    /**
+     * Set new admin password
+     */
+    fun setAdminPassword(newPassword: String) {
+        adminPasswordHash = hashPassword(newPassword)
+    }
+    
+    /**
+     * Get the GitHub repo configuration
+     * Returns custom repo if set, otherwise default from GitHubConfig
+     */
+    fun getGitHubRepoConfig(): Pair<String, String> {
+        val owner = customRepoOwner.ifEmpty { 
+            com.sanda.truckdoc.updater.config.GitHubConfig.REPO_OWNER 
+        }
+        val name = customRepoName.ifEmpty { 
+            com.sanda.truckdoc.updater.config.GitHubConfig.REPO_NAME 
+        }
+        return Pair(owner, name)
+    }
+    
+    /**
+     * Check if custom repo is configured
+     */
+    fun hasCustomRepo(): Boolean {
+        return customRepoOwner.isNotEmpty() && customRepoName.isNotEmpty()
+    }
+    
+    /**
+     * Clear custom repo configuration
+     */
+    fun clearCustomRepo() {
+        customRepoOwner = ""
+        customRepoName = ""
+    }
+    
+    /**
+     * Simple password hashing using SHA-256
+     */
+    private fun hashPassword(password: String): String {
+        return try {
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            val hash = digest.digest(password.toByteArray())
+            hash.joinToString("") { "%02x".format(it) }
+        } catch (e: Exception) {
+            password // Fallback to plain text if hashing fails (shouldn't happen)
+        }
+    }
     fun shouldCheckForUpdates(): Boolean {
         if (!isAutoCheckEnabled) return false
         
