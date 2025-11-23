@@ -49,14 +49,18 @@ class MainViewModel @Inject constructor(
             try {
                 _uiState.value = UiState.Loading
                 
-                // Check if client app is installed
-                if (!updateRepository.isAppInstalled(GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME)) {
-                    _uiState.value = UiState.Error("TruckDoc client app is not installed")
-                    return@launch
-                }
-                
                 val systemUpdate = updateRepository.checkForUpdates()
                 _systemUpdateInfo.value = systemUpdate
+                
+                // Check if client app is installed
+                val isClientInstalled = updateRepository.isAppInstalled(GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME)
+                
+                if (!isClientInstalled) {
+                    // Client not installed - offer to download latest version
+                    _uiState.value = UiState.ClientNotInstalled(systemUpdate)
+                    preferencesManager.updateLastCheckTime()
+                    return@launch
+                }
                 
                 // Update preferences with client app version
                 preferencesManager.updateLastCheckTime()
@@ -151,6 +155,7 @@ class MainViewModel @Inject constructor(
 
 sealed class UiState {
     object Loading : UiState()
+    data class ClientNotInstalled(val systemUpdate: SystemUpdateInfo) : UiState()
     data class NoUpdateAvailable(val systemUpdate: SystemUpdateInfo) : UiState()
     data class UpdateAvailable(val systemUpdate: SystemUpdateInfo) : UiState()
     data class Downloading(val target: DownloadTarget) : UiState()

@@ -122,6 +122,37 @@ class MainActivity : AppCompatActivity() {
                 binding.installButton.visibility = View.GONE
             }
             
+            is UiState.ClientNotInstalled -> {
+                val systemUpdate = state.systemUpdate
+                val latestVersion = systemUpdate.clientAppUpdate.latestVersion
+                
+                binding.statusText.text = if (latestVersion != null) {
+                    "TruckDoc Client not installed. Latest version: v${latestVersion.versionName} available"
+                } else {
+                    "TruckDoc Client not installed. No releases found."
+                }
+                
+                binding.progressCard.visibility = View.GONE
+                binding.checkButton.isEnabled = true
+                
+                // Show download button if latest version available
+                binding.downloadClientButton.visibility = if (latestVersion != null) {
+                    binding.downloadClientButton.text = "Download & Install TruckDoc Client v${latestVersion.versionName}"
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                
+                // Show updater update button if available
+                binding.downloadUpdaterButton.visibility = if (systemUpdate.updaterAppUpdate.updateAvailable) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                
+                binding.installButton.visibility = View.GONE
+            }
+            
             is UiState.NoUpdateAvailable -> {
                 binding.statusText.setText(R.string.no_updates_available)
                 binding.progressCard.visibility = View.GONE
@@ -214,23 +245,34 @@ class MainActivity : AppCompatActivity() {
     private fun updateVersionInfo(systemUpdate: com.sanda.truckdoc.updater.data.model.SystemUpdateInfo) {
         // Client App Info
         val clientUpdate = systemUpdate.clientAppUpdate
-        binding.currentVersionText.text = buildString {
-            append("Client: ${clientUpdate.currentVersion.versionName}")
-            if (clientUpdate.updateAvailable) {
-                append(" → ${clientUpdate.latestVersion?.versionName ?: "?"}")
-            }
-        }
         
-        // Updater App Info (show separately if needed)
-        val updaterUpdate = systemUpdate.updaterAppUpdate
-        if (updaterUpdate.updateAvailable) {
-            binding.latestVersionText.text = buildString {
-                append("Updater: ${updaterUpdate.currentVersion.versionName}")
-                append(" → ${updaterUpdate.latestVersion?.versionName ?: "?"}")
+        // Check if client is installed (versionCode 0 means not installed)
+        if (clientUpdate.currentVersion.versionCode == 0) {
+            binding.currentVersionText.text = "Client: Not installed"
+            clientUpdate.latestVersion?.let { latest ->
+                binding.latestVersionText.text = "Available: v${latest.versionName}"
+            } ?: run {
+                binding.latestVersionText.text = "No releases found"
             }
         } else {
-            clientUpdate.latestVersion?.let { latest ->
-                binding.latestVersionText.text = "Latest: ${latest.versionName}"
+            binding.currentVersionText.text = buildString {
+                append("Client: ${clientUpdate.currentVersion.versionName}")
+                if (clientUpdate.updateAvailable) {
+                    append(" → ${clientUpdate.latestVersion?.versionName ?: "?"}")
+                }
+            }
+            
+            // Updater App Info (show separately if needed)
+            val updaterUpdate = systemUpdate.updaterAppUpdate
+            if (updaterUpdate.updateAvailable) {
+                binding.latestVersionText.text = buildString {
+                    append("Updater: ${updaterUpdate.currentVersion.versionName}")
+                    append(" → ${updaterUpdate.latestVersion?.versionName ?: "?"}")
+                }
+            } else {
+                clientUpdate.latestVersion?.let { latest ->
+                    binding.latestVersionText.text = "Latest: ${latest.versionName}"
+                }
             }
         }
         
