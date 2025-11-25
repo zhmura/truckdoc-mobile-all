@@ -232,7 +232,7 @@ pipeline {
               echo "Main app APK not found" >&2
               exit 1
             fi
-            
+
             if [ ! -f "$UPDATER_APK" ]; then
               echo "Updater APK not found" >&2
               exit 1

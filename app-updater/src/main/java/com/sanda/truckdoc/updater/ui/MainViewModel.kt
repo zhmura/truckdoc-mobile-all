@@ -13,8 +13,10 @@ import com.sanda.truckdoc.updater.util.DownloadManager
 import com.sanda.truckdoc.updater.util.NotificationManager
 import com.sanda.truckdoc.updater.util.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -109,27 +111,33 @@ class MainViewModel @Inject constructor(
         
         currentDownloadTarget = target
         
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                _uiState.value = UiState.Downloading(target)
+                withContext(Dispatchers.Main) {
+                    _uiState.value = UiState.Downloading(target)
+                }
                 
                 downloadManager.downloadApkWithFlow(latestVersion.downloadUrl)
                     .collectLatest { progress ->
-                        _downloadProgress.value = DownloadProgress(
-                            progress.progress, 
-                            "${target.displayName}: ${progress.message}"
-                        )
-                        
-                        if (progress.progress == 100 && progress.file != null) {
-                            _uiState.value = UiState.DownloadComplete(progress.file, target)
-                            if (target == DownloadTarget.CLIENT_APP) {
-                            preferencesManager.updateLastUpdateTime()
+                        withContext(Dispatchers.Main) {
+                            _downloadProgress.value = DownloadProgress(
+                                progress.progress, 
+                                "${target.displayName}: ${progress.message}"
+                            )
+                            
+                            if (progress.progress == 100 && progress.file != null) {
+                                _uiState.value = UiState.DownloadComplete(progress.file, target)
+                                if (target == DownloadTarget.CLIENT_APP) {
+                                    preferencesManager.updateLastUpdateTime()
+                                }
                             }
                         }
                     }
                 
             } catch (e: Exception) {
-                _uiState.value = UiState.Error("Failed to download ${target.displayName}: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    _uiState.value = UiState.Error("Failed to download ${target.displayName}: ${e.message}")
+                }
             }
         }
     }
