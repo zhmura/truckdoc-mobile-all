@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                 binding.statusText.text = if (latestVersion != null) {
                     "TruckDoc Client not installed. Latest version: v${latestVersion.versionName} available"
                 } else {
-                    "TruckDoc Client not installed. No releases found."
+                    "TruckDoc Client not installed. No releases found in GitHub repository.\n\nCreate a release in Jenkins to publish APKs."
                 }
                 
                 binding.progressCard.visibility = View.GONE

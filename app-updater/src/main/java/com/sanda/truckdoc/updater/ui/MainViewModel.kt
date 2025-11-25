@@ -123,7 +123,7 @@ class MainViewModel @Inject constructor(
                         if (progress.progress == 100 && progress.file != null) {
                             _uiState.value = UiState.DownloadComplete(progress.file, target)
                             if (target == DownloadTarget.CLIENT_APP) {
-                                preferencesManager.updateLastUpdateTime()
+                            preferencesManager.updateLastUpdateTime()
                             }
                         }
                     }

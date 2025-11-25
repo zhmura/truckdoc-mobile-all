@@ -31,10 +31,16 @@ class GitHubUpdateRepository @Inject constructor(
             // Get repo configuration (custom or default)
             val (repoOwner, repoName) = preferencesManager.getGitHubRepoConfig()
             
-            val latestRelease = gitHubApiService.getLatestRelease(
-                repoOwner,
-                repoName
-            )
+            val latestRelease = try {
+                gitHubApiService.getLatestRelease(repoOwner, repoName)
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 404) {
+                    // No releases found - return empty update info
+                    return@withContext createNoReleasesUpdateInfo(repoOwner, repoName)
+                } else {
+                    throw UpdateException("GitHub API error (${e.code()}): ${e.message()}", e)
+                }
+            }
             
             val clientUpdate = checkAppUpdate(
                 packageName = GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME,
@@ -55,9 +61,37 @@ class GitHubUpdateRepository @Inject constructor(
                 updaterAppUpdate = updaterUpdate,
                 lastCheckTime = System.currentTimeMillis()
             )
+        } catch (e: UpdateException) {
+            throw e
         } catch (e: Exception) {
-            throw UpdateException("Failed to check for updates from GitHub", e)
+            throw UpdateException("Failed to check for updates from GitHub: ${e.message}", e)
         }
+    }
+    
+    /**
+     * Create update info when no releases are found
+     */
+    private fun createNoReleasesUpdateInfo(repoOwner: String, repoName: String): SystemUpdateInfo {
+        val clientCurrent = getCurrentAppVersion(GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME)
+        val updaterCurrent = getCurrentAppVersion(GitHubConfig.TargetApps.UPDATER_PACKAGE_NAME)
+        
+        return SystemUpdateInfo(
+            clientAppUpdate = AppUpdateInfo(
+                packageName = GitHubConfig.TargetApps.CLIENT_PACKAGE_NAME,
+                appName = "TruckDoc Client",
+                currentVersion = clientCurrent,
+                latestVersion = null,
+                updateAvailable = false
+            ),
+            updaterAppUpdate = AppUpdateInfo(
+                packageName = GitHubConfig.TargetApps.UPDATER_PACKAGE_NAME,
+                appName = "TruckDoc Updater",
+                currentVersion = updaterCurrent,
+                latestVersion = null,
+                updateAvailable = false
+            ),
+            lastCheckTime = System.currentTimeMillis()
+        )
     }
     
     /**
