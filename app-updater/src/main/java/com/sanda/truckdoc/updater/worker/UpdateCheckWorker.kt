@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.sanda.truckdoc.updater.config.GitHubConfig
-import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
+import com.sanda.truckdoc.updater.data.repository.UpdateProvider
 import com.sanda.truckdoc.updater.service.UpdateCheckService
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -19,7 +19,7 @@ class UpdateCheckWorker(
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface UpdateCheckWorkerEntryPoint {
-        fun updateRepository(): GitHubUpdateRepository
+        fun updateRepository(): UpdateProvider
     }
 
     override suspend fun doWork(): Result {

@@ -8,7 +8,8 @@ import javax.inject.Singleton
 
 @Singleton
 class PreferencesManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val securityUtils: SecurityUtils
 ) {
     
     companion object {
@@ -85,23 +86,37 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putString(KEY_CUSTOM_REPO_NAME, value).apply()
     
     private var adminPasswordHash: String
-        get() = prefs.getString(KEY_ADMIN_PASSWORD_HASH, hashPassword(DEFAULT_ADMIN_PASSWORD)) ?: hashPassword(DEFAULT_ADMIN_PASSWORD)
+        get() = prefs.getString(KEY_ADMIN_PASSWORD_HASH, legacyHashPassword(DEFAULT_ADMIN_PASSWORD)) ?: legacyHashPassword(DEFAULT_ADMIN_PASSWORD)
         set(value) = prefs.edit().putString(KEY_ADMIN_PASSWORD_HASH, value).apply()
     
     // Utility methods
     
     /**
-     * Verify admin password
+     * Verify admin password with migration support
      */
     fun verifyAdminPassword(password: String): Boolean {
-        return hashPassword(password) == adminPasswordHash
+        val storedHash = adminPasswordHash
+        
+        // 1. Try new HMAC hash (Secure)
+        val hmacHash = securityUtils.hashPassword(password)
+        if (hmacHash == storedHash) return true
+        
+        // 2. Fallback: Try legacy SHA-256 hash
+        val legacyHash = legacyHashPassword(password)
+        if (legacyHash == storedHash) {
+            // Migration: Upgrade storage to HMAC
+            adminPasswordHash = hmacHash
+            return true
+        }
+        
+        return false
     }
     
     /**
-     * Set new admin password
+     * Set new admin password using HMAC
      */
     fun setAdminPassword(newPassword: String) {
-        adminPasswordHash = hashPassword(newPassword)
+        adminPasswordHash = securityUtils.hashPassword(newPassword)
     }
     
     /**
@@ -134,15 +149,16 @@ class PreferencesManager @Inject constructor(
     }
     
     /**
-     * Simple password hashing using SHA-256
+     * Legacy SHA-256 hashing (Deprecated)
+     * Kept for migration purposes only
      */
-    private fun hashPassword(password: String): String {
+    private fun legacyHashPassword(password: String): String {
         return try {
             val digest = java.security.MessageDigest.getInstance("SHA-256")
             val hash = digest.digest(password.toByteArray())
             hash.joinToString("") { "%02x".format(it) }
         } catch (e: Exception) {
-            password // Fallback to plain text if hashing fails (shouldn't happen)
+            password 
         }
     }
     fun shouldCheckForUpdates(): Boolean {

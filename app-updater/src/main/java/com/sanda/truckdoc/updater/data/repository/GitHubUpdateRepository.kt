@@ -21,12 +21,12 @@ class GitHubUpdateRepository @Inject constructor(
     private val context: Context,
     private val gitHubApiService: GitHubApiService,
     private val preferencesManager: PreferencesManager
-) {
+) : UpdateProvider {
     
     /**
      * Check for updates for both the main client app and the updater itself
      */
-    suspend fun checkForUpdates(): SystemUpdateInfo = withContext(Dispatchers.IO) {
+    override suspend fun checkForUpdates(): SystemUpdateInfo = withContext(Dispatchers.IO) {
         try {
             // Get repo configuration (custom or default)
             val (repoOwner, repoName) = preferencesManager.getGitHubRepoConfig()
@@ -180,7 +180,7 @@ class GitHubUpdateRepository @Inject constructor(
     /**
      * Check if an app is installed
      */
-    fun isAppInstalled(packageName: String): Boolean {
+    override suspend fun isAppInstalled(packageName: String): Boolean {
         return try {
             context.packageManager.getPackageInfo(packageName, 0)
             true
@@ -226,13 +226,12 @@ class GitHubUpdateRepository @Inject constructor(
     
     /**
      * Calculate version code from version name using Jenkins formula
-     * Formula: (major * 10000) + (minor * 100) + patch
+     * Formula: (major * 1000000) + (minor * 10000) + patch
      * 
      * Examples:
-     * - "1.0.0" -> 10000
-     * - "1.0.3" -> 10003
-     * - "1.2.3" -> 10203
-     * - "2.5.7" -> 20507
+     * - "1.0.0" -> 1000000
+     * - "1.0.3" -> 1000003
+     * - "1.2.3" -> 1020003
      */
     private fun calculateVersionCode(versionName: String): Int {
         val parts = versionName.split(".")
@@ -240,7 +239,7 @@ class GitHubUpdateRepository @Inject constructor(
         val minor = parts.getOrNull(1)?.toIntOrNull() ?: 0
         val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
         
-        return (major * 10000) + (minor * 100) + patch
+        return (major * 1000000) + (minor * 10000) + patch
     }
     
     /**

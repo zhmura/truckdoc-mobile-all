@@ -47,12 +47,14 @@ pipeline {
       steps {
         script {
           // Helper function to calculate version code
+          // Formula: (major * 1000000) + (minor * 10000) + patch
+          // Supports up to 9999 patches per minor version
           def calculateVersionCode = { versionName ->
             def parts = versionName.split('\\.')
             def major = parts.length > 0 ? parts[0].toInteger() : 0
             def minor = parts.length > 1 ? parts[1].toInteger() : 0
             def patch = parts.length > 2 ? parts[2].toInteger() : 0
-            return major * 10000 + minor * 100 + patch
+            return (major * 1000000) + (minor * 10000) + patch
           }
           
           // Determine client app version

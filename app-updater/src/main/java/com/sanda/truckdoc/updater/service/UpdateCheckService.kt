@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.sanda.truckdoc.updater.R
-import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
+import com.sanda.truckdoc.updater.data.repository.UpdateProvider
 import com.sanda.truckdoc.updater.util.NotificationManager as AppNotificationManager
 import com.sanda.truckdoc.updater.util.PreferencesManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class UpdateCheckService : Service() {
     
     @Inject
-    lateinit var updateRepository: GitHubUpdateRepository
+    lateinit var updateRepository: UpdateProvider
     
     @Inject
     lateinit var notificationManager: AppNotificationManager

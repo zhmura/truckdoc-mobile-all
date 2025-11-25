@@ -18,25 +18,24 @@ Examples:
 
 ### Version Code Calculation
 
-Version code is automatically calculated from the version name:
+Version code is automatically calculated from the version name using a high-capacity formula:
 
 ```
-versionCode = (major * 10000) + (minor * 100) + patch
+versionCode = (major * 1000000) + (minor * 10000) + patch
 ```
 
 Examples:
-| Tag     | Version Name | Version Code | Calculation        |
-|---------|--------------|--------------|-------------------|
-| v1.0.0  | 1.0.0        | 10000        | 1*10000 + 0*100 + 0 |
-| v1.2.3  | 1.2.3        | 10203        | 1*10000 + 2*100 + 3 |
-| v2.5.7  | 2.5.7        | 20507        | 2*10000 + 5*100 + 7 |
-| v10.0.0 | 10.0.0       | 100000       | 10*10000 + 0*100 + 0 |
+| Tag     | Version Name | Version Code | Calculation |
+|---------|--------------|--------------|-------------|
+| v1.0.0  | 1.0.0        | 1000000      | 1*1M + 0*10K + 0 |
+| v1.2.3  | 1.2.3        | 1020003      | 1*1M + 2*10K + 3 |
+| v2.5.7  | 2.5.7        | 2050007      | 2*1M + 5*10K + 7 |
 
 This scheme supports:
-- Major versions: 0-99
+- Major versions: 0-2000
 - Minor versions: 0-99
-- Patch versions: 0-99
-- Maximum version code: 999999 (v99.99.99)
+- Patch versions: 0-9999
+- Maximum version code: 2.1 billion (Integer.MAX_VALUE)
 
 ## Release Process
 

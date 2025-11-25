@@ -51,6 +51,14 @@
 # Keep Moshi classes
 -keep class com.squareup.moshi.** { *; }
 -dontwarn com.squareup.moshi.**
+-keepattributes Signature
+-keepclassmembers class * {
+    @com.squareup.moshi.Json <fields>;
+}
+
+# Keep data classes used in API models
+-keep class com.sanda.truckdoc.client.api.** { *; }
+-keep class com.sanda.truckdoc.updater.data.model.** { *; }
 
 # Keep Timber classes
 -keep class timber.log.** { *; }

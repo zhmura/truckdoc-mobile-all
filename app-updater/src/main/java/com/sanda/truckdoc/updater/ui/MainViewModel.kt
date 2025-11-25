@@ -23,9 +23,11 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+import com.sanda.truckdoc.updater.data.repository.UpdateProvider
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val updateRepository: GitHubUpdateRepository,
+    private val updateRepository: UpdateProvider,
     private val downloadManager: DownloadManager,
     private val notificationManager: NotificationManager,
     private val preferencesManager: PreferencesManager

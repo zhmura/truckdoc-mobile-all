@@ -30,21 +30,36 @@ class TruckDocApp : Application() {
             
             Log.d(TAG, "TruckDocApp onCreate started")
             
-            // Completely disable StrictMode to prevent crashes during initialization
-            // Logback and file logging require disk I/O on main thread during static initialization
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .permitDiskReads()
-                    .permitDiskWrites()
-                    .permitNetwork()
-                    .permitCustomSlowCalls()
-                    .build()
-            )
-            
-            StrictMode.setVmPolicy(
-                StrictMode.VmPolicy.Builder()
-                    .build()
-            )
+            // Configure StrictMode
+            if (BuildConfig.DEBUG) {
+                // Debug: Detect everything, log it, but don't crash (yet) to avoid ANRs being hidden
+                StrictMode.setThreadPolicy(
+                    StrictMode.ThreadPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog()
+                        .build()
+                )
+                StrictMode.setVmPolicy(
+                    StrictMode.VmPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog()
+                        .build()
+                )
+            } else {
+                // Release: Permissive to avoid user crashes
+                StrictMode.setThreadPolicy(
+                    StrictMode.ThreadPolicy.Builder()
+                        .permitDiskReads()
+                        .permitDiskWrites()
+                        .permitNetwork()
+                        .permitCustomSlowCalls()
+                        .build()
+                )
+                StrictMode.setVmPolicy(
+                    StrictMode.VmPolicy.Builder()
+                        .build()
+                )
+            }
             
             Log.d(TAG, "StrictMode configured")
             
