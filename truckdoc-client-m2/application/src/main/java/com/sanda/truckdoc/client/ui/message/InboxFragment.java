@@ -119,7 +119,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         IntentFilter filter = new IntentFilter(ServiceResultReceiver.ACTION_PROCESS_FINISHED);
         filter.addAction(ServiceResultReceiver.ACTION_LIST_UPDATE_START);
         filter.addAction(ServiceResultReceiver.ACTION_LIST_UPDATED);
-        requireActivity().registerReceiver(receiver, filter);
+        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
     }
 
     @Override

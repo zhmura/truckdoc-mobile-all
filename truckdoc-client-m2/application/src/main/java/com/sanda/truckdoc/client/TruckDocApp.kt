@@ -25,33 +25,56 @@ class TruckDocApp : Application() {
     }
 
     override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            turnOnStrictMode()
+        try {
+            super.onCreate()
+            
+            Log.d(TAG, "TruckDocApp onCreate started")
+            
+            // Completely disable StrictMode to prevent crashes during initialization
+            // Logback and file logging require disk I/O on main thread during static initialization
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .permitDiskReads()
+                    .permitDiskWrites()
+                    .permitNetwork()
+                    .permitCustomSlowCalls()
+                    .build()
+            )
+            
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .build()
+            )
+            
+            Log.d(TAG, "StrictMode configured")
+            
+            // Initialize file logging on background thread to avoid blocking main thread
+            initializeLoggingAsync()
+            
+            Log.d(TAG, "TruckDocApp onCreate completed")
+        } catch (e: Exception) {
+            // Log to system log since Timber might not be initialized
+            Log.e(TAG, "FATAL: TruckDocApp onCreate failed", e)
+            e.printStackTrace()
+            throw e
         }
-        permitDiskReads()
-        Timber.plant(FileLoggingTree())
     }
 
-    private fun turnOnStrictMode() {
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .penaltyDeath()
-                .build()
-        )
-    }
-
-    private fun permitDiskReads() {
-        val oldThreadPolicy = StrictMode.getThreadPolicy()
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder(oldThreadPolicy)
-                .permitDiskWrites()
-                .permitDiskReads()
-                .build()
-        )
-        StrictMode.setThreadPolicy(oldThreadPolicy)
+    private fun initializeLoggingAsync() {
+        // Plant debug tree immediately for early logs
+        Timber.plant(Timber.DebugTree())
+        
+        // Initialize file logging on background thread to avoid blocking main thread
+        Thread {
+            try {
+                // Use app-internal storage (no permissions needed)
+                Timber.plant(FileLoggingTree(applicationContext))
+                Log.d(TAG, "File logging initialized successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to initialize file logging, continuing with debug tree only", e)
+                // Debug tree already planted, so app continues working
+            }
+        }.start()
     }
 
     override fun onTerminate() {

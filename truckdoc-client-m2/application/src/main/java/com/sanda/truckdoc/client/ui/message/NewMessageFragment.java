@@ -118,7 +118,7 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
         filter.addAction(ResponseReceiver.ACTION_LIST_UPDATED);
         filter.addAction(ResponseReceiver.NOTIFICATION_MESSAGE);
 
-        requireActivity().registerReceiver(receiver, filter);
+        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
     }
 
     @Override

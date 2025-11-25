@@ -49,7 +49,7 @@ public class Model {
         storage = LocalStorage.getInstance(context);
         IntentFilter filter = new IntentFilter(ServiceResultReceiver.ACTION_UPLOAD_MNT_ATTACHMENT_OK);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        context.getApplicationContext().registerReceiver(receiver, filter);
+        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(context.getApplicationContext(), receiver, filter);
 
     }
 

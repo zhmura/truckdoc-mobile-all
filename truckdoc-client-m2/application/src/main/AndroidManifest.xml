@@ -49,7 +49,7 @@
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:icon">
         <activity
-            android:name=".ui.SplashActivity_"
+            android:name=".ui.SplashActivity"
             android:icon="@drawable/icon"
             android:theme="@style/Base.Theme.AppCompat"
             android:exported="true">
@@ -61,20 +61,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.RegisterActivity_"
+            android:name=".ui.RegisterActivity"
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
-            android:name=".ui.UnauthorizedActivity_"
+            android:name=".ui.UnauthorizedActivity"
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
-            android:name=".ui.DashboardActivity_"
+            android:name=".ui.DashboardActivity"
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
-            android:name=".ui.TruckdocPreferenceActivity_"
+            android:name=".ui.TruckdocPreferenceActivity"
             android:label="@string/preferences_title"
             android:theme="@style/Theme.AppCompat" />
         <activity
-            android:name=".ui.DialogActivity_"
+            android:name=".ui.DialogActivity"
             android:launchMode="singleTop"
             android:noHistory="true"
             android:showOnLockScreen="true"
@@ -89,12 +89,12 @@
             android:name=".ui.dgcam.NoSDCard"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".ui.ScannerActivity_"
+            android:name=".ui.ScannerActivity"
             android:label="@string/activity_scanner_title"
             android:theme="@style/Theme.AppCompat" />
 
         <service android:name=".service.MessageCheckService" android:exported="true"/>
-        <service android:name=".to.service.NewMntService_" />
+        <service android:name=".to.service.NewMntService" />
 
         <receiver android:name=".receivers.SmsReceiver"
             android:exported="true"
@@ -127,7 +127,7 @@
                 </receiver>-->
 
         <activity
-            android:name=".wizard.wizardpager.ui.CameraActivity_"
+            android:name=".wizard.wizardpager.ui.CameraActivity"
             android:label="@string/title_activity_camera_wizard"
             android:screenOrientation="landscape" />
         <activity
@@ -163,7 +163,7 @@
         <service android:name=".ui.floating.ApnHelpWindow" />
 
         <service
-            android:name=".service.NewMessageService_"
+            android:name=".service.NewMessageService"
             android:exported="false" />
         <!--
                 <service

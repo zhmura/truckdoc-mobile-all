@@ -344,7 +344,7 @@ public class DashboardActivity extends AppCompatActivity {
         filter.addAction(ServiceResultReceiver.ACTION_SENT_MAINTENANCE_OK);
         filter.addAction(ServiceResultReceiver.ACTION_SENT_MAINTENANCE_ERROR);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(receiver, filter);
+        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(this, receiver, filter);
     }
 
     @Override

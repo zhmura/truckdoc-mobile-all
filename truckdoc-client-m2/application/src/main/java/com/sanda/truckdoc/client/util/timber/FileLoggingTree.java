@@ -24,14 +24,35 @@ import ch.qos.logback.core.util.StatusPrinter;
 import timber.log.Timber;
 
 public class FileLoggingTree extends Timber.Tree {
+    // Keep for backward compatibility with FileHelper
+    @Deprecated
     public static final String LOG_STORAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TruckDoc/logs/";
+    
     private Logger mLogger = LoggerFactory.getLogger(FileLoggingTree.class);
     private static final String LOG_PREFIX = "truckdoc-log";
+    private final String logDirectory;
 
-
+    /**
+     * Constructor that uses app-internal storage (no permissions needed)
+     * @param context Application context
+     */
+    public FileLoggingTree(android.content.Context context) {
+        // Use app-internal files directory instead of external storage
+        // This doesn't require WRITE_EXTERNAL_STORAGE permission
+        File internalLogsDir = new File(context.getFilesDir(), "logs");
+        this.logDirectory = internalLogsDir.getAbsolutePath();
+        
+        createFileIfNotExists(logDirectory, true);
+        configureLogger(logDirectory);
+    }
+    
+    /**
+     * Legacy constructor for backward compatibility
+     * Falls back to external storage (requires permission)
+     */
+    @Deprecated
     public FileLoggingTree() {
-        //async here
-        final String logDirectory = LOG_STORAGE;
+        this.logDirectory = LOG_STORAGE;
         createFileIfNotExists(logDirectory, true);
         configureLogger(logDirectory);
     }

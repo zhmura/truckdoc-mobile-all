@@ -92,7 +92,8 @@ public class RegisterActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_PROCESS_FINISHED);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         receiver = new ResponseReceiver();
-        registerReceiver(receiver, filter);
+        // Use utility for Android 13+ compatibility
+        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(this, receiver, filter);
     }
 
     @Override
