@@ -190,10 +190,92 @@ pipeline {
       }
     }
 
+    stage('Prepare Release Bundle') {
+      steps {
+        script {
+          def releaseDir = "${env.WORKSPACE}/release-bundle"
+          sh "rm -rf '${releaseDir}' && mkdir -p '${releaseDir}'"
+
+          def clientApkPath = sh(
+            script: "ls -t truckdoc-client-m2/application/build/outputs/apk/defaultClient/release/*.apk | head -n 1",
+            returnStdout: true
+          ).trim()
+          if (!clientApkPath) {
+            error("Client APK not found in defaultClient release output directory")
+          }
+
+          def updaterApkPath = sh(
+            script: "ls -t app-updater/build/outputs/apk/release/*.apk | head -n 1",
+            returnStdout: true
+          ).trim()
+          if (!updaterApkPath) {
+            error("Updater APK not found in release output directory")
+          }
+
+          def clientFileName = "truckdoc-client-v${env.CLIENT_VERSION_NAME}.apk"
+          def updaterFileName = "truckdoc-updater-v${env.UPDATER_VERSION_NAME}.apk"
+
+          sh """
+            cp '${clientApkPath}' '${releaseDir}/${clientFileName}'
+            cp '${updaterApkPath}' '${releaseDir}/${updaterFileName}'
+          """
+
+          def clientFile = new File("${releaseDir}/${clientFileName}")
+          def updaterFile = new File("${releaseDir}/${updaterFileName}")
+          def clientSha = sh(
+            script: "cd '${releaseDir}' && shasum -a 256 '${clientFileName}' | awk '{print \$1}'",
+            returnStdout: true
+          ).trim()
+          def updaterSha = sh(
+            script: "cd '${releaseDir}' && shasum -a 256 '${updaterFileName}' | awk '{print \$1}'",
+            returnStdout: true
+          ).trim()
+          def artifactBaseUrl = "${env.BUILD_URL}artifact/release-bundle/"
+          def manifest = [
+            releaseTag: env.RELEASE_TAG_NAME,
+            buildNumber: env.BUILD_NUMBER?.toInteger(),
+            generatedAt: new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX", java.util.TimeZone.getTimeZone('UTC')),
+            source: [
+              jobName: env.JOB_NAME,
+              buildUrl: env.BUILD_URL
+            ],
+            client: [
+              packageName: "com.sanda.truckdoc.client.default",
+              appName: "TruckDoc Client",
+              versionName: env.CLIENT_VERSION_NAME,
+              versionCode: env.CLIENT_VERSION_CODE?.toInteger(),
+              buildNumber: env.BUILD_NUMBER?.toInteger(),
+              downloadUrl: artifactBaseUrl + clientFile.getName(),
+              fileName: clientFile.getName(),
+              fileSizeBytes: clientFile.length(),
+              sha256: clientSha,
+              releaseNotes: params.RELEASE_NOTES
+            ],
+            updater: [
+              packageName: "com.sanda.truckdoc.updater",
+              appName: "TruckDoc Updater",
+              versionName: env.UPDATER_VERSION_NAME,
+              versionCode: env.UPDATER_VERSION_CODE?.toInteger(),
+              buildNumber: env.BUILD_NUMBER?.toInteger(),
+              downloadUrl: artifactBaseUrl + updaterFile.getName(),
+              fileName: updaterFile.getName(),
+              fileSizeBytes: updaterFile.length(),
+              sha256: updaterSha,
+              releaseNotes: params.RELEASE_NOTES
+            ]
+          ]
+
+          def manifestJson = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifest))
+          writeFile file: "${releaseDir}/release_manifest.json", text: manifestJson
+          echo "Release manifest created at ${releaseDir}/release_manifest.json"
+        }
+      }
+    }
+
     stage('Archive Artifacts') {
       steps {
-        archiveArtifacts artifacts: 'truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk', fingerprint: true
-        stash name: 'release-apks', includes: 'truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk'
+        archiveArtifacts artifacts: 'release-bundle/**, truckdoc-client-m2/application/build/outputs/apk/**/release/*.apk, app-updater/build/outputs/apk/**/release/*.apk', fingerprint: true
+        stash name: 'release-apks', includes: 'release-bundle/**'
       }
     }
 
@@ -224,11 +306,9 @@ pipeline {
             echo "Using GitHub CLI at: $GH_CLI"
 
             # Find APKs
-            MAIN_APP_DIR="truckdoc-client-m2/application/build/outputs/apk/defaultClient/release"
-            UPDATER_DIR="app-updater/build/outputs/apk/release"
-            
-            MAIN_APK=$(ls -t "$MAIN_APP_DIR"/*.apk | head -n 1)
-            UPDATER_APK=$(ls -t "$UPDATER_DIR"/*.apk | head -n 1)
+            RELEASE_DIR="release-bundle"
+            MAIN_APK=$(ls -t "$RELEASE_DIR"/truckdoc-client-*.apk | head -n 1)
+            UPDATER_APK=$(ls -t "$RELEASE_DIR"/truckdoc-updater-*.apk | head -n 1)
             
             if [ ! -f "$MAIN_APK" ]; then
               echo "Main app APK not found" >&2

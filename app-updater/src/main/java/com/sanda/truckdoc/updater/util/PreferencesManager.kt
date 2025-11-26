@@ -2,6 +2,7 @@ package com.sanda.truckdoc.updater.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.sanda.truckdoc.updater.config.CustomServerConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +28,8 @@ class PreferencesManager @Inject constructor(
         // Admin settings
         private const val KEY_CUSTOM_REPO_OWNER = "custom_repo_owner"
         private const val KEY_CUSTOM_REPO_NAME = "custom_repo_name"
+        private const val KEY_USE_CUSTOM_SERVER = "use_custom_server"
+        private const val KEY_CUSTOM_SERVER_MANIFEST_URL = "custom_server_manifest_url"
         private const val KEY_ADMIN_PASSWORD_HASH = "admin_password_hash"
         
         // Default admin password (should be changed)
@@ -34,6 +37,19 @@ class PreferencesManager @Inject constructor(
     }
     
     private val prefs: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    init {
+        if (!prefs.contains(KEY_CUSTOM_SERVER_MANIFEST_URL)) {
+            prefs.edit()
+                .putString(KEY_CUSTOM_SERVER_MANIFEST_URL, CustomServerConfig.defaultManifestUrl())
+                .apply()
+        }
+        if (!prefs.contains(KEY_USE_CUSTOM_SERVER)) {
+            prefs.edit()
+                .putBoolean(KEY_USE_CUSTOM_SERVER, CustomServerConfig.DEFAULT_ENABLED)
+                .apply()
+        }
+    }
     
     // Auto-check settings
     var isAutoCheckEnabled: Boolean
@@ -84,6 +100,20 @@ class PreferencesManager @Inject constructor(
     var customRepoName: String
         get() = prefs.getString(KEY_CUSTOM_REPO_NAME, "") ?: ""
         set(value) = prefs.edit().putString(KEY_CUSTOM_REPO_NAME, value).apply()
+
+    var isCustomServerEnabled: Boolean
+        get() = prefs.getBoolean(KEY_USE_CUSTOM_SERVER, CustomServerConfig.DEFAULT_ENABLED)
+        set(value) = prefs.edit().putBoolean(KEY_USE_CUSTOM_SERVER, value).apply()
+
+    var customServerManifestUrl: String
+        get() = prefs.getString(KEY_CUSTOM_SERVER_MANIFEST_URL, CustomServerConfig.defaultManifestUrl())
+            ?: CustomServerConfig.defaultManifestUrl()
+        set(value) = prefs.edit()
+            .putString(
+                KEY_CUSTOM_SERVER_MANIFEST_URL,
+                value.ifBlank { CustomServerConfig.defaultManifestUrl() }
+            )
+            .apply()
     
     private var adminPasswordHash: String
         get() = prefs.getString(KEY_ADMIN_PASSWORD_HASH, legacyHashPassword(DEFAULT_ADMIN_PASSWORD)) ?: legacyHashPassword(DEFAULT_ADMIN_PASSWORD)

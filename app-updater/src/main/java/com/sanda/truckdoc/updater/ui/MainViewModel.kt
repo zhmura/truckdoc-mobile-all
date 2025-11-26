@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.sanda.truckdoc.updater.config.GitHubConfig
 import com.sanda.truckdoc.updater.data.model.AppUpdateInfo
 import com.sanda.truckdoc.updater.data.model.SystemUpdateInfo
-import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
 import com.sanda.truckdoc.updater.data.repository.UpdateException
 import com.sanda.truckdoc.updater.util.DownloadManager
 import com.sanda.truckdoc.updater.util.NotificationManager
