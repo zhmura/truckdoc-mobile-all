@@ -31,5 +31,11 @@
             <certificates src="user" />
         </trust-anchors>
     </debug-overrides>
+
+    <!-- Local testing domains (Cleartext allowed for emulator/local dev) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
 </network-security-config>
 
