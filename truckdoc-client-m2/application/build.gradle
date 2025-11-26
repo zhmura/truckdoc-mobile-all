@@ -256,6 +256,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.3'
 
     // Esperandro
     implementation libs.esperandro.api
