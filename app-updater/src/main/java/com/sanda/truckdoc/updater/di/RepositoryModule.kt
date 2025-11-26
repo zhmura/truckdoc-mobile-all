@@ -1,6 +1,6 @@
 package com.sanda.truckdoc.updater.di
 
-import com.sanda.truckdoc.updater.data.repository.GitHubUpdateRepository
+import com.sanda.truckdoc.updater.data.repository.ConfigurableUpdateProvider
 import com.sanda.truckdoc.updater.data.repository.UpdateProvider
 import dagger.Binds
 import dagger.Module
@@ -15,7 +15,7 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUpdateProvider(
-        gitHubUpdateRepository: GitHubUpdateRepository
+        configurableUpdateProvider: ConfigurableUpdateProvider
     ): UpdateProvider
 }
 

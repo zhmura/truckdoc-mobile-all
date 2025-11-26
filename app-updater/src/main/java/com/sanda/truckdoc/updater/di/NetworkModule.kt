@@ -1,6 +1,8 @@
 package com.sanda.truckdoc.updater.di
 
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.sanda.truckdoc.updater.config.GitHubConfig
 import com.sanda.truckdoc.updater.config.JenkinsConfig
 import com.sanda.truckdoc.updater.data.api.GitHubApiService
@@ -40,26 +42,32 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = GsonBuilder()
+        .setLenient()
+        .create()
     
     @Provides
     @Singleton
     @GitHubRetrofit
-    fun provideGitHubRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideGitHubRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(GitHubConfig.GITHUB_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
     
     @Provides
     @Singleton
     @JenkinsRetrofit
-    fun provideJenkinsRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideJenkinsRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(JenkinsConfig.JENKINS_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
     
