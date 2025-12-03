@@ -93,7 +93,10 @@
             android:label="@string/activity_scanner_title"
             android:theme="@style/Theme.AppCompat" />
 
-        <service android:name=".service.MessageCheckService" android:exported="true"/>
+        <service 
+            android:name=".service.MessageCheckService" 
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         <service android:name=".to.service.NewMntService" />
 
         <receiver android:name=".receivers.SmsReceiver"
