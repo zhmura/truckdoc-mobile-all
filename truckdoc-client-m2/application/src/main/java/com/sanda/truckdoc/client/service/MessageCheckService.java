@@ -432,15 +432,29 @@ public class MessageCheckService extends IntentService {
             boolean result = register(registrationToken);
             if (result) {
                 sendNotificationMessageonUI(getResources().getString(R.string.userRegisteredSuccessfully), false);
+                sendRegistrationResult(true, null);
                 startDashboardActivity();
             } else {
-                startRegisterActivity();
+                String errorMsg = getString(R.string.registration_failed);
+                sendRegistrationResult(false, errorMsg);
+                sendNotificationMessageonUI(errorMsg, true);
             }
         } catch (Exception e) {
             Timber.e(e, "Sending messages failed");
-            sendNotificationMessageonUI(NotificationHelper.getErrorMessage(e, this, "M1"), true);
+            String errorMsg = NotificationHelper.getErrorMessage(e, this, "M1");
+            sendNotificationMessageonUI(errorMsg, true);
+            sendRegistrationResult(false, errorMsg);
         }
         stopSelf();
+    }
+
+    private void sendRegistrationResult(boolean success, @Nullable String errorMessage) {
+        Bundle resultBundle = new Bundle();
+        resultBundle.putBoolean(REGISTRATION_SUCCESS, success);
+        if (!TextUtils.isEmpty(errorMessage)) {
+            resultBundle.putString(REGISTRATION_ERROR_MSG, errorMessage);
+        }
+        notifyActivity("", resultBundle, false);
     }
 
     /**
