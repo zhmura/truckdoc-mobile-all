@@ -54,6 +54,8 @@ public class NetworkModule {
                 .baseUrl("https://mobile-api.truckdoc.ru/")
                 .client(okHttpClient)
                 .addConverterFactory(JacksonConverterFactory.create())
+                .addCallAdapterFactory(EasyCallAdapterFactory.create())
+                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create());
     }
 

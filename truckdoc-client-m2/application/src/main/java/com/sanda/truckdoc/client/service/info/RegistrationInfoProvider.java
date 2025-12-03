@@ -9,7 +9,7 @@ import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.view.WindowManager;
+import android.content.res.Resources;
 
 import com.sanda.truckdoc.client.BuildConfig;
 import com.sanda.truckdoc.client.api.v3.configuration.model.app.AppFeatures;
@@ -59,9 +59,8 @@ public class RegistrationInfoProvider {
         deviceInfo.setPhoneModel(android.os.Build.MODEL);
         deviceInfo.setPhoneManufacturer(android.os.Build.MANUFACTURER);
         deviceInfo.setAndroidVersion(android.os.Build.VERSION.RELEASE);
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) contextWrapper.getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(displaymetrics);
+        Resources resources = contextWrapper.getResources();
+        DisplayMetrics displaymetrics = resources.getDisplayMetrics();
         Dimensions screenSize = new Dimensions();
         screenSize.setX((long) displaymetrics.heightPixels);
         screenSize.setY((long) displaymetrics.widthPixels);

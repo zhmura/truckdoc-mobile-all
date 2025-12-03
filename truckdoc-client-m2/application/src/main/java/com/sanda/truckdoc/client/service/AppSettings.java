@@ -3,6 +3,7 @@ package com.sanda.truckdoc.client.service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.os.StrictMode;
 
 import com.sanda.truckdoc.network.api.UserKey;
 
@@ -27,7 +28,12 @@ public class AppSettings {
     }
 
     private SharedPreferences getPrefs() {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        try {
+            return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
+        }
     }
 
     @Nullable
