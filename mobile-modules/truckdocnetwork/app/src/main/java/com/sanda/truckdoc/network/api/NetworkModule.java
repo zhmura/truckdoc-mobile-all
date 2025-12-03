@@ -11,6 +11,7 @@ import com.sanda.truckdoc.network.Backend;
 import com.sanda.truckdoc.network.api.interceptors.ClientVersionHeaderInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.HttpLoggingInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.UserAgentInterceptor;
+import com.sanda.truckdoc.network.api.interceptors.TrafficStatsInterceptor;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +42,7 @@ public class NetworkModule {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         return new OkHttpClient.Builder()
+                .addInterceptor(new TrafficStatsInterceptor())
                 .addInterceptor(new UserAgentInterceptor("TruckDoc/1.0"))
                 .addInterceptor(new ClientVersionHeaderInterceptor("1.0"))
                 .addInterceptor(loggingInterceptor)

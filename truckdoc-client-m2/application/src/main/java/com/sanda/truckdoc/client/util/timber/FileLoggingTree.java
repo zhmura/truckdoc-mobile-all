@@ -1,6 +1,7 @@
 package com.sanda.truckdoc.client.util.timber;
 
 import android.os.Environment;
+import android.os.StrictMode;
 import android.util.Log;
 
 import org.slf4j.Logger;
@@ -136,19 +137,24 @@ public class FileLoggingTree extends Timber.Tree {
         }
 
         String logMessage = tag + ": " + message;
-        switch (priority) {
-            case Log.DEBUG:
-                mLogger.debug(logMessage);
-                break;
-            case Log.INFO:
-                mLogger.info(logMessage);
-                break;
-            case Log.WARN:
-                mLogger.warn(logMessage);
-                break;
-            case Log.ERROR:
-                mLogger.error(logMessage);
-                break;
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskWrites();
+        try {
+            switch (priority) {
+                case Log.DEBUG:
+                    mLogger.debug(logMessage);
+                    break;
+                case Log.INFO:
+                    mLogger.info(logMessage);
+                    break;
+                case Log.WARN:
+                    mLogger.warn(logMessage);
+                    break;
+                case Log.ERROR:
+                    mLogger.error(logMessage);
+                    break;
+            }
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
         }
     }
 
