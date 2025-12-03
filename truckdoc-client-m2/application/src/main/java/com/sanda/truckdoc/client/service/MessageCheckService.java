@@ -189,7 +189,13 @@ public class MessageCheckService extends IntentService {
         super.onCreate();
         // Use Hilt entry point pattern for Services
         HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(this);
-        // Inject dependencies manually if needed
+        
+        // Inject dependencies from entry point
+        backend = entryPoint.backend();
+        prefs = entryPoint.prefs();
+        databaseService = entryPoint.messagesDatabaseService();
+        notificationHelper = entryPoint.notificationHelper();
+        
         startCommand();
         resources = loadProperties();
         settings = new AppSettings(this);

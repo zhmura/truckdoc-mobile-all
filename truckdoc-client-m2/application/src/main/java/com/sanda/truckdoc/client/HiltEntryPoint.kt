@@ -14,4 +14,5 @@ interface HiltEntryPoint {
     fun prefs(): Prefs
     fun notificationHelper(): NotificationHelper
     fun authorizedBackend(): AuthorizedBackend?
+    fun backend(): com.sanda.truckdoc.network.Backend
 } 
