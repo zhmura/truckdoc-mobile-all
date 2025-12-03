@@ -25,7 +25,7 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class NetworkFactory {
-    private static final String BASE_URL = "https://mobile.aps-solver.com/mobile-api/";
+    private static final String BASE_URL = "https://mobile-api.truckdoc.ru/";
     private static OkHttpClient okHttpClient;
     private static ObjectMapper objectMapper;
     private static Retrofit retrofit;
@@ -86,7 +86,7 @@ public class NetworkFactory {
 
     public static Retrofit.Builder getRetrofitBuilder() {
         return new Retrofit.Builder()
-                .baseUrl("https://mobile.aps-solver.com/mobile-api/")
+                .baseUrl("https://mobile-api.truckdoc.ru/")
                 .addConverterFactory(JacksonConverterFactory.create(getObjectMapper()))
                 .addCallAdapterFactory(EasyCallAdapterFactory.create())
                 .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())

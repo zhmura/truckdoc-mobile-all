@@ -51,7 +51,7 @@ public class NetworkModule {
     @Singleton
     static Retrofit.Builder provideRetrofitBuilder(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl("https://mobile.aps-solver.com/mobile-api/")
+                .baseUrl("https://mobile-api.truckdoc.ru/")
                 .client(okHttpClient)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create());

@@ -35,7 +35,7 @@ This document provides comprehensive technical documentation for architecture re
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Backend Services                          │
-│         https://mobile.aps-solver.com/mobile-api/           │
+│         https://mobile-api.truckdoc.ru/           │
 │                                                              │
 │  - User Authentication                                       │
 │  - Message Sync                                              │
@@ -574,7 +574,7 @@ class PreferencesManager @Inject constructor(
 **Base Configuration:**
 ```kotlin
 object ApiConfig {
-    const val BASE_URL = "https://mobile.aps-solver.com/mobile-api/"
+    const val BASE_URL = "https://mobile-api.truckdoc.ru/"
     const val TIMEOUT_CONNECT = 30L // seconds
     const val TIMEOUT_READ = 60L // seconds
 }

@@ -148,7 +148,7 @@ public class MessageCheckService extends IntentService {
     //Notification message ID
     private static final int NEW_MESSAGE_NOTIFICATION = 1448;
     private static final int SYNC_RESULTS_NOTIFICATION_ID = 1337;
-    private static final String SYNC_CHECK_URL = "https://mobile.aps-solver.com/mobile-api/v2/messages/syncCheck"; // TODO: Use api_service_path!
+    private static final String SYNC_CHECK_URL = "https://mobile-api.truckdoc.ru/v2/messages/syncCheck"; // TODO: Use api_service_path!
     private static final ImmutableList<String> DOC_TYPES = ImmutableList.of("INVOICE", "CARNET-TIR", "CMR", "COM-DESCR", "PACK-LIST", "EXPORT-DECL", "DKD");
 
     // Checks should not be done when time passed is less than this.
