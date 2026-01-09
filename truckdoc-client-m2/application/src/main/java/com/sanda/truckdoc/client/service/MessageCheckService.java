@@ -1,7 +1,6 @@
 package com.sanda.truckdoc.client.service;
 
 import android.Manifest;
-import android.app.IntentService;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -20,7 +19,6 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.Prefs;
@@ -74,6 +72,7 @@ import com.sanda.truckdoc.client.util.commons.FilenameUtils;
 import com.sanda.truckdoc.client.util.commons.IOUtils;
 import com.sanda.truckdoc.client.util.commons.StringUtils;
 import com.sanda.truckdoc.client.util.timber.L;
+import com.sanda.truckdoc.client.service.network.AuthorizedBackendFactory;
 import com.sanda.truckdoc.network.AuthorizedBackend;
 import com.sanda.truckdoc.network.Backend;
 import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
@@ -95,6 +94,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
@@ -122,7 +122,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexei Osipov
  */
-public class MessageCheckService extends IntentService {
+public class MessageCheckService extends com.sanda.truckdoc.client.service.intent.SingleThreadService {
 
     private static final String TAG = "MessageCheckService";
 
@@ -148,7 +148,7 @@ public class MessageCheckService extends IntentService {
     //Notification message ID
     private static final int NEW_MESSAGE_NOTIFICATION = 1448;
     private static final int SYNC_RESULTS_NOTIFICATION_ID = 1337;
-    private static final String SYNC_CHECK_URL = "https://mobile-api.truckdoc.ru/v2/messages/syncCheck"; // TODO: Use api_service_path!
+    private static final String SYNC_CHECK_URL = com.sanda.truckdoc.client.BuildConfig.API_BASE_URL + "v2/messages/syncCheck";
     private static final ImmutableList<String> DOC_TYPES = ImmutableList.of("INVOICE", "CARNET-TIR", "CMR", "COM-DESCR", "PACK-LIST", "EXPORT-DECL", "DKD");
 
     // Checks should not be done when time passed is less than this.
@@ -181,7 +181,6 @@ public class MessageCheckService extends IntentService {
     Prefs prefs;
 
     public MessageCheckService() {
-        super(TAG);
     }
 
     @Override
@@ -208,12 +207,21 @@ public class MessageCheckService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
         if (intent == null) {
             return START_NOT_STICKY;
         }
         startCommand();
         return START_STICKY;
+    }
+
+    @Override
+    protected int getStartMode() {
+        return START_STICKY;
+    }
+
+    @Override
+    protected int getNullIntentStartMode() {
+        return START_NOT_STICKY;
     }
 
 
@@ -246,8 +254,7 @@ public class MessageCheckService extends IntentService {
 
     private void createAuthorizedBackend() {
         assert userKey != null;
-        // Use Hilt entry point pattern if needed
-        // authorizedBackend = entryPoint.authorizedBackend();
+        authorizedBackend = AuthorizedBackendFactory.create(this, userKey);
     }
 
     @NonNull
@@ -305,7 +312,7 @@ public class MessageCheckService extends IntentService {
         registerRequest.setAppInfo(clientAppInfo);
         registerRequest.setGeneratedName(generatedName);
         registerRequest.setRegistrationToken(registrationToken.toUpperCase()); // Note: toUpperCase is temporary fix
-        Response registerResponse = backend.register(registerRequest).executeUnchecked();
+        Response registerResponse = backend.registerV3(registerRequest).executeUnchecked();
         if (ResponseCheckHelper.checkIfError(registerResponse, this, "M1", false)) {
             return false;
         }
@@ -327,7 +334,7 @@ public class MessageCheckService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void handleIntent(Intent intent) {
         try {
             //Checker.checkDataEnabled(this);
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -550,7 +557,6 @@ public class MessageCheckService extends IntentService {
                 minTimePassedToSyncNow = Math.max(MIN_CHECK_INTERVAL_MS, configuredSyncInterval - MAX_AHEAD_OF_TIME_CHECK_MS);
                 updateAlarmIfNoSync = true;
                 break;
-
             case ALARM_CHANGED:
                 // Allow an early checkIfError
                 minTimePassedToSyncNow = MIN_CHECK_INTERVAL_MS;
@@ -925,6 +931,15 @@ public class MessageCheckService extends IntentService {
         int count = 0;
         //Create NotificationManager  object
         NotificationManager notifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "syncchannel",
+                    "syncchannel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channel.setDescription("Truckdoc sync notifications");
+            notifyMgr.createNotificationChannel(channel);
+        }
         //Instantiate notification with icon and ticker message
         //PendingIntent to launch our activity if the user selects it
         PendingIntent i = PendingIntent.getActivity(this, 0, new Intent(this, InboxActivity.class), PendingIntent.FLAG_IMMUTABLE);
@@ -1048,7 +1063,8 @@ public class MessageCheckService extends IntentService {
     }
 
     private String getApiServicePath() {
-        return resources.getProperty("api_service_path");
+        // Single source of truth: BuildConfig.API_BASE_URL (from gradle.properties:TRUCKDOC_API_BASE_URL)
+        return com.sanda.truckdoc.client.BuildConfig.API_BASE_URL;
     }
 
     public QueryContext getQueryContext() {

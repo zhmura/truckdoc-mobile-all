@@ -11,11 +11,12 @@ import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 
 public interface Backend {
 
     /**
-     * @deprecated use {@link Backend#register(RegisterRequest)}
+     * @deprecated use {@link Backend#registerV3(RegisterRequest)}
      */
     @POST("v2/config/register")
     @FormUrlEncoded
@@ -23,5 +24,5 @@ public interface Backend {
     EasyCall<RegistrationInfoPojo> register(@FieldMap Map<String, String> params);
 
     @POST("v3/config/register")
-    EasyCall<RegisterResponse> register(@Body RegisterRequest request);
+    EasyCall<RegisterResponse> registerV3(@Body RegisterRequest request);
 }

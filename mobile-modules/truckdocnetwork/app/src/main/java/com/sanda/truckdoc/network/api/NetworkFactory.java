@@ -25,7 +25,8 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class NetworkFactory {
-    private static final String BASE_URL = "https://mobile-api.truckdoc.ru/";
+    // Single source of truth is generated BuildConfig.API_BASE_URL (from gradle.properties:TRUCKDOC_API_BASE_URL)
+    private static final String BASE_URL = com.sanda.truckdoc.network.BuildConfig.API_BASE_URL;
     private static OkHttpClient okHttpClient;
     private static ObjectMapper objectMapper;
     private static Retrofit retrofit;
@@ -86,7 +87,7 @@ public class NetworkFactory {
 
     public static Retrofit.Builder getRetrofitBuilder() {
         return new Retrofit.Builder()
-                .baseUrl("https://mobile-api.truckdoc.ru/")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create(getObjectMapper()))
                 .addCallAdapterFactory(EasyCallAdapterFactory.create())
                 .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())

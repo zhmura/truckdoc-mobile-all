@@ -22,6 +22,7 @@ import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.ui.utils.SoundUtils;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.timber.L;
+import com.sanda.truckdoc.client.service.network.AuthorizedBackendFactory;
 import com.sanda.truckdoc.network.AuthorizedBackend;
 import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.ProgressRequestBody;
@@ -45,7 +46,7 @@ import timber.log.Timber;
 
 import static com.sanda.truckdoc.client.receivers.ServiceResultReceiver.NOTIFICATION_MESSAGE;
 
-public class NewMessageService extends android.app.IntentService {
+public class NewMessageService extends com.sanda.truckdoc.client.service.intent.SingleThreadService {
     private static final String TAG = "NewMessageService";
     public static final int RE_CHECK_UPLOAD_ALARM = 101;
     public static final String ACTION_UPLOAD_FILES = "com.sanda.truckdoc.client.ACTION_UPLOAD_FILES";
@@ -67,7 +68,6 @@ public class NewMessageService extends android.app.IntentService {
     NotificationHelper notificationHelper;
 
     public NewMessageService() {
-        super(NewMessageService.class.getSimpleName());
     }
 
     @Override
@@ -80,14 +80,12 @@ public class NewMessageService extends android.app.IntentService {
         AppSettings settings = new AppSettings(this);
         UserKey userKey = settings.getUserKey();
         if (userKey != null) {
-            // Note: This needs to be updated to use the entry point pattern
-            // For now, we'll comment it out as it requires a different approach
-            // authorizedBackend = entryPoint.authorizedBackend();
+            authorizedBackend = AuthorizedBackendFactory.create(this, userKey);
         }
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void handleIntent(Intent intent) {
         if (intent != null) {
             String action = intent.getAction();
             if (ACTION_UPLOAD_FILES.equals(action)) {

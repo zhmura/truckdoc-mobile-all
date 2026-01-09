@@ -9,15 +9,15 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.sanda.truckdoc.client.Prefs;
@@ -51,6 +51,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -79,10 +81,13 @@ public class DashboardActivity extends AppCompatActivity {
     private static final int REGISTER_USER_REQEST_CODE = 1;
     
     private List<View> buttons;
-    private Button btnMaps, btnMessages, btnScan, btnMaintain, btnLandscapePhoto;
+    // These are LinearLayouts in `activity_home.xml`, not Buttons.
+    private View btnMaps, btnMessages, btnScan, btnMaintain, btnLandscapePhoto;
 
     private ResponseReceiver receiver = new ResponseReceiver();
     private ProgressDialog dialog;
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Inject
     Provider<UserKey> userKey;
@@ -134,6 +139,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        backgroundExecutor.shutdownNow();
         super.onDestroy();
     }
 
@@ -202,7 +208,7 @@ public class DashboardActivity extends AppCompatActivity {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.mapfactor.navigator");
             startActivity(intent);
             Thread.sleep(5000);
-            new NavigatorTask().execute();
+            runNavigatorTask();
         } catch (Exception e) {
             Toast.makeText(this, "Ошибка при старте навигатора", Toast.LENGTH_SHORT).show();
         }
@@ -422,111 +428,32 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    private class NavigatorTask extends AsyncTask<Void, Void, Void> {
-        private static final String TAG = "NavigatorTask";
-        
-        private Socket mSocket = null;
-        private BufferedReader mIn = null;
-        private PrintWriter mOut = null;
-        private boolean connected = false;
-        private Context context = null;
-
-
-        public void connect() {
-            try {
-                mSocket = new Socket("", 4242);
-                mIn = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-                mOut = new PrintWriter(mSocket.getOutputStream(), true);
-                connected = true;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(DashboardActivity.this, "Соединение с навигатором установлено!", Toast.LENGTH_LONG).
-                                show();
-                    }
-                });
-            } catch (Exception e) {
-                connected = false;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(DashboardActivity.this, "Не могу подключиться к MapFactor! Ошибка: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        }
-
-        public void runCommand(DbRoutePath routePath) {
-            StringBuilder route = new StringBuilder("$destination=");
-            int i = 1;
-            for (DbRoutePoint point : routePath.getPoints()) {
-                route.append(new DecimalFormat("#.######").format(point.getLatitude()).replace(',', '.'))
-                        .append(",")
-                        .append(new DecimalFormat("#.######").format(point.getLongitude()).replace(',', '.'))
-                        .append(",")
-                        .append("\\\"")
-                        .append(point.getName() != null ? point.getName() : i)
-                        .append("\\\";");
-                i++;
-            }
-            route.append("instant;navigate;");
-
-            try {
-                mOut.println(route.toString());
-                final String res = mIn.readLine();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(DashboardActivity.this, "Ответ навигатора: " + res.toUpperCase(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            } catch (Exception e) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(DashboardActivity.this, "Ошибка: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        }
-
-        public void disconnect() {
-            if (mSocket == null)
-                return;
-
-            runOnUiThread(() -> {
+    /**
+     * AsyncTask replacement for route-assignment check.
+     */
+    private void runNavigatorTask() {
+        backgroundExecutor.execute(() -> {
+            long routeAssignmentId = prefs.currentRouteAssignment();
+            if (routeAssignmentId != 0) {
                 try {
-                    mSocket.close();
-                } catch (Exception e) {
-                    Toast.makeText(DashboardActivity.this, "Ответ навигатора: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (prefs.currentRouteAssignment() != 0) {
-                try {
-                    DbRouteAssignment assignment = MessagesDatabaseServiceJavaCompat.findRouteAssignmentByIdBlocking(databaseService, prefs.currentRouteAssignment());
+                    DbRouteAssignment assignment = MessagesDatabaseServiceJavaCompat.findRouteAssignmentByIdBlocking(
+                            databaseService,
+                            routeAssignmentId
+                    );
                     if (assignment != null) {
-                        // Process the assignment
                         Log.d(TAG, "Loaded route assignment: " + assignment.getId());
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error loading route assignment", e);
                 }
             } else {
-                runOnUiThread(() -> Toast.makeText(DashboardActivity.this, "Вам не назначен ни один маршрут",
-                        Toast.LENGTH_LONG).show());
-
+                mainHandler.post(() -> Toast.makeText(
+                        DashboardActivity.this,
+                        "Вам не назначен ни один маршрут",
+                        Toast.LENGTH_LONG
+                ).show());
             }
-
-            return null;
-
-        }
+        });
     }
 
 

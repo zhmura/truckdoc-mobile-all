@@ -21,6 +21,7 @@ import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.service.AppSettings;
 import com.sanda.truckdoc.client.service.NotificationHelper;
 import com.sanda.truckdoc.client.service.ResponseCheckHelper;
+import com.sanda.truckdoc.client.service.network.AuthorizedBackendFactory;
 import com.sanda.truckdoc.client.to.data.Model;
 import com.sanda.truckdoc.client.to.data.db.MaintenanceFileRecord;
 import com.sanda.truckdoc.client.to.data.db.MntDbService;
@@ -51,7 +52,7 @@ import com.sanda.truckdoc.client.HiltEntryPoint;
 
 import java.util.Properties;
 
-public class NewMntService extends android.app.IntentService {
+public class NewMntService extends com.sanda.truckdoc.client.service.intent.SingleThreadService {
     public static final int DELAY = BuildConfig.DEBUG ? 5 * 1000 : 30 * 60 * 1000;
     public static final String PARAM_OUT_MSG = "OUT_TEXT";
     public static final String PARAM_OUT_DATA = "OUT_DATA";
@@ -81,7 +82,6 @@ public class NewMntService extends android.app.IntentService {
     private UserKey userKey;
 
     public NewMntService() {
-        super("NewMntService");
     }
 
     public static Intent intent(Context context) {
@@ -104,7 +104,7 @@ public class NewMntService extends android.app.IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void handleIntent(Intent intent) {
         if (intent != null) {
             String action = intent.getAction();
             if (ACTION_UPLOAD_FILE.equals(action)) {
@@ -308,8 +308,11 @@ public class NewMntService extends android.app.IntentService {
     }
 
     private void createAuthorizedBackend() {
-        // Implementation for creating authorized backend
-        Timber.i("Creating authorized backend");
+        if (userKey == null) {
+            authorizedBackend = null;
+            return;
+        }
+        authorizedBackend = AuthorizedBackendFactory.create(this, userKey);
     }
 
     private Properties loadProperties() {

@@ -35,7 +35,6 @@ import com.sanda.truckdoc.client.ui.Dialogs;
 import com.sanda.truckdoc.client.ui.TruckdocPreferenceActivity;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.commons.FilenameUtils;
-import com.sanda.truckdoc.network.api.AuthorizedNetworkModule;
 import com.sanda.truckdoc.network.api.UserKey;
 
 import java.util.ArrayList;
@@ -98,9 +97,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         final Context context = requireActivity();
         @NotNull AppSettings settings = new AppSettings(requireActivity());
         userKey = settings.getUserKey();
-        if (userKey != null) {
-            createAuthorizedBackend();
-        }
+        // No authorized backend is used in this fragment; avoid keeping a stub initializer around.
         adapter = new MessageAdapter(this);
         binding.recyclerView.setAdapter(adapter);
         adapter.attachSwipeCallback(binding.recyclerView);
@@ -138,13 +135,6 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    private void createAuthorizedBackend() {
-        assert userKey != null;
-        HiltEntryPoint entryPoint = TruckDocApp.getEntryPoint(requireActivity());
-        // Use entry point to get authorized backend if needed
-        // authorizedBackend = entryPoint.authorizedBackend();
     }
 
     private void loadInbox() {

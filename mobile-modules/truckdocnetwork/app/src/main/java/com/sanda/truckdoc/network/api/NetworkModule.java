@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sanda.truckdoc.network.Backend;
 import com.sanda.truckdoc.network.api.interceptors.ClientVersionHeaderInterceptor;
-import com.sanda.truckdoc.network.api.interceptors.HttpLoggingInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.UserAgentInterceptor;
 import com.sanda.truckdoc.network.api.interceptors.TrafficStatsInterceptor;
 
@@ -19,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.EasyCallAdapterFactory;
 import retrofit2.Retrofit;
 import retrofit2.RxErrorHandlingCallAdapterFactory;
@@ -53,7 +53,8 @@ public class NetworkModule {
     @Singleton
     static Retrofit.Builder provideRetrofitBuilder(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl("https://mobile-api.truckdoc.ru/")
+                // All endpoints are served under /mobile-api/*
+                .baseUrl(com.sanda.truckdoc.network.BuildConfig.API_BASE_URL)
                 .client(okHttpClient)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .addCallAdapterFactory(EasyCallAdapterFactory.create())

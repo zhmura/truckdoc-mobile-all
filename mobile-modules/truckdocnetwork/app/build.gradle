@@ -11,6 +11,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     compileOptions {
@@ -31,6 +32,12 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        def apiBaseUrl = (project.findProperty('TRUCKDOC_API_BASE_URL') ?: "https://mobile-api.truckdoc.ru/mobile-api/").toString()
+        if (!apiBaseUrl.endsWith("/")) {
+            apiBaseUrl = apiBaseUrl + "/"
+        }
+        // Single source of truth: gradle.properties:TRUCKDOC_API_BASE_URL
+        buildConfigField "String", "API_BASE_URL", "\"${apiBaseUrl}\""
     }
 
     buildTypes {
@@ -59,14 +66,15 @@ dependencies {
 
     implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
     implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+// java {
+//     toolchain {
+//         languageVersion = JavaLanguageVersion.of(17)
+//     }
+// }
 
-kotlin {
-    jvmToolchain(17)
-}
+// kotlin {
+//     jvmToolchain(17)
+// }

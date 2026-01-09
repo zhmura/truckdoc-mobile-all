@@ -6,15 +6,15 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+// java {
+//     toolchain {
+//         languageVersion = JavaLanguageVersion.of(17)
+//     }
+// }
 
-kotlin {
-    jvmToolchain(17)
-}
+// kotlin {
+//     jvmToolchain(17)
+// }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
@@ -25,6 +25,11 @@ android {
     compileSdk 34
     buildToolsVersion rootProject.ext.buildToolsVersion
     flavorDimensions "default"
+    
+    def apiBaseUrl = (project.findProperty('TRUCKDOC_API_BASE_URL') ?: "https://mobile-api.truckdoc.ru/mobile-api/").toString()
+    if (!apiBaseUrl.endsWith("/")) {
+        apiBaseUrl = apiBaseUrl + "/"
+    }
 
     defaultConfig {
         applicationId "com.sanda.truckdoc.client"
@@ -34,7 +39,17 @@ android {
         versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 1
         versionName project.hasProperty('versionName') ? project.property('versionName') : "1.0"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
-        buildConfigField "String", "API_BASE_URL", "\"https://mobile-api.truckdoc.ru/\""
+        // Single source of truth: gradle.properties:TRUCKDOC_API_BASE_URL
+        buildConfigField "String", "API_BASE_URL", "\"${apiBaseUrl}\""
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -129,16 +144,16 @@ android {
 //     }
 // }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
+// tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+//     kotlinOptions {
+//         jvmTarget = "17"
+//     }
+// }
 
-tasks.withType(JavaCompile).configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
+// tasks.withType(JavaCompile).configureEach {
+//     sourceCompatibility = JavaVersion.VERSION_17
+//     targetCompatibility = JavaVersion.VERSION_17
+// }
 
 dependencies {
     // Core Android dependencies
