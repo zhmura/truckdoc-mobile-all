@@ -3,7 +3,7 @@ package com.sanda.truckdoc.client.util;
 import android.os.StrictMode;
 
 /**
- * Helper to silence StrictMode disk-read warnings around unavoidable preference reads during startup.
+ * Helper to silence StrictMode disk I/O warnings around unavoidable preference access during startup.
  *
  * <p>Use sparingly: the long-term fix is to move I/O off the main thread.</p>
  */
@@ -15,7 +15,14 @@ public final class StrictModeUtils {
     }
 
     public static <T> T allowDiskReads(Supplier<T> supplier) {
-        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        // SharedPreferences can touch disk on first access (e.g. create dirs / chmod), so we permit both reads and writes.
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
+        StrictMode.setThreadPolicy(
+                new StrictMode.ThreadPolicy.Builder(oldPolicy)
+                        .permitDiskReads()
+                        .permitDiskWrites()
+                        .build()
+        );
         try {
             return supplier.get();
         } finally {

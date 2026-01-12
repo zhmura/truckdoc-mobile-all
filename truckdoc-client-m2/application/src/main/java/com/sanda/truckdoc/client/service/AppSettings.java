@@ -28,7 +28,12 @@ public class AppSettings {
     }
 
     private SharedPreferences getPrefs() {
-        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        // SharedPreferences can do disk writes on first access (mkdir/chmod), so permit disk I/O here.
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder(oldPolicy)
+                .permitDiskReads()
+                .permitDiskWrites()
+                .build());
         try {
             return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         } finally {

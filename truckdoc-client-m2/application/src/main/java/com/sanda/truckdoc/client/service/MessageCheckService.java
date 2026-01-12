@@ -325,7 +325,12 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
         prefs.lastSavedClientVersionCode(clientAppInfo.getAppVersionCode());
         createAuthorizedBackend();
         enableSync(this);
-        processGetNewMessagesAction(true, false, SyncReason.NETWORK_AVAILABLE);
+        // Do NOT block registration result on the full initial sync (can take a long time downloading messages/attachments).
+        // Queue an async sync after registration completes.
+        Intent syncIntent = new Intent(ACTION_GET_NEW_MESSAGES, null, getApplicationContext(), MessageCheckService.class);
+        syncIntent.putExtra(INTENT_PARAM_DIRECT_REFRESH, true);
+        syncIntent.putExtra(INTENT_PARAM_SYNC_REASON, SyncReason.NETWORK_AVAILABLE);
+        startService(syncIntent);
         return true;
     }
 
@@ -453,7 +458,6 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
             sendNotificationMessageonUI(errorMsg, true);
             sendRegistrationResult(false, errorMsg);
         }
-        stopSelf();
     }
 
     private void sendRegistrationResult(boolean success, @Nullable String errorMessage) {
@@ -822,11 +826,28 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
     private void processContactList(ContactListData contactList) {
         if (contactList != null && contactList.getContactListVersion() != null) {
             List<DbContactRecord> records = contactList.getContactRecords().stream()
-                    .map(contact -> new DbContactRecord(0, contact.getLabel(), "", ""))
+                    .filter(contact -> contact.getRecipientId() != null && contact.getRecipientIdType() != null)
+                    .map(contact -> {
+                        // DbContactRecord has a UNIQUE index on `phone`. Server contact list doesn't provide phone,
+                        // so we store a stable unique synthetic value based on recipient id.
+                        String syntheticPhone = contact.getRecipientIdType() + ":" + contact.getRecipientId();
+                        return new DbContactRecord(
+                                0,
+                                contact.getLabel(),
+                                syntheticPhone,
+                                "",
+                                contact.getRecipientId(),
+                                contact.getRecipientIdType()
+                        );
+                    })
                     .collect(Collectors.toList());
+            Timber.i("Contact list received: version=%s, records=%s", contactList.getContactListVersion(), records.size());
             if (MessagesDatabaseServiceJavaCompat.replaceContactRecordsBlocking(databaseService, records)) {
                 prefs.contactListVersion(contactList.getContactListVersion());
                 Timber.i("Contacts replaced");
+            } else {
+                Timber.e("Failed to replace contacts (db op returned false). records=%s, version=%s",
+                        records.size(), contactList.getContactListVersion());
             }
         } else {
             Timber.i("No new contacts");

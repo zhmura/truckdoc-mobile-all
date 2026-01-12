@@ -28,7 +28,9 @@ public class SynchronizeRequestAdapter {
                                                                Long lastKnownRouteAssignment,
                                                                Long lastKnownMaintenanceConfigVersion) {
         SynchronizeRequest r = createRequest(locationHistory, MESSAGES_AND_UPDATES);
-        if (knownContactListVersion >= 0) {
+        // null means "never updated contact list yet" (server should send full list or latest updates).
+        // Do NOT send 0 as a version, it can be interpreted as "already have version 0".
+        if (knownContactListVersion != null && knownContactListVersion > 0) {
             r.setKnownContactListVersion(knownContactListVersion);
         }
         if (lastKnownRouteAssignment >= 0) {
