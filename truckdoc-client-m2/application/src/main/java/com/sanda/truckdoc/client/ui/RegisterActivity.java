@@ -15,6 +15,7 @@ import com.sanda.truckdoc.client.databinding.RegisterBinding;
 import com.sanda.truckdoc.client.receivers.ServiceResultReceiver;
 import com.sanda.truckdoc.client.service.MessageCheckService;
 import com.sanda.truckdoc.client.service.NotificationHelper;
+import com.sanda.truckdoc.client.util.StrictModeUtils;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,8 +43,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int isUserDeactivated = sharedPreferences.getInt(PreferenceKeys.getUserDeactivatedPreferenceKey(), 0);
+        int isUserDeactivated = StrictModeUtils.allowDiskReads(() -> {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            return sharedPreferences.getInt(PreferenceKeys.getUserDeactivatedPreferenceKey(), 0);
+        });
         if (isUserDeactivated > 1) {
             binding.registerState.setText(R.string.you_was_deactivated);
         } else {

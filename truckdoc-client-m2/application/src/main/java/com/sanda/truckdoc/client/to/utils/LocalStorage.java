@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.sanda.truckdoc.client.util.StrictModeUtils;
+
 /**
  * Created by k.natallie on 02.02.2016.
  */
@@ -46,7 +48,9 @@ public class LocalStorage {
 
     private void initSettings() {
         if (context != null) {
-            settings = context.getSharedPreferences("trackdocTO", Context.MODE_PRIVATE);
+            settings = StrictModeUtils.allowDiskReads(() ->
+                    context.getSharedPreferences("trackdocTO", Context.MODE_PRIVATE)
+            );
         }
     }
 
@@ -67,7 +71,7 @@ public class LocalStorage {
         if (settings == null) {
             initSettings();
         }
-        return settings.getString(name, defValue);
+        return StrictModeUtils.allowDiskReads(() -> settings.getString(name, defValue));
     }
 
     public void writeIntPreference(String name, int value) {
@@ -107,21 +111,21 @@ public class LocalStorage {
         if (settings == null) {
             initSettings();
         }
-        return settings.getBoolean(name, defaultValue);
+        return StrictModeUtils.allowDiskReads(() -> settings.getBoolean(name, defaultValue));
     }
 
     public int readIntPreference(String name, int defaultValue) {
         if (settings == null) {
             initSettings();
         }
-        return settings.getInt(name, defaultValue);
+        return StrictModeUtils.allowDiskReads(() -> settings.getInt(name, defaultValue));
     }
 
     public long readLongPreference(String name, long defaultValue) {
         if (settings == null) {
             initSettings();
         }
-        return settings.getLong(name, defaultValue);
+        return StrictModeUtils.allowDiskReads(() -> settings.getLong(name, defaultValue));
     }
 
 

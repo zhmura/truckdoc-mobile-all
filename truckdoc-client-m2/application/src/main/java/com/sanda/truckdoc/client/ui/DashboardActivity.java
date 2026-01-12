@@ -48,6 +48,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -150,6 +151,9 @@ public class DashboardActivity extends AppCompatActivity {
         btnScan = findViewById(R.id.btnScan);
         btnMaintain = findViewById(R.id.btnMaintain);
         btnLandscapePhoto = findViewById(R.id.btnLandscapePhoto);
+
+        // Used by enable/disable logic.
+        buttons = Arrays.asList(btnMaps, btnMessages, btnScan, btnMaintain, btnLandscapePhoto);
         
         // Set up click listeners
         btnMaps.setOnClickListener(new View.OnClickListener() {
@@ -340,9 +344,9 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (prefs.hasMaintenance()) {
-            buttons.get(4).setVisibility(View.VISIBLE);
+            btnMaintain.setVisibility(View.VISIBLE);
         } else {
-            buttons.get(4).setVisibility(View.GONE);
+            btnMaintain.setVisibility(View.GONE);
         }
         IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_PROCESS_FINISHED);
         filter.addAction(ResponseReceiver.ACTION_PRINT_RESP);

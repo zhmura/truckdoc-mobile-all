@@ -205,6 +205,7 @@
     <string name="file_upload_finished">Загрузка файла %s завершена</string>
     <string name="file_upload_failed">Ошибка: Загрузка файла %s не завершена</string>
     <string name="btn_choose_recipient">Выбрать получателя</string>
+    <string name="contact_list_is_empty">Список получателей пуст. Сначала выполните синхронизацию.</string>
     <string name="prefs_gps_get_interval">GPS sync in ms</string>
     <string name="mtn_ok">В порядке</string>
     <string name="mtn_problem">Есть проблемы</string>

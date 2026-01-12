@@ -33,6 +33,7 @@ import com.sanda.truckdoc.client.service.ResponseCheckHelper;
 import com.sanda.truckdoc.client.service.SyncReason;
 import com.sanda.truckdoc.client.ui.Dialogs;
 import com.sanda.truckdoc.client.ui.TruckdocPreferenceActivity;
+import com.sanda.truckdoc.client.util.StrictModeUtils;
 import com.sanda.truckdoc.client.util.FileHelper;
 import com.sanda.truckdoc.client.util.commons.FilenameUtils;
 import com.sanda.truckdoc.network.api.UserKey;
@@ -67,6 +68,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     private FragmentInboxBinding binding;
     private boolean showHidden = false;
     private ServiceResultReceiver receiver;
+    private boolean receiverRegistered = false;
 
     @Inject
     MessagesDatabaseService databaseService;
@@ -96,7 +98,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         super.onViewCreated(view, savedInstanceState);
         final Context context = requireActivity();
         @NotNull AppSettings settings = new AppSettings(requireActivity());
-        userKey = settings.getUserKey();
+        userKey = StrictModeUtils.allowDiskReads(settings::getUserKey);
         // No authorized backend is used in this fragment; avoid keeping a stub initializer around.
         adapter = new MessageAdapter(this);
         binding.recyclerView.setAdapter(adapter);
@@ -116,13 +118,24 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         IntentFilter filter = new IntentFilter(ServiceResultReceiver.ACTION_PROCESS_FINISHED);
         filter.addAction(ServiceResultReceiver.ACTION_LIST_UPDATE_START);
         filter.addAction(ServiceResultReceiver.ACTION_LIST_UPDATED);
-        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
+        if (receiver != null && !receiverRegistered) {
+            com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
+            receiverRegistered = true;
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        requireActivity().unregisterReceiver(receiver);
+        if (receiver != null && receiverRegistered) {
+            try {
+                requireActivity().unregisterReceiver(receiver);
+            } catch (IllegalArgumentException ignored) {
+                // Receiver was not registered (or already unregistered). Avoid crashing on pause.
+            } finally {
+                receiverRegistered = false;
+            }
+        }
     }
 
     @Override

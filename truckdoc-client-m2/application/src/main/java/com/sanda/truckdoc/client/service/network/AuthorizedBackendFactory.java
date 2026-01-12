@@ -28,7 +28,7 @@ public final class AuthorizedBackendFactory {
 
         OkHttpClient baseClient = entryPoint.okHttpClient();
         OkHttpClient authorizedClient = baseClient.newBuilder()
-                .addInterceptor(0, new AuthorizationInterceptor(userKey))
+                .addInterceptor(new AuthorizationInterceptor(userKey))
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()

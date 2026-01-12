@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.sanda.truckdoc.client.HiltEntryPoint;
 import com.sanda.truckdoc.client.Prefs;

@@ -48,6 +48,7 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
 
     private ResponseReceiver receiver = new ResponseReceiver();
     private FragmentNewMessageBinding binding;
+    private boolean receiverRegistered = false;
 
     @Inject
     Prefs prefs;
@@ -80,7 +81,7 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
     private void setupViews() {
         adapter = new ButtonAdapter(this);
         loadContactRecords(db);
-        RecyclerView buttonList = getView().findViewById(R.id.buttonList);
+        RecyclerView buttonList = binding.getRoot().findViewById(R.id.buttonList);
         buttonList.setAdapter(adapter);
         buttonList.setVisibility(View.INVISIBLE);
     }
@@ -90,7 +91,13 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
     }
 
     private void onMessagesBtn() {
-        RecyclerView buttonList = getView().findViewById(R.id.buttonList);
+        if (adapter.getItemCount() == 0) {
+            // Avoid "blank screen" UX when there are no recipients in DB.
+            showMessageToast(getResources().getString(R.string.contact_list_is_empty));
+            loadContactRecords(db);
+            return;
+        }
+        RecyclerView buttonList = binding.getRoot().findViewById(R.id.buttonList);
         buttonList.setVisibility(View.VISIBLE);
         binding.bChooseRecipient.setVisibility(View.GONE);
         View view = requireActivity().getCurrentFocus();
@@ -117,14 +124,24 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
         filter.addAction(ResponseReceiver.ACTION_LIST_UPDATE_START);
         filter.addAction(ResponseReceiver.ACTION_LIST_UPDATED);
         filter.addAction(ResponseReceiver.NOTIFICATION_MESSAGE);
-
-        com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
+        if (!receiverRegistered) {
+            com.sanda.truckdoc.client.util.ReceiverUtils.registerReceiverNotExported(requireActivity(), receiver, filter);
+            receiverRegistered = true;
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        requireActivity().unregisterReceiver(receiver);
+        if (receiverRegistered) {
+            try {
+                requireActivity().unregisterReceiver(receiver);
+            } catch (IllegalArgumentException ignored) {
+                // Receiver not registered (or already unregistered).
+            } finally {
+                receiverRegistered = false;
+            }
+        }
     }
 
     private void showMessageToast(String s) {
@@ -186,12 +203,22 @@ public class NewMessageFragment extends Fragment implements ButtonAdapter.Intera
     }
 
     private void loadContactRecords(MessagesDatabaseService databaseService) {
-        try {
-            List<DbContactRecord> contacts = MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(databaseService);
-            adapter.swapItems(contacts);
-        } catch (Exception e) {
-            Log.e(TAG, "Error loading contact records", e);
-        }
+        // Avoid blocking main thread with DB read.
+        new Thread(() -> {
+            try {
+                List<DbContactRecord> contacts = MessagesDatabaseServiceJavaCompat.getContactRecordsBlocking(databaseService);
+                requireActivity().runOnUiThread(() -> {
+                    adapter.swapItems(contacts);
+                    if (contacts == null || contacts.isEmpty()) {
+                        binding.bChooseRecipient.setVisibility(View.VISIBLE);
+                        RecyclerView buttonList = binding.getRoot().findViewById(R.id.buttonList);
+                        buttonList.setVisibility(View.INVISIBLE);
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading contact records", e);
+            }
+        }).start();
     }
 
     @Override

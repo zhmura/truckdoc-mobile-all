@@ -16,6 +16,7 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import de.devland.esperandro.Esperandro;
+import com.sanda.truckdoc.client.util.StrictModeUtils;
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -37,6 +38,7 @@ public class AppModule {
     @Singleton
     @NonNull
     Prefs providePrefs(@ApplicationContext Context context) {
-        return Esperandro.getPreferences(Prefs.class, context);
+        // Esperandro/SharedPreferences can touch disk on first access; avoid StrictMode spam in debug.
+        return StrictModeUtils.allowDiskReads(() -> Esperandro.getPreferences(Prefs.class, context));
     }
 }

@@ -16,12 +16,14 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
+import dagger.hilt.android.AndroidEntryPoint;
 
 import static com.sanda.truckdoc.client.R.id.pager;
 
 /**
  * Created by astra on 09.06.2015.
  */
+@AndroidEntryPoint
 public class InboxActivity extends AppCompatActivity {
     ViewPager viewPager;
 

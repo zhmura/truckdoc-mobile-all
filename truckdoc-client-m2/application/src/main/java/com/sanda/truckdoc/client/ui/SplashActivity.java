@@ -10,9 +10,8 @@ import com.sanda.truckdoc.client.Prefs;
 import com.sanda.truckdoc.client.R;
 import com.sanda.truckdoc.client.TruckDocApp;
 import com.sanda.truckdoc.client.service.AppSettings;
+import com.sanda.truckdoc.client.util.StrictModeUtils;
 import com.sanda.truckdoc.network.api.UserKey;
-
-import javax.inject.Inject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import app.camera.tdoc.camera_library.PreferenceKeys;
@@ -27,9 +26,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private AppSettings settings;
     private UserKey userKey;
-    
-    @Inject
-    Prefs prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +43,17 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private boolean isActive() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        return sharedPreferences.getInt(PreferenceKeys.getUserDeactivatedPreferenceKey(), 0) == 0;
+        return StrictModeUtils.allowDiskReads(() -> {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            return sharedPreferences.getInt(PreferenceKeys.getUserDeactivatedPreferenceKey(), 0) == 0;
+        });
     }
 
     private boolean alreadyRegistered() {
-        settings = new AppSettings(this);
-        userKey = settings.getUserKey();
-        return (userKey != null && !TextUtils.isEmpty(userKey.getLogin()));
+        return StrictModeUtils.allowDiskReads(() -> {
+            settings = new AppSettings(this);
+            userKey = settings.getUserKey();
+            return (userKey != null && !TextUtils.isEmpty(userKey.getLogin()));
+        });
     }
 }
