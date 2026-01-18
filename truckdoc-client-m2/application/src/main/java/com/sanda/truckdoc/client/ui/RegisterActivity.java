@@ -52,7 +52,6 @@ public class RegisterActivity extends AppCompatActivity {
         } else {
             binding.registerState.setText(R.string.you_need_to_register);
         }
-        explicitPermissionsRequestIfRequired();
     }
 
     private void setupClickListeners() {
@@ -63,31 +62,8 @@ public class RegisterActivity extends AppCompatActivity {
         triggerRegister();
     }
 
-    private void explicitPermissionsRequestIfRequired() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int PERMISSION_ALL = 1;
-            PackageInfo info;
-            try {
-                info = getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_PERMISSIONS);
-                if (!hasPermissions(this, info.requestedPermissions)) {
-                    ActivityCompat.requestPermissions(this, info.requestedPermissions, PERMISSION_ALL);
-                }
-            } catch (Exception e) {
-                Timber.e(e, "Request permission handler failed");
-            }
-        }
-    }
-
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    // NOTE: Do not request a blanket set of permissions on this screen.
+    // Registration itself doesn't require runtime permissions; request them only at feature entry points (e.g. camera).
 
     @Override
     protected void onResume() {

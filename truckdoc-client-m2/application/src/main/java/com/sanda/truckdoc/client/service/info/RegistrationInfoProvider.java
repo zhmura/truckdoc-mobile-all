@@ -38,11 +38,23 @@ public class RegistrationInfoProvider {
     @NonNull
     public static SimInfo getSimInfo(Context context, TelephonyManager tMgr) {
         SimInfo simInfo = new SimInfo();
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            simInfo.setPhoneNumber(tMgr.getLine1Number());
-            simInfo.setSimSerialNumber(tMgr.getSimSerialNumber());
+        // Only read telephony identifiers if we have at least one of the required permissions.
+        // Never attempt to read these without permission: on modern Android it can throw SecurityException and break registration.
+        boolean hasTelephonyPermission =
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
+        if (hasTelephonyPermission) {
+            try {
+                simInfo.setPhoneNumber(tMgr.getLine1Number());
+            } catch (SecurityException ignored) {
+                // Leave null if not accessible.
+            }
+            try {
+                simInfo.setSimSerialNumber(tMgr.getSimSerialNumber());
+            } catch (SecurityException ignored) {
+                // Leave null if not accessible.
+            }
         }
         return simInfo;
     }

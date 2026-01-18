@@ -2,6 +2,7 @@ package com.sanda.truckdoc.client.ui;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -61,6 +62,7 @@ import javax.inject.Provider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import app.camera.tdoc.camera_library.CamActivity;
 import app.camera.tdoc.camera_library.PrefixList;
 import java.util.function.Consumer;
@@ -90,6 +92,9 @@ public class DashboardActivity extends AppCompatActivity {
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    private static final int REQ_CAMERA_PERMISSION = 7001;
+    private Runnable pendingAfterCameraPermission;
+
     @Inject
     Provider<UserKey> userKey;
     @Inject
@@ -97,37 +102,8 @@ public class DashboardActivity extends AppCompatActivity {
     @Inject
     Prefs prefs;
 
-    private void explicitPermissionsRequestIfRequired() {
-        if (SDK_INT >= Build.VERSION_CODES.M) {
-            int PERMISSION_ALL = 1;
-            PackageInfo info;
-            try {
-                info = getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_PERMISSIONS);
-                if (!hasPermissions(this, info.requestedPermissions)) {
-                    ActivityCompat.requestPermissions(this, info.requestedPermissions, PERMISSION_ALL);
-                }
-                if (SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    Uri uri = Uri.fromParts("package", getPackageName(), null);
-                    intent.setData(uri);
-                    startActivity(intent);
-                }
-            } catch (Exception e) {
-                Timber.e(e, "Request permission handler failed");
-            }
-        }
-    }
-
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    // NOTE: Do not request a blanket set of permissions on startup.
+    // Request permissions at the feature entry points (e.g. camera) to avoid "permission loops" and Settings redirects.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +169,6 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     void afterViews() {
-        explicitPermissionsRequestIfRequired();
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -243,6 +218,12 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     public void startCameraActivity(app.camera.tdoc.camera_library.ImageType type, Long recipientId) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            pendingAfterCameraPermission = () -> startCameraActivity(type, recipientId);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQ_CAMERA_PERMISSION);
+            Toast.makeText(this, "Нужно разрешение на камеру", Toast.LENGTH_SHORT).show();
+            return;
+        }
         ArrayList<PrefixList> prefixes = new ArrayList<>();
         prefixes.add(new PrefixList("Обычное фото", "PHOTO"));
         Intent i = CamActivity.newBuilder()
@@ -266,9 +247,26 @@ public class DashboardActivity extends AppCompatActivity {
                 .setFlashOptionEnable(true)
                 .setAutoStabiliseOptionEnable(true)
                 .setTimeStampeEnable(!type.isForDoc())
-                .setLocationStampEnable(!type.isForDoc())
+                // Avoid requiring location permissions; location stamp can be re-enabled later with proper runtime permission handling.
+                .setLocationStampEnable(false)
                 .build(this);
         startActivity(i);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_CAMERA_PERMISSION) {
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (granted && pendingAfterCameraPermission != null) {
+                Runnable r = pendingAfterCameraPermission;
+                pendingAfterCameraPermission = null;
+                r.run();
+            } else {
+                pendingAfterCameraPermission = null;
+                Toast.makeText(this, "Разрешение на камеру не выдано", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void populateRecipientDialog(Consumer<Long> action) {

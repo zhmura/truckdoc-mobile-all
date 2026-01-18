@@ -108,7 +108,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.camera.tdoc.camera_library.PreferenceKeys;
 import retrofit2.Response;
 import io.reactivex.rxjava3.core.Observable;
@@ -293,17 +292,14 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
         RegisterRequest registerRequest = new RegisterRequest();
         TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss", Locale.US);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return false;
+        // Registration must work even if telephony permissions are denied on modern Android.
+        // We will proceed with best-effort SIM info and a fallback generated name.
+        String line1Number = null;
+        try {
+            line1Number = tMgr.getLine1Number();
+        } catch (SecurityException ignored) {
+            // no-op
         }
-        String line1Number = tMgr.getLine1Number();
         String generatedName = !TextUtils.isEmpty(line1Number) ? line1Number : "CLIENT_TRUCKDOC_" + sdf.format(new Date());
 
         AppInfo clientAppInfo = RegistrationInfoProvider.getClientAppInfo(this);
@@ -313,6 +309,7 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
         registerRequest.setAppInfo(clientAppInfo);
         registerRequest.setGeneratedName(generatedName);
         registerRequest.setRegistrationToken(registrationToken.toUpperCase()); // Note: toUpperCase is temporary fix
+        Timber.i("Register: sending request. generatedName=%s", generatedName);
         Response registerResponse = backend.registerV3(registerRequest).executeUnchecked();
         if (ResponseCheckHelper.checkIfError(registerResponse, this, "M1", false)) {
             return false;
@@ -446,7 +443,6 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
             if (result) {
                 sendNotificationMessageonUI(getResources().getString(R.string.userRegisteredSuccessfully), false);
                 sendRegistrationResult(true, null);
-                startDashboardActivity();
             } else {
                 String errorMsg = getString(R.string.registration_failed);
                 sendRegistrationResult(false, errorMsg);
@@ -1098,22 +1094,25 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
         broadcastIntent.setAction(NOTIFICATION_MESSAGE);
         broadcastIntent.putExtra(NotificationHelper.PARAM_IS_ERROR, isError);
         broadcastIntent.putExtra(NotificationHelper.PARAM_MSG, message);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        // App-internal broadcast.
+        sendBroadcast(broadcastIntent);
     }
 
     private void notifyActivity(String message, @Nullable Parcelable result, boolean isStart) {
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        if (powerManager.isScreenOn()) {
-            Intent broadcastIntent = new Intent();
-            if (isStart) {
-                broadcastIntent.setAction(ServiceResultReceiver.ACTION_PROCESS_START);
-            } else {
-                broadcastIntent.setAction(ServiceResultReceiver.ACTION_PROCESS_FINISHED);
-            }
-            broadcastIntent.putExtra(MessageCheckService.PARAM_OUT_MSG, message);
-            broadcastIntent.putExtra(MessageCheckService.PARAM_OUT_DATA, result);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        // Always broadcast completion/start. UI (e.g. RegisterActivity) relies on this to re-enable buttons.
+        Intent broadcastIntent = new Intent();
+        if (isStart) {
+            broadcastIntent.setAction(ServiceResultReceiver.ACTION_PROCESS_START);
+        } else {
+            broadcastIntent.setAction(ServiceResultReceiver.ACTION_PROCESS_FINISHED);
         }
+        // Some receivers register filters with CATEGORY_DEFAULT; include it so matching works.
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        // Ensure this stays app-internal even though it's an implicit broadcast.
+        broadcastIntent.setPackage(getPackageName());
+        broadcastIntent.putExtra(MessageCheckService.PARAM_OUT_MSG, message);
+        broadcastIntent.putExtra(MessageCheckService.PARAM_OUT_DATA, result);
+        sendBroadcast(broadcastIntent);
     }
 
     public static void executeGetNewMessagesAction(Context context, boolean daemon, boolean directRefresh, @Nullable SyncReason syncReason) {
@@ -1135,11 +1134,6 @@ public class MessageCheckService extends com.sanda.truckdoc.client.service.inten
         );
     }
 
-    private void startDashboardActivity() {
-        Intent intent = new Intent(this, DashboardActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
 
     private void startRegisterActivity() {
         Intent intent = new Intent(this, RegisterActivity.class);
