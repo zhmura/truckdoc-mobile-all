@@ -57,7 +57,7 @@ dependencies {
     //  implementation 'com.sanda.truckdoc:truckdoc-util:1.0.1-SNAPSHOT'
     implementation project(':truckdoc-client-api')
     implementation 'org.jetbrains:annotations:19.0.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     implementation 'com.squareup.retrofit2:converter-jackson:2.1.0'
     //implementation 'com.android.support.test.espresso:espresso-core:2.2.2'
 }
