@@ -6,4 +6,7 @@ build
 *.iml
 /reports
 captures
+/deployment
+/build-metadata.json
+/build-summary.txt
 
