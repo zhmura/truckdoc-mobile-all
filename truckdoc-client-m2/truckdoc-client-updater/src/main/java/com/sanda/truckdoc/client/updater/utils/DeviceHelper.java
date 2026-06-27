@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.telephony.TelephonyManager;
+
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.util.UUID;
@@ -70,8 +73,17 @@ public class DeviceHelper {
     public static void installFile(Context context, File file) {
         Timber.i("Install file " + file);
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // FileProvider content URI is required from API 24+ (Uri.fromFile throws FileUriExposedException).
+        Uri apkUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            apkUri = FileProvider.getUriForFile(context,
+                    context.getPackageName() + ".provider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            apkUri = Uri.fromFile(file);
+        }
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
         context.startActivity(intent);
         NotificationHelper.soundNotification(context);
     }

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">ТракДок клиент</string>
+    <string name="file_viewer_open_with">Открыть в другом приложении</string>
+    <string name="file_viewer_share">Поделиться</string>
+    <string name="file_viewer_reset_zoom">Сбросить масштаб</string>
+    <string name="file_viewer_page">%1$d / %2$d</string>
     <string name="check_messages">Проверить сообщения</string>
     <string name="upload">Отправить файлы</string>
     <string name="print">Печатать</string>

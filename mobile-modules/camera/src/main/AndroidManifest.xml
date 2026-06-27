@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.camera.tdoc.camera_library"
     android:installLocation="auto">
 
     <!-- don't update to 23 yet, need to update for permissions https://developer.android.com/training/permissions/requesting.html -->

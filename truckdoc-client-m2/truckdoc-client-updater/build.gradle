@@ -1,47 +1,53 @@
 apply plugin: 'com.android.application'
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
+    namespace 'com.sanda.truckdoc.client.updater'
+    compileSdk rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    buildFeatures {
+        buildConfig true
+    }
+
     signingConfigs {
         config {
-            keyAlias 'truckdoc-release-key'
-            keyPassword 'Ugup4TIC93'
-            storeFile file('/truckdoc-keystore.jks')
-            storePassword 'K9bPfqqu5I'
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
-    compileSdkVersion root.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+
     defaultConfig {
         applicationId "com.sanda.truckdoc.client.updater"
-        minSdkVersion root.ext.minSdkVersion
-        compileSdkVersion root.ext.compileSdkVersion
-        targetSdkVersion root.ext.targetSdkVersion
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 7
         versionName "2.5"
         signingConfig signingConfigs.config
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
-                arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
-            }
-        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            debuggable true
-            jniDebuggable false
             signingConfig signingConfigs.config
-            renderscriptDebuggable true
-            zipAlignEnabled false
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    lint {
+        abortOnError false
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
@@ -49,43 +55,34 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
-    buildToolsVersion '30.0.3'
 }
 
 android.applicationVariants.all { variant ->
     variant.outputs.all { output ->
-        outputFileName = "${applicationId}-${versionCode}.apk"
+        outputFileName = "${variant.applicationId}-${variant.versionCode}.apk"
     }
 }
 
-
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
     implementation 'org.jetbrains:annotations:19.0.0'
-    //dagger 2
-    implementation 'com.google.dagger:dagger:2.27'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
 
-    //to enable DaggerActivity, DaggerBroadcastReceiver, DaggerFragment etc classes
+    // Dagger 2 (versions aligned)
+    implementation 'com.google.dagger:dagger:2.35.1'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.35.1'
     implementation 'com.google.dagger:dagger-android:2.35.1'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.26'
-
-    //support libraries with dagger 2
-    implementation 'com.google.dagger:dagger-android-support:2.27'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.35.1'
+    implementation 'com.google.dagger:dagger-android-support:2.35.1'
 
     implementation 'commons-io:commons-io:2.4'
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.jakewharton.timber:timber:2.2.2'
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife:10.2.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'de.devland.esperandro:esperandro-api:2.2.0'
     annotationProcessor 'de.devland.esperandro:esperandro:2.2.0'
     implementation 'org.apache.commons:commons-lang3:3.8'
-    implementation "org.androidannotations:androidannotations-api:4.6.0"
-    annotationProcessor "org.androidannotations:androidannotations:4.6.0"
 }

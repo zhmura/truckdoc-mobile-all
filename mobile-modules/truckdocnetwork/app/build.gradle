@@ -1,27 +1,27 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion '30.0.3'
+    namespace 'com.sanda.truckdoc.network'
+    compileSdk rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lintOptions {
+    lint {
         abortOnError false
     }
 
     defaultConfig {
         minSdkVersion 26
-        compileSdkVersion 31
-        targetSdkVersion 31
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
+                arguments = ["resourcePackageName": android.namespace]
                 arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
             }
         }

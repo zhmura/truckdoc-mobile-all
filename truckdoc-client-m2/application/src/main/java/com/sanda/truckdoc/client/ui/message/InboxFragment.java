@@ -159,9 +159,7 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
                 if (extension.equals("pdf")) {
                     pdfExists = true;
                 }
-                if (extension.equals("jpeg") ||
-                        extension.equals("jpg") ||
-                        extension.equals("png")) {
+                if (FileHelper.isImageExtension(extension)) {
                     picsExists = true;
                 }
                 if (extension.equals("apk")) {
@@ -205,18 +203,9 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
         if (list != null && list.length > 0) {
             try {
                 File pic = new File(directory, list[0]);
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", pic);
-                    intent.setDataAndType(uri, "image/*");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                } else {
-                    intent.setDataAndType(Uri.parse(pic.getAbsolutePath()), "image/*");
-                    intent = Intent.createChooser(intent, "Open File");
-                }
-                startActivity(intent);
+                // Render inline (animated GIFs play, pinch-to-zoom) instead of delegating
+                // to an external viewer.
+                FileViewerActivity.start(getActivity(), pic.getAbsolutePath());
             } catch (Exception e) {
                 showMessageToast(getResources().getString(R.string.cannot_open_file));
             }
@@ -272,20 +261,10 @@ public class InboxFragment extends Fragment implements MessageAdapter.ServiceMes
     private void showDocument(Integer messageId) {
         File directory = FileHelper.getIncomeDirectory(messageId, "pdf");
         String[] list = directory.list();
-        Intent intent;
         try {
             File pdf = new File(directory, list[0]);
-            intent = new Intent(Intent.ACTION_VIEW);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(this.getActivity()), "com.sanda.truckdoc.client.provider", pdf);
-                intent.setData(uri);
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                intent.setDataAndType(Uri.parse(pdf.getAbsolutePath()), "application/pdf");
-                intent = Intent.createChooser(intent, "Open File");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }
-            startActivity(intent);
+            // Render the PDF inline (zoom, page swiping, share / open externally).
+            FileViewerActivity.start(getActivity(), pdf.getAbsolutePath());
         } catch (Exception e) {
             showMessageToast(getResources().getString(R.string.cannot_open_file));
         }

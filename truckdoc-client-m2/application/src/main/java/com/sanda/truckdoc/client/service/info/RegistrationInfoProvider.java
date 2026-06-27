@@ -19,6 +19,7 @@ import com.sanda.truckdoc.client.api.v3.configuration.model.app.features.Message
 import com.sanda.truckdoc.client.api.v3.configuration.model.device.DeviceInfo;
 import com.sanda.truckdoc.client.api.v3.configuration.model.device.Dimensions;
 import com.sanda.truckdoc.client.api.v3.configuration.model.sim.SimInfo;
+import com.sanda.truckdoc.client.util.FileHelper;
 
 import net.tribe7.common.collect.ImmutableList;
 
@@ -124,7 +125,11 @@ public class RegistrationInfoProvider {
         MessageFeatures messageFeatures = new MessageFeatures();
         messageFeatures.setCanReceiveMessages(true);
         messageFeatures.setCanSendMessage(true);
-        messageFeatures.setSupportedFileExtensions(ImmutableList.of("pdf", "jpeg", "png", "jpg"));
+        messageFeatures.setSupportedFileExtensions(
+                ImmutableList.<String>builder()
+                        .add("pdf")
+                        .addAll(FileHelper.SUPPORTED_IMAGE_EXTENSIONS)
+                        .build());
         messageFeatures.setContactListSupport(true);
         supportedFeatures.setMessageFeatures(messageFeatures);
 

@@ -1,19 +1,22 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
-    publishNonDefault true
+    namespace 'com.sanda.checker'
+    compileSdk rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         minSdkVersion 21
-        compileSdkVersion 31
-        targetSdkVersion 31
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["resourcePackageName": android.defaultConfig.applicationId]
+                arguments = ["resourcePackageName": android.namespace]
                 arguments = ["androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()]
             }
         }
@@ -30,10 +33,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lintOptions {
+    lint {
         abortOnError false
     }
-    buildToolsVersion '30.0.3'
 }
 
 dependencies {

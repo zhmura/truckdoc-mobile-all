@@ -47,10 +47,11 @@ import androidx.core.content.ContextCompat;
 import rx.Observable;
 import timber.log.Timber;
 
+import com.sanda.truckdoc.client.updater.utils.DeviceHelper;
+
 import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findUpdaterVersionCode;
 import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findVersionCode;
 import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.findVersionName;
-import static com.sanda.truckdoc.client.updater.utils.DeviceHelper.getDeviceId;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -109,7 +110,7 @@ public class UpdaterIntentService extends IntentService {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startInForeground() {
         Intent notificationIntent = new Intent(this, UpdaterIntentService.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationintent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle("truckdoc")
@@ -169,7 +170,7 @@ public class UpdaterIntentService extends IntentService {
             Toast.makeText(this, "Target package not set", Toast.LENGTH_SHORT).show();
             Timber.e("Target package not set for updater. Skipping update request...");
         } else {
-            DeviceIds ids = getDeviceId(this);
+            DeviceIds ids = DeviceHelper.getDeviceId(this);
             backend.checkUpdates(prefs.targetPackage(),
                     findVersionName(prefs.targetPackage(), this),
                     android.os.Build.VERSION.SDK_INT,
@@ -326,7 +327,7 @@ public class UpdaterIntentService extends IntentService {
             NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             return netInfo != null && netInfo.isConnectedOrConnecting();
         } else {
-            DeviceIds ids = getDeviceId(this);
+            DeviceIds ids = DeviceHelper.getDeviceId(this);
             NetworkInfo netInfo = cm.getActiveNetworkInfo();
             return netInfo != null && netInfo.isConnectedOrConnecting();
         }

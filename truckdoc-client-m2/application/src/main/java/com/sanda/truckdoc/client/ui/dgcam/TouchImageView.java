@@ -104,6 +104,21 @@ public class TouchImageView extends ImageView {
         maxScale = x;
     }
 
+    /**
+     * Resets any pan/zoom and re-fits the current drawable to the view. Safe to call after the
+     * drawable is set asynchronously (e.g. by Glide) or replaced (e.g. a new PDF page bitmap).
+     */
+    public void resetZoom() {
+        saveScale = 1f;
+        // Force onMeasure to recompute the fit-to-screen matrix on the next layout pass.
+        oldMeasuredWidth = 0;
+        oldMeasuredHeight = 0;
+        matrix.reset();
+        setImageMatrix(matrix);
+        requestLayout();
+        invalidate();
+    }
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override

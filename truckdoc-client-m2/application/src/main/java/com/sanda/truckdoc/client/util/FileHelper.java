@@ -19,8 +19,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -29,6 +31,22 @@ import static com.sanda.truckdoc.client.util.timber.FileLoggingTree.LOG_STORAGE;
 public class FileHelper {
 
     private static final String ROOT_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+    /**
+     * Image file extensions the client can receive and display. Single source of truth used
+     * both by the inbox (to decide how to open an attachment) and by the registration info
+     * (to advertise supported file types to the server).
+     */
+    public static final List<String> SUPPORTED_IMAGE_EXTENSIONS =
+            Arrays.asList("jpeg", "jpg", "png", "gif");
+
+    /**
+     * @return true if the given file extension is a supported, displayable image type.
+     */
+    public static boolean isImageExtension(String extension) {
+        return extension != null
+                && SUPPORTED_IMAGE_EXTENSIONS.contains(extension.toLowerCase(Locale.ROOT));
+    }
 
     public static final String PARENT_DIRECTORY = ROOT_DIRECTORY + "/TruckDoc/";
     public static final String INPUT_DIRECTORY = ROOT_DIRECTORY + "/TruckDoc/Outcome/";

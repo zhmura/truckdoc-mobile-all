@@ -49,7 +49,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import app.camera.tdoc.camera_library.Views.GalleryViewPager;
-import uk.co.senab.photoview.PhotoView;
+import com.github.chrisbanes.photoview.PhotoView;
 
 
 public class GalleryActivity extends Activity implements View.OnClickListener {

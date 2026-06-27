@@ -12,9 +12,9 @@ import com.sanda.truckdoc.client.ui.floating.ApnWaiterReceiver;
 import androidx.annotation.NonNull;
 import timber.log.Timber;
 
-import static com.crashlytics.android.Crashlytics.TAG;
-
 public class ConnectionRestoredReceiverForFileUpload extends ConnectionRestoredReceiver {
+
+    private static final String TAG = "ConnectionRestoredReceiverForFileUpload";
 
     public static final String ACTION_FINISH = "com.sanda.truckdoc.client.action.ConnectionRestoredReceiverForFileUpload";
 

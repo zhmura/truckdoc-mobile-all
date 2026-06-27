@@ -85,7 +85,7 @@ public class NotificationHelper {
     }
 
     private PendingIntent getPendingIntent() {
-        return PendingIntent.getActivity(context, 0, new Intent(), 0);
+        return PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     }
 
     public void uploadFile(long id, String filename, int progress, boolean autoCancel) {

@@ -1,5 +1,6 @@
-include ':standout', ':app', ':checker', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api'
+include ':standout', ':app', ':checker', ':truckdocnetwork', ':camera', ':truckdoc-util', ':truckdoc-client-api', ':truckdoc-client-updater'
 project(':app').projectDir = new File(settingsDir, 'truckdoc-client-m2/application')
+project(':truckdoc-client-updater').projectDir = new File(settingsDir, 'truckdoc-client-m2/truckdoc-client-updater')
 project(':checker').projectDir = new File(settingsDir, 'truckdoc-client-m2/checker')
 project(':standout').projectDir = new File(settingsDir, 'truckdoc-client-m2/standout')
 project(':truckdocnetwork').projectDir = new File(settingsDir, 'mobile-modules/truckdocnetwork/app')
