@@ -27,7 +27,7 @@ jsonSchema2Pojo {
 
 dependencies {
     implementation project(":truckdoc-util")
-    implementation "com.fasterxml.jackson.core:jackson-annotations:2.14.2"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.19.4"
     implementation "org.jetbrains:annotations:20.1.0"
     implementation "org.apache.commons:commons-lang3:3.12.0"
     // jsonschema2pojo emits `@javax.annotation.Generated`, removed from the JDK in Java 9+.
